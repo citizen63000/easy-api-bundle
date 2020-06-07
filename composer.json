@@ -1,5 +1,5 @@
 {
-  "name": "easy-api-bundle",
+  "name": "citizen63000/easy-api-bundle",
   "description": "Complete API bundle to create ",
   "keywords": ["api", "rest"],
   "type": "symfony-bundle",
