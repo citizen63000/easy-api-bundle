@@ -79,6 +79,8 @@ abstract class AbstractApiController extends FOSRestController
      */
     protected function getEntityListAction(string $entityClass = null)
     {
+        $entityClass = $entityClass ?? static::$entityClass;
+
         return $this->getDoctrine()->getRepository($entityClass)->findAll();
     }
 
@@ -89,6 +91,8 @@ abstract class AbstractApiController extends FOSRestController
      */
     protected function getEntityListOrderedAction(string $entityClass = null)
     {
+        $entityClass = $entityClass ?? static::$entityClass;
+
         return $this->getDoctrine()->getRepository($entityClass)->findBy([], ['rank' => 'ASC']);
     }
 

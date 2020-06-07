@@ -49,7 +49,7 @@ class GETLIST{{ entity_name }}Test extends {{ abstractContextName }}
     {
         $token = self::loginHttp('[API-TESTS-NO-RULES]', 'u-norules-pwd');
             $apiOutput = $this->httpGet(['name' => '{{ route_name_list }}',
-            'params' => ['customerId' => 1]],
+            'params' => ['id' => 1]],
             false,
             Format::JSON,
             ['Authorization' => self::getAuthorizationTokenPrefix()." {$token}"]
