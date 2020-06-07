@@ -1,0 +1,60 @@
+<?php
+
+namespace Tests\{{ bundle_name }}\{{ context_name }}\{{ entity_name }};
+
+use EasyApiBundle\Util\ApiProblem;
+use Symfony\Component\HttpFoundation\Response;
+use Tests\Format;
+
+class GETLIST{{ entity_name }}Test extends {{ abstractContextName }}
+{
+    protected static $executeSetupOnAllTest = false;
+
+    /**
+     * GET - Nominal case.
+     */
+    public function testGet()
+    {
+        $expectedResult = self::createGETLISTResponseData();
+
+        $apiOutput = $this->httpGet(['name' => '{{ route_name_list }}']);
+
+        self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
+        $results = $apiOutput->getData();
+        foreach ($results as $key => $result) {
+            static::assertArrayHasKey('createdAt', $result);
+            static::assertArrayHasKey('updatedAt', $result);
+            unset($results[$key]['createdAt'], $results[$key]['updatedAt']);
+        }
+        self::assertEquals($expectedResult, $results);
+    }
+
+    /**
+    * GET - Error case - 401 - Without authentication.
+    */
+    public function testGet401()
+    {
+        $apiOutput = $this->httpGet([
+            'name' => '{{ route_name_list }}'],
+            false
+        );
+
+        self::assertEquals(Response::HTTP_UNAUTHORIZED, $apiOutput->getStatusCode());
+    }
+
+    /**
+    * GET - Error case - 403 - Missing list right.
+    */
+    public function testGetWithoutRightL403()
+    {
+        $token = self::loginHttp('[API-TESTS-NO-RULES]', 'u-norules-pwd');
+            $apiOutput = $this->httpGet(['name' => '{{ route_name_list }}',
+            'params' => ['customerId' => 1]],
+            false,
+            Format::JSON,
+            ['Authorization' => self::getAuthorizationTokenPrefix()." {$token}"]
+        );
+
+        static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
+    }
+}

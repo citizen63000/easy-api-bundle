@@ -1,0 +1,35 @@
+{{ route_name_prefix }}_{{ entity_route_name }}_get:
+    path: /{{ entity_url_name }}/{id}
+    defaults: { _controller: {{ bundle_name }}:{{ context_name }}\{{ entity_name }}:get }
+    methods: GET
+    requirements:
+        id: '\d+'
+
+{{ route_name_prefix }}_{{ entity_route_name }}_list:
+    path: /{{ entity_url_name }}
+    defaults: { _controller: {{ bundle_name }}:{{ context_name }}\{{ entity_name }}:list }
+    methods: GET
+
+{{ route_name_prefix }}_{{ entity_route_name }}_create:
+    path: /{{ entity_url_name }}
+    defaults: { _controller: {{ bundle_name }}:{{ context_name }}\{{ entity_name }}:create }
+    methods: POST
+
+{{ route_name_prefix }}_{{ entity_route_name }}_update:
+    path: /{{ entity_url_name }}/{id}
+    defaults: { _controller: {{ bundle_name }}:{{ context_name }}\{{ entity_name }}:update }
+    methods: PUT
+    requirements:
+        id: '\d+'
+
+{{ route_name_prefix }}_{{ entity_route_name }}_delete:
+    path: /{{ entity_url_name }}/{id}
+    defaults: { _controller: {{ bundle_name }}:{{ context_name }}\{{ entity_name }}:delete }
+    methods: DELETE
+    requirements:
+        id: '\d+'
+
+{{ route_name_prefix }}_{{ entity_route_name }}_describe_form:
+    path: /{{ entity_url_name }}/describeForm
+    defaults: { _controller: {{ bundle_name }}:{{ context_name }}\{{ entity_name }}:describeForm }
+    methods: GET

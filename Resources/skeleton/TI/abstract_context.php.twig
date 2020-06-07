@@ -1,0 +1,396 @@
+<?php
+
+namespace Tests\{{ bundle_name }}\{{ context_name }}\{{ entity_name }};
+
+use \Tests\{{ bundle_name }}\Abstract{{ bundle_name }}Test;
+{% if(entity_parent_name is not null) %}
+use {{ entity_parent_use }};
+{% else %}
+use {{ entity_use }};
+{% endif %}
+
+
+abstract class {{ abstractContextName }} extends Abstract{{ bundle_name }}Test
+{
+    const ENTITY_ID_1 = {{ fixtures.id1 }};
+    const ENTITY_ID_2 = {{ fixtures.id2 }};
+
+    protected static $additionalInitFiles = ['{{ additionalInitFile }}'];
+
+    /**
+     * @return array
+     */
+    protected static function getRequiredFields()
+    {
+        return [{{ requiredFieldsForArray|raw }}];
+    }
+
+    /**
+     * Create array of full fields of {{ entity_name }} entity
+     * @return array
+     */
+    protected static function createGETResponseData()
+    {
+        return [
+{% for fields in fixtures.get %}
+{% for name, field in fields %}
+{% if(name not in ['createdAt', 'updatedAt']) %}
+{% if(field.field.isNativeType == false) %}
+{% if(field.field.isReferential) %}
+    {% if (field.value.code) is defined %}
+            '{{ name }}' => ['code' => '{{ field.value.code }}', 'name' => '{{ field.value.name }}'],
+    {% else %}
+            '{{ name }}' => ['code' => '{{ field.value.id }}', 'name' => '{{ field.value.label }}'],
+    {% endif %}
+{% else %}
+            '{{ name }}' => ['id' => {{ field.value }}],
+{% endif %}
+{% elseif((name == 'id') or (name == 'code')) %}
+            '{{ name }}' => self::ENTITY_ID_1,
+{% elseif(field.type == 'boolean') %}
+            '{{ name }}' => {{ field.value ? 'true' : 'false' }},
+{% elseif(field.type == 'float') %}
+            '{{ name }}' => {{ field.value }},
+{% elseif(field.type == 'integer') %}
+            '{{ name }}' => {{ field.value }},
+{% else %}
+            '{{ name }}' => '{{ field.value }}',
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+        ];
+    }
+
+    /**
+     * Create array of full fields of {{ entity_name }} entity
+     * @return array
+     */
+    protected static function createGETLISTResponseData()
+    {
+        return  [
+            self::createGETResponseData(),
+            [
+{% for fields in fixtures.get2 %}
+{% for name, field in fields %}
+{% if(name not in ['createdAt', 'updatedAt']) %}
+{% if(field.field.isNativeType == false) %}
+{% if(field.field.isReferential) %}
+    {% if (field.value.code) is defined %}
+         '{{ name }}' => ['code' => '{{ field.value.code }}', 'name' => '{{ field.value.name }}'],
+    {% else %}
+         '{{ name }}' => ['code' => '{{ field.value.id }}', 'name' => '{{ field.value.label }}'],
+    {% endif %}
+{% else %}
+                '{{ name }}' => ['id' => {{ field.value }}],
+{% endif %}
+{% elseif((name == 'id') or (name == 'code')) %}
+                '{{ name }}' => self::ENTITY_ID_2,
+{% elseif(field.type == 'boolean') %}
+                '{{ name }}' => {{ field.value ? 'true' : 'false' }},
+{% elseif(field.type == 'float') %}
+                '{{ name }}' => {{ field.value }},
+{% elseif(field.type == 'integer') %}
+                '{{ name }}' => {{ field.value }},
+{% else %}
+                '{{ name }}' => '{{ field.value }}',
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+            ]
+        ];
+    }
+
+    /**
+     * Create array of full fields of {{ entity_name }} entity for post
+     * @return array
+     */
+    protected static function createPOSTData()
+    {
+        return [
+{% for fields in fixtures.post %}
+{% for name, field in fields %}
+{% if(name in formFields) %}
+{% if(field.field.isNativeType == false) %}
+{% if(field.field.isReferential) %}
+    {% if (field.value.code) is defined %}
+         '{{ name }}' => '{{ field.value.code }}',
+    {% else %}
+         '{{ name }}' => '{{ field.value.id }}',
+    {% endif %}
+{% else %}
+            '{{ name }}' => {{ field.value }},
+{% endif %}
+{% elseif(field.type == 'boolean') %}
+            '{{ name }}' => {{ field.value ? 'true' : 'false' }},
+{% elseif(field.type == 'float') %}
+            '{{ name }}' => {{ field.value }},
+{% elseif(field.type == 'integer') %}
+            '{{ name }}' => {{ field.value }},
+{% else %}
+            '{{ name }}' => '{{ field.value }}',
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+        ];
+    }
+
+    /**
+     * Create array of full fields of {{ entity_name }} entity
+     * @return array
+     */
+    protected static function createPOSTResponseData()
+    {
+        return [
+{% for fields in fixtures.post %}
+{% for name, field in fields %}
+{% if(name not in ['createdAt', 'updatedAt']) %}
+{% if(field.field.isNativeType == false) %}
+{% if(field.field.isReferential) %}
+    {% if (field.value.code) is defined %}
+         '{{ name }}' => ['code' => '{{ field.value.code }}', 'name' => '{{ field.value.name }}'],
+    {% else %}
+         '{{ name }}' => ['code' => '{{ field.value.id }}', 'name' => '{{ field.value.label }}'],
+    {% endif %}
+{% else %}
+            '{{ name }}' => ['id' => {{ field.value }}],
+{% endif %}
+{% elseif((name == 'id') or (name == 'code')) %}
+            '{{ name }}' => static::getLastId()+1,
+{% elseif(field.type == 'boolean') %}
+            '{{ name }}' => {{ field.value ? 'true' : 'false' }},
+{% elseif(field.type == 'float') %}
+            '{{ name }}' => {{ field.value }},
+{% elseif(field.type == 'integer') %}
+            '{{ name }}' => {{ field.value }},
+{% else %}
+            '{{ name }}' => '{{ field.value }}',
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+        ];
+    }
+
+    /**
+     * Create array of required fields of {{ entity_name }} entity for post
+     * @return array
+     */
+    protected static function createPOSTOnlyRequiredData()
+    {
+        return [
+{% for fields in fixtures.post %}
+{% for name, field in fields %}
+{% if(name in requiredFormFields) %}
+{% if(field.field.isNativeType == false) %}
+{% if(field.field.isReferential) %}
+            '{{ name }}' => '{{ field.value.code }}',
+{% else %}
+            '{{ name }}' => {{ field.value }},
+{% endif %}
+{% elseif(field.type == 'boolean') %}
+            '{{ name }}' => {{ field.value ? 'true' : 'false' }},
+{% elseif(field.type == 'float') %}
+            '{{ name }}' => {{ field.value }},
+{% elseif(field.type == 'integer') %}
+            '{{ name }}' => {{ field.value }},
+{% else %}
+            '{{ name }}' => '{{ field.value }}',
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+        ];
+    }
+
+    /**
+     * Create array of required fields of {{ entity_name }} entity
+     * @return array
+     */
+    protected static function createPOSTOnlyRequiredResponseData()
+    {
+        return [
+{% for fields in fixtures.post %}
+{% for name, field in fields %}
+{% if(name not in ['createdAt', 'updatedAt']) %}
+{% if(field.field.isNativeType == false) %}
+{% if(field.field.isReferential) %}
+    {% if (field.value.code) is defined %}
+         '{{ name }}' => ['code' => '{{ field.value.code }}', 'name' => '{{ field.value.name }}'],
+    {% else %}
+         '{{ name }}' => ['code' => '{{ field.value.id }}', 'name' => '{{ field.value.label }}'],
+    {% endif %}
+{% else %}
+            '{{ name }}' => ['id' => {{ field.value }}],
+{% endif %}
+{% elseif((name == 'id') or (name == 'code')) %}
+            '{{ name }}' => static::getLastId()+1,
+{% elseif(field.type == 'boolean') %}
+            '{{ name }}' => {{ field.value ? 'true' : 'false' }},
+{% elseif(field.type == 'float') %}
+            '{{ name }}' => {{ field.value }},
+{% elseif(field.type == 'integer') %}
+            '{{ name }}' => {{ field.value }},
+{% else %}
+            '{{ name }}' => '{{ field.value }}',
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+        ];
+    }
+
+    /**
+     * Create array of full fields of {{ entity_name }} entity
+     * @return array
+     */
+    protected static function createPUTData()
+    {
+        return [
+{% for fields in fixtures.put %}
+{% for name, field in fields %}
+{% if(name in formFields) %}
+{% if(field.field.isNativeType == false) %}
+{% if(field.field.isReferential) %}
+    {% if (field.value.code) is defined %}
+         '{{ name }}' => '{{ field.value.code }}',
+    {% else %}
+         '{{ name }}' => '{{ field.value.id }}',
+    {% endif %}
+{% else %}
+            '{{ name }}' => {{ field.value }},
+{% endif %}
+{% elseif(field.type == 'boolean') %}
+            '{{ name }}' => {{ field.value ? 'true' : 'false' }},
+{% elseif(field.type == 'float') %}
+            '{{ name }}' => {{ field.value }},
+{% elseif(field.type == 'integer') %}
+            '{{ name }}' => {{ field.value }},
+{% else %}
+            '{{ name }}' => '{{ field.value }}',
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+        ];
+    }
+
+    /**
+     * Create array of full fields of {{ entity_name }} entity
+     * @return array
+     */
+    protected static function createPUTResponseData()
+    {
+        return [
+{% for fields in fixtures.put %}
+{% for name, field in fields %}
+{% if(name not in ['createdAt', 'updatedAt']) %}
+{% if(field.field.isNativeType == false) %}
+{% if(field.field.isReferential) %}
+    {% if (field.value.code) is defined %}
+         '{{ name }}' => ['code' => '{{ field.value.code }}', 'name' => '{{ field.value.name }}'],
+    {% else %}
+         '{{ name }}' => ['code' => '{{ field.value.id }}', 'name' => '{{ field.value.label }}'],
+    {% endif %}
+{% else %}
+            '{{ name }}' => ['id' => {{ field.value }}],
+{% endif %}
+{% elseif((name == 'id') or (name == 'code')) %}
+            '{{ name }}' => self::ENTITY_ID_1,
+{% elseif(field.type == 'boolean') %}
+            '{{ name }}' => {{ field.value ? 'true' : 'false' }},
+{% elseif(field.type == 'float') %}
+            '{{ name }}' => {{ field.value }},
+{% elseif(field.type == 'integer') %}
+            '{{ name }}' => {{ field.value }},
+{% else %}
+            '{{ name }}' => '{{ field.value }}',
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+        ];
+    }
+
+    /**
+     * Create array of only required data of {{ entity_name }} entity
+     * @return array
+     */
+    protected static function createPutOnlyRequiredData()
+    {
+        return [
+{% for fields in fixtures.put %}
+{% for name, field in fields %}
+{% if(name in requiredFormFields and field.field.isPrimary == false) %}
+{% if(field.field.isNativeType == false) %}
+{% if(field.field.isReferential) %}
+            '{{ name }}' => '{{ field.value.code }}',
+{% else %}
+            '{{ name }}' => {{ field.value }},
+{% endif %}
+{% elseif(field.type == 'boolean') %}
+            '{{ name }}' => {{ field.value ? 'true' : 'false' }},
+{% elseif(field.type == "float") %}
+            '{{ name }}' => {{ field.value }},
+{% elseif(field.type == 'integer') %}
+            '{{ name }}' => {{ field.value }},
+{% else %}
+            '{{ name }}' => '{{ field.value }}',
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+        ];
+    }
+
+    /**
+     * Create array of only required data of {{ entity_name }} entity
+     * @return array
+     */
+    protected static function createPutOnlyRequiredResponseData()
+    {
+        return [
+{% for fields in fixtures.put %}
+{% for name, field in fields %}
+{% if(name not in ['createdAt', 'updatedAt']) %}
+{% if(field.field.isNativeType == false) %}
+{% if(field.field.isReferential) %}
+    {% if (field.value.code) is defined %}
+         '{{ name }}' => ['code' => '{{ field.value.code }}', 'name' => '{{ field.value.name }}'],
+    {% else %}
+         '{{ name }}' => ['code' => '{{ field.value.id }}', 'name' => '{{ field.value.label }}'],
+    {% endif %}
+{% else %}
+            '{{ name }}' => ['id' => {{ field.value }}],
+{% endif %}
+{% elseif((name == 'id') or (name == 'code')) %}
+            '{{ name }}' => self::ENTITY_ID_1,
+{% elseif(field.type == 'boolean') %}
+            '{{ name }}' => {{ field.value ? 'true' : 'false' }},
+{% elseif(field.type == "float") %}
+            '{{ name }}' => {{ field.value }},
+{% elseif(field.type == 'integer') %}
+            '{{ name }}' => {{ field.value }},
+{% else %}
+            '{{ name }}' => '{{ field.value }}',
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+        ];
+    }
+
+    /**
+     * @return int
+     */
+    protected static function getLastId()
+    {
+{% if(entity_parent_name is not null) %}
+        return static::getLastEntityId({{ entity_parent_name }}::class);
+{% else %}
+        return static::getLastEntityId({{ entity_name }}::class);
+{% endif %}
+    }
+}

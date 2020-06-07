@@ -1,0 +1,2 @@
+{% for columnName in table.columns %}"{{ columnName|raw }}"{% if loop.last == false %},{% endif %}{% endfor %}
+{% for values in table.values %}{{ "\n" }}{% for value in values %}"{{ value|raw }}"{% if loop.last == false %},{% endif %}{% endfor %}{% endfor %}

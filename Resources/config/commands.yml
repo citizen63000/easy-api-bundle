@@ -1,0 +1,6 @@
+#services:
+#  # JWT AUTHENTICATION_SUCCESS - Success login
+#  app.api.event.jwt_authentication_success_listener:
+#    class: EasyApiBundle\Command\MakeEntityCommand
+#    tags:
+#      - { name: 'console.command', command: 'api:make:entity' }

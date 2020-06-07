@@ -1,0 +1,95 @@
+services:
+  app.jwt_authentication.jws_provider:
+    class: EasyApiBundle\Services\JWS\JWSProvider
+    arguments:
+      - '@lexik_jwt_authentication.key_loader'
+      - '%lexik_jwt_authentication.encoder.crypto_engine%'
+      - '%lexik_jwt_authentication.encoder.signature_algorithm%'
+      - '%lexik_jwt_authentication.token_ttl%'
+      - '%jwt_token_authorization_header_prefix%'
+      - '@security.token_storage'
+      - '@doctrine.orm.entity_manager'
+      - '%easy_api.user_class%'
+    autowiring_types: Lexik\Bundle\JWTAuthenticationBundle\Services\JWSProvider\JWSProviderInterface
+
+  app.jwt_authentication.encoder:
+    parent: 'lexik_jwt_authentication.encoder.abstract'
+    arguments: ['@app.jwt_authentication.jws_provider']
+    autowiring_types: Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface
+
+  # JWT AUTHENTICATION_SUCCESS - Success login
+  app.event.jwt_authentication_success_listener:
+    class: EasyApiBundle\EventListener\JWTAuthenticatedListener
+    arguments: ['@doctrine.orm.entity_manager', '@router.request_context', '@request_stack', '%jwt_token_ttl%', '@service_container', '@security.encoder_factory']
+    tags:
+      - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccessResponse }
+
+  # JWT JWT_AUTHENTICATED - Token used
+  app.event.jwt_authenticated_listener:
+    class: EasyApiBundle\EventListener\JWTAuthenticatedListener
+    arguments: ['@doctrine.orm.entity_manager', '@router.request_context', '@request_stack', '%jwt_token_ttl%', '@service_container', '@security.encoder_factory']
+    tags:
+      - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_authenticated, method: onJWTAuthenticated }
+
+  # JWT AUTHENTICATION_FAILURE
+  app.event.authentication_failure_listener:
+    class: EasyApiBundle\EventListener\JWTFailureListener
+    tags:
+      - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_failure, method: onAuthenticationFailureResponse }
+
+  # JWT JWT_INVALID
+  app.event.jwt_invalid_listener:
+    class: EasyApiBundle\EventListener\JWTFailureListener
+    tags:
+      - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_invalid, method: onJWTInvalid }
+
+  # JWT JWT_NOT_FOUND
+  app.event.jwt_not_found_listener:
+    class: EasyApiBundle\EventListener\JWTFailureListener
+    tags:
+      - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_not_found, method: onJWTNotFound }
+
+  # JWT JWT_EXPIRED
+  app.event.jwt_expired_listener:
+    class: EasyApiBundle\EventListener\JWTFailureListener
+    tags:
+      - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_expired, method: onJWTExpired }
+
+  # Form errors serializer
+  app.form_errors_serializer:
+    class: EasyApiBundle\Form\Serializer\FormErrorsSerializer
+    arguments: ['@logger']
+    public: true
+#
+##  # Anonymous data manager
+##  app.anonymous_data_manager:
+##    class: EasyApiBundle\Util\AnonymousDataManager
+##    arguments: ['@doctrine.orm.entity_manager', '@lexik_jwt_authentication.encoder']
+#
+#  #  # Mailer
+#  #  app_mailer:
+#  #    class: EasyApiBundle\Services\Mailer\AppMailer
+#  #    arguments: ['@service_container', '@security.token_storage']
+#
+  app.api_exception_subscriber:
+    class: EasyApiBundle\EventListener\ApiExceptionSubscriber
+    arguments: ['@logger', '%kernel.environment%']
+    tags:
+      - { name: kernel.event_subscriber }
+#
+#  # Upload file service
+#  app.service.media_uploader:
+#    class: EasyApiBundle\Services\Files\FileUploader
+#    arguments: ['@service_container', '@security.token_storage']
+#
+
+  # Manage users
+  app.user.manager:
+    class: EasyApiBundle\Services\User\UserManager
+    public: true
+    arguments: ['@service_container', '@security.token_storage']
+
+  app.user.tracking:
+    class: EasyApiBundle\Services\User\Tracking
+    public: true
+    arguments: ['@service_container', '@security.token_storage']

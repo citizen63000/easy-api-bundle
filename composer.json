@@ -1,0 +1,63 @@
+{
+  "name": "easy-api-bundle",
+  "description": "Complete API bundle to create ",
+  "keywords": ["api", "rest"],
+  "type": "symfony-bundle",
+  "authors": [
+    {
+      "name": "citizen63000"
+    }
+  ],
+  "require": {
+    "php": "^7.2",
+    "symfony/symfony": "^3.4",
+    "symfony/console": "^3.4",
+    "symfony/monolog-bundle": "^3.3",
+    "symfony/swiftmailer-bundle": "^3.2",
+    "sensio/distribution-bundle": "^5.0.24",
+    "sensio/framework-extra-bundle": "^5.3",
+    "incenteev/composer-parameter-handler": "^2.0",
+    "doctrine/orm": "^2.6",
+    "doctrine/doctrine-bundle": "^1.10",
+    "doctrine/doctrine-cache-bundle": "^1.3",
+    "stof/doctrine-extensions-bundle": "^1.3",
+    "jms/di-extra-bundle": "~1.9",
+    "jms/security-extra-bundle": "~1.6",
+    "friendsofsymfony/user-bundle": "~2.0",
+    "friendsofsymfony/rest-bundle": "2.1.*",
+    "friendsofsymfony/http-cache": "~1.4",
+    "friendsofsymfony/http-cache-bundle": "~1.3",
+    "lexik/jwt-authentication-bundle": "2.4.*",
+    "gesdinet/jwt-refresh-token-bundle": "^0.7",
+    "nelmio/api-doc-bundle": "^3.6",
+    "nelmio/cors-bundle": "^1.5",
+    "zircote/swagger-php": "~2.0",
+    "vich/uploader-bundle": "^1.8",
+    "oneup/flysystem-bundle": "^3.0",
+    "whichbrowser/parser": "^2.0",
+    "thadafinser/user-agent-parser": "^2.0",
+    "ramsey/uuid-doctrine": "^1.6"
+  },
+  "require-dev": {
+    "guzzlehttp/psr7": "^1.3",
+    "php-http/guzzle6-adapter": "^1.1",
+    "symfony/phpunit-bridge": "^3.0",
+    "phpunit/phpunit": "6.*"
+  },
+  "config": {
+    "platform": {
+      "php": "7.2"
+    },
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "EasyApiBundle\\": ""
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "3.2.x-dev"
+    }
+  }
+}
