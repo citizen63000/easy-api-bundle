@@ -78,9 +78,8 @@ class ApiOutput
     public static function createFromResponseInterface(ResponseInterface $response, $format)
     {
         $newResponse = new Response($response->getBody()->getContents(), $response->getStatusCode(), $response->getHeaders());
-        $apiOutput = new ApiOutput($newResponse ,$format);
 
-        return $apiOutput;
+        return new ApiOutput($newResponse ,$format);
     }
 
     /**

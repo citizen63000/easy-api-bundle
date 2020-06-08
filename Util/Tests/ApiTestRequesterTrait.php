@@ -111,17 +111,22 @@ trait ApiTestRequesterTrait
 
         $client->request($method, $url, [], $files, $server, $body);
 
+        putenv('SHELL_VERBOSITY'); // is set to 3 when kernel debug
+        unset($_ENV['SHELL_VERBOSITY'], $_SERVER['SHELL_VERBOSITY']);
+
         $profiler = $client->getProfile();
         if(!$profiler) {
-            throw new \Exception('You must enable the profiler in the configuration to use it.');
-        } else {
-            $profiler = null;
+            if(!static::$container->has('profiler')) {
+                throw new \Exception('You must enable the profiler in the configuration to use it.');
+            } else {
+                throw new \Exception('Impossible to load the profiler in the client.');
+            }
         }
 
         $output = new ApiOutput($client->getResponse(), $formatOut, $profiler);
 
         self::logDebug(
-            "\e[33m[API]\e[0m\t🌐 [\e[33m".strtoupper($method)."\e[0m]".(strlen($method) > 3 ? "\t" : "\t\t")."\e[34m".$url."\e[0m"
+            "\e[33m[API]\e[0m\t🌐 [\e[33m".strtoupper($method)."\e[0m]".(strlen($method) > 3 ? "\t" : "\t\t")."\e[34m{$url}\e[0m"
             .((null !== $content && self::DEBUG_LEVEL_ADVANCED === static::$debugLevel) ? "\n\t\t\tSubmitted data : \e[33m{$body}\e[0m" : '')
             ."\n\t\t\tStatus : \e[33m".$output->getResponse()->getStatusCode()
             ."\e[0m\n\t\t\tResponse : \e[33m".$output->getData(true)."\e[0m"
