@@ -20,7 +20,6 @@ class FormGenerator extends AbstractGenerator
     public function generate(string $bundle, string $context, string $entityName, string $parent = null, bool $dumpExistingFiles = false)
     {
         $this->config = $this->loadEntityConfig($entityName, $bundle, $context);
-
         $destinationDir = "src/{$this->config->getBundleName()}/Form/Type/".($this->config->getContextName() ? $this->config->getContextName().'/' : '');
         $filename = "{$this->config->getEntityName()}Type.php";
 
@@ -50,7 +49,7 @@ class FormGenerator extends AbstractGenerator
         }
 
         $content['namespace'] = "{$bundle}\\Form\\Type".(!empty($context) ? "\\{$context}" : '');
-        $content['entityNamespace'] = "{$bundle}\\Entity".(!empty($context) ? "\\{$context}" : '');
+        $content['entityNamespace'] = $this->config->getNamespace();//"{$bundle}\\Entity".(!empty($context) ? "\\{$context}" : '');
         $content['classname'] = $this->config->getEntityName();
         $content['extend'] = $this->config->getEntityType();
         $content['parent'] = $parent;

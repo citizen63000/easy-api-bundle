@@ -317,6 +317,7 @@ class EntityConfigLoader
                         if(count($annotation->options)) {
 
                         }
+                        break;
                     case 'Doctrine\ORM\Mapping\ManyToOne':
                 //                $newField->setEntityType($field['targetEntity']);
                 //                $newField->setType($newField->getEntityClassName());
@@ -366,9 +367,8 @@ class EntityConfigLoader
                 //            }
                         break;
                 }
-
-                $conf->addField($field);
             }
+            $conf->addField($field);
         }
 
         $conf->setEntityFileClassPath($filepath);
