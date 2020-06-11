@@ -21,6 +21,8 @@ use {{ entityNamespace }}\{{ classname }};
 class {{ classname }}Type extends {% if parent != '' %}{{ parent }} {% else %}AbstractApiType {% endif %}
 
 {
+    protected static $dataClass = {{ classname }}::class;
+
     /**
      * {@inheritdoc}
      */
@@ -77,23 +79,5 @@ class {{ classname }}Type extends {% if parent != '' %}{{ parent }} {% else %}Ab
 {% endfor %}
         ;
 {% endif %}
-    }
-
-   /**
-    * {@inheritdoc}
-    */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        parent::configureOptions($resolver);
-
-        $resolver->setDefault('data_class', {{ classname }}::class);
-    }
-
-    /**
-    * {@inheritdoc}
-    */
-    public function getBlockPrefix()
-    {
-        return '{{ classname[0:1]|lower ~ classname[1:] }}';
     }
 }

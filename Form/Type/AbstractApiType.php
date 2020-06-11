@@ -3,6 +3,7 @@
 
 namespace EasyApiBundle\Form\Type;
 
+use EasyApiBundle\Util\ApiProblem;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -10,6 +11,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 abstract class AbstractApiType extends AbstractType
 {
+    /**
+     * @var string
+     */
+    protected static $dataClass = null;
+
     /**
      * exemple :
      *  [
@@ -23,6 +29,9 @@ abstract class AbstractApiType extends AbstractType
      */
     protected static $groupsConditions = [];
 
+    /**
+     * @var
+     */
     protected static $validationGroups;
 
     /**
@@ -127,9 +136,18 @@ abstract class AbstractApiType extends AbstractType
         $resolver->setDefaults([
             'csrf_protection' => false,
             'extra_fields_message' => ApiProblem::FORM_EXTRA_FIELDS_ERROR,
+            'data_class' => static::$dataClass,
             'validation_groups' => function (FormInterface $form) {
                 return static::getValidationGroups($form->getData());
             },
         ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return lcfirst(substr(static::$dataClass, strrpos(static::$dataClass, '-') + 1));
     }
 }
