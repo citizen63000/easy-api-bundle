@@ -26,16 +26,18 @@ class EntityConfigLoader
      * @param string $bundle
      * @param string $entityName
      * @param string $tableName
+     * @param string|null $schema
      * @param string|null $parentEntityName
      * @param string|null $inheritanceType
      * @param string|null $context
      * @return EntityConfiguration
      * @throws \Doctrine\DBAL\DBALException
      */
-    public static function createEntityConfigFromDatabase(EntityManager $em, string $bundle ,string $entityName, string $tableName, string $parentEntityName = null, string $inheritanceType = null, string $context =null)
+    public static function createEntityConfigFromDatabase(EntityManager $em, string $bundle ,string $entityName, string $tableName, string $schema = null, string $parentEntityName = null, string $inheritanceType = null, string $context =null)
     {
         $config = new EntityConfiguration();
         $config->setTableName($tableName);
+        $config->setSchema($schema);
         $config->setEntityName($entityName);
 
         // namespace
@@ -52,7 +54,7 @@ class EntityConfigLoader
 
         // fields
         $dbLoader = new DatabaseConfigurationLoader($em);
-        $tableDescription = $dbLoader->load($tableName);
+        $tableDescription = $dbLoader->load($tableName, $schema);
         foreach ($tableDescription['columns'] as $column) {
 //            var_dump($column);
 
@@ -271,6 +273,22 @@ class EntityConfigLoader
         $conf = new EntityConfiguration();
         $r = new \ReflectionClass("{$namespace}\\{$classname}");
 
+        // class annotations
+        $reader = new AnnotationReader();
+        $annotations = $reader->getClassAnnotations($r);
+
+        foreach ($annotations as $annotation) {
+            switch (get_class($annotation)) {
+                case 'Doctrine\ORM\Mapping\Table)':
+                    $conf->setTableName($annotation->name);
+                    if(isset($annotation->schema)) {
+                        $conf->setSchema($annotation->schema);
+                    }
+                    break;
+            }
+        }
+
+        // fields annotations
         foreach ($r->getProperties() as $var) {
 
             $reader = new AnnotationReader();
@@ -500,7 +518,7 @@ class EntityConfigLoader
 
             foreach ($files as $file) {
 
-                if(is_dir("{$dir}{$file}") && '.' !== $file && '..' !== $file) {
+                if (is_dir("{$dir}{$file}") && '.' !== $file && '..' !== $file) {
 
                     if($path = self::findFile("{$dir}{$file}", $fileNameExpr)) {
                         return $path;
@@ -508,7 +526,7 @@ class EntityConfigLoader
                 }
 
                 if (preg_match($fileNameExpr, $file)) {
-                    return "{$dir}/{$file}";
+                    return '/' === $dir[strlen($dir)-1] ? "{$dir}{$file}" : "{$dir}/{$file}";
                 }
             }
         }

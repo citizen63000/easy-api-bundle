@@ -16,6 +16,11 @@ class EntityConfiguration
     /**
      * @var string
      */
+    protected $schema;
+
+    /**
+     * @var string
+     */
     protected $tableName;
 
     /**
@@ -71,7 +76,7 @@ class EntityConfiguration
     /**
      * @return string
      */
-    public function getEntityType()
+    public function getEntityType(): ?string
     {
         return $this->entityType;
     }
@@ -93,9 +98,25 @@ class EntityConfiguration
     }
 
     /**
+     * @return string
+     */
+    public function getSchema(): ?string
+    {
+        return $this->schema;
+    }
+
+    /**
+     * @param string $schema
+     */
+    public function setSchema(?string $schema): void
+    {
+        $this->schema = $schema;
+    }
+
+    /**
      * @return mixed
      */
-    public function getTableName()
+    public function getTableName(): ?string
     {
         return $this->tableName;
     }
@@ -103,7 +124,7 @@ class EntityConfiguration
     /**
      * @param mixed $tableName
      */
-    public function setTableName($tableName)
+    public function setTableName(?string $tableName): void
     {
         $this->tableName = $tableName;
     }
@@ -111,7 +132,7 @@ class EntityConfiguration
     /**
      * @return mixed
      */
-    public function getEntityName()
+    public function getEntityName(): string
     {
         return $this->entityName;
     }
@@ -119,7 +140,7 @@ class EntityConfiguration
     /**
      * @param mixed $entityName
      */
-    public function setEntityName($entityName)
+    public function setEntityName(string $entityName)
     {
         $this->entityName = $entityName;
     }

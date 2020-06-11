@@ -16,9 +16,7 @@ class EntityGenerator extends AbstractGenerator
     protected static $doctrineAnnotationPrefix = '@'.self::doctrineAnnotationAlias;
 
     /**
-     * @param null $parent
-     *
-     * @return array
+     * @throws \Exception
      */
     protected function generateContent()
     {
@@ -50,10 +48,11 @@ class EntityGenerator extends AbstractGenerator
         if($this->useDoctrineAnnotations) {
             $content['uses'][] = 'Doctrine\ORM\Mapping as '.self::doctrineAnnotationAlias;
             $content['classAnnotations'][] = static::$doctrineAnnotationPrefix.'\Entity()';
-            $content['classAnnotations'][] = static::$doctrineAnnotationPrefix.'\Table(name="'.$this->config->getTableName().'")';
+            $schema = $this->config->getSchema() ? "schema=\"`{$this->config->getSchema()}`\", ": '' ;
+            $content['classAnnotations'][] = static::$doctrineAnnotationPrefix."\\Table({$schema}name=\"`{$this->config->getTableName()}`\")";
         }
 
-        $content['uses'][] = 'Symfony\Component\Serializer\Annotation\Groups';
+        $content['uses'][] = 'Symfony\\Component\\Serializer\\Annotation\\Groups';
 
         foreach ($this->getConfig()->getFields() as $field) {
 
@@ -168,16 +167,17 @@ class EntityGenerator extends AbstractGenerator
      * @param string $bundle
      * @param string $tableName
      * @param string $entityName
+     * @param string|null $schema
      * @param string|null $parentName
-     * @param null $inheritanceType
+     * @param string|null $inheritanceType
      * @param string|null $context
      * @param bool $dumpExistingFiles
      * @return string
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function generate(string $bundle, string $tableName, string $entityName, string $parentName = null, $inheritanceType = null, string $context = null, bool $dumpExistingFiles = true)
+    public function generate(string $bundle, string $tableName, string $entityName, string $schema = null, string $parentName = null, string $inheritanceType = null, string $context = null, bool $dumpExistingFiles = true)
     {
-        $this->config = $this->loadEntityConfigFromDatabase($bundle, $entityName, $tableName, $parentName, $inheritanceType, $context);
+        $this->config = $this->loadEntityConfigFromDatabase($bundle, $entityName, $tableName, $schema, $parentName, $inheritanceType, $context);
 
         $destinationDir = str_replace('\\', '/', 'src\\'.$this->config->getNamespace().'\\');
         $filename = $this->config->getEntityName().'.php';

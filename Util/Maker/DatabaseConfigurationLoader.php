@@ -25,36 +25,41 @@ class DatabaseConfigurationLoader
 
     /**
      * @param string $tableName
+     * @param string $schema
      * @return array
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function load(string $tableName): array
+    public function load(string $tableName, string $schema = null): array
     {
         $informations = [];
-        $informations['columns'] = $this->loadColumns($tableName);
-        $informations['indexes'] = $this->loadIndexes($tableName);
+        $informations['columns'] = $this->loadColumns($tableName, $schema);
+        $informations['indexes'] = $this->loadIndexes($tableName, $schema);
 
         return $informations;
     }
 
     /**
      * @param string $tableName
+     * @param string $schema
      * @return array
      * @throws \Doctrine\DBAL\DBALException
      */
-    protected function loadColumns(string $tableName): array
+    protected function loadColumns(string $tableName, string $schema = null): array
     {
-        $stmt = $this->em->getConnection()->executeQuery("describe {$tableName}");
+        $tableName = $schema ? "`{$schema}`.`{$tableName}`" : "`{$tableName}`";
+        $stmt = $this->em->getConnection()->executeQuery(" DESCRIBE {$tableName}");
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     /**
      * @param string $tableName
+     * @param string $schema
      * @return array
      * @throws \Doctrine\DBAL\DBALException
      */
-    protected function loadIndexes(string $tableName): array
+    protected function loadIndexes(string $tableName, string $schema = null): array
     {
+        $tableName = $schema ? "`{$schema}`.`{$tableName}`" : "`{$tableName}`";
         $stmt = $this->em->getConnection()->executeQuery("SHOW INDEX FROM {$tableName}");
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }

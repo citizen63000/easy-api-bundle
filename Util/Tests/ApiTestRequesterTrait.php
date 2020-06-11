@@ -22,6 +22,9 @@ trait ApiTestRequesterTrait
      */
     protected static $jwsProvider;
 
+    /**
+     * @var bool
+     */
     protected static $useProfiler = false;
 
     /**

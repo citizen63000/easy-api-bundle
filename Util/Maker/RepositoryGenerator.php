@@ -33,7 +33,7 @@ class RepositoryGenerator extends AbstractGenerator
     {
         $this->config = $this->loadEntityConfig($entityName, $bundle, $context);
         $path = $this->config->getBundleName().'/Repository/'.($this->config->getContextName() ? $this->config->getContextName().'/' : '');
-        $this->config->setRepositoryClass($path.$this->config->getEntityName().'Repository');
+        $this->config->setRepositoryClass(str_replace('/', '\\', $path).$this->config->getEntityName().'Repository');
         $filename = $this->config->getEntityName().'Repository.php';
 
         $files = [];

@@ -57,15 +57,16 @@ class AbstractGenerator
      * @param string $bundle
      * @param string $entityName
      * @param string $tableName
+     * @param string|null $schema
      * @param string|null $parentEntityName
      * @param string|null $inheritanceType
      * @param string|null $context
      * @return mixed|EntityConfiguration
      * @throws \Doctrine\DBAL\DBALException
      */
-    protected function loadEntityConfigFromDatabase(string $bundle ,string $entityName, string $tableName, string $parentEntityName = null, string $inheritanceType = null, string $context =null)
+    protected function loadEntityConfigFromDatabase(string $bundle, string $entityName, string $tableName, string $schema = null, string $parentEntityName = null, string $inheritanceType = null, string $context =null)
     {
-        $this->config = EntityConfigLoader::createEntityConfigFromDatabase($this->getDoctrine()->getManager(), $bundle, $entityName, $tableName, $parentEntityName, $inheritanceType, $context);
+        $this->config = EntityConfigLoader::createEntityConfigFromDatabase($this->getDoctrine()->getManager(), $bundle, $entityName, $tableName, $schema, $parentEntityName, $inheritanceType, $context);
 
         return $this->config;
     }

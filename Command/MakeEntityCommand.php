@@ -24,6 +24,12 @@ final class MakeEntityCommand extends AbstractMakerCommand
                 'Entity name.'
             )
             ->addOption(
+                'schema',
+                'sc',
+                InputOption::VALUE_OPTIONAL,
+                'Schema name ex `my_schema` or `my_schema`.'
+            )
+            ->addOption(
                 'table_name',
                 'ta',
                 InputOption::VALUE_OPTIONAL,
@@ -82,6 +88,15 @@ final class MakeEntityCommand extends AbstractMakerCommand
         if(empty($tableName)) {
             $tableName = CaseConverter::convertCamelCaseToSnakeCase($entityName);
         }
+
+        $pieces = explode('.', $tableName);
+        if(2 === count($pieces)) {
+            $schema = $pieces[0];
+            $tableName = $pieces[1];
+        } else {
+            $schema = $input->getOption('schema');
+        }
+
         $parent = $input->getOption('parent');
         $inheritanceType = $input->getOption('inheritanceType');
         $dumpOption = $input->getOption('no-dump');
@@ -90,7 +105,7 @@ final class MakeEntityCommand extends AbstractMakerCommand
         // generate Entity class
         $output->writeln('------------- Generate Entity class -------------');
         $generator = new EntityGenerator($this->getContainer());
-        $filePath = $this->getParameter('kernel.project_dir').'/'.$generator->generate($bundle, $tableName, $entityName, $parent, $inheritanceType, $context, $dumpExistingFiles);
+        $filePath = $this->getParameter('kernel.project_dir').'/'.$generator->generate($bundle, $tableName, $entityName, $schema, $parent, $inheritanceType, $context, $dumpExistingFiles);
         $output->writeln("file://{$filePath} created.");
     }
 }
