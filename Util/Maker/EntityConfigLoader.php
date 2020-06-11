@@ -301,7 +301,7 @@ class EntityConfigLoader
 
                 switch (get_class($annotation)) {
                     case 'Doctrine\ORM\Mapping\Id':
-                        $field->isPrimary(true);
+                        $field->setIsPrimary(true);
                         break;
                     case 'Doctrine\ORM\Mapping\GeneratedValue':
                         $field->isAutoIncremented(true);
@@ -319,7 +319,7 @@ class EntityConfigLoader
                         }
                         break;
                     case 'Doctrine\ORM\Mapping\ManyToOne':
-                //                $newField->setEntityType($field['targetEntity']);
+                        $field->setEntityType($annotation->targetEntity);
                 //                $newField->setType($newField->getEntityClassName());
                         $field->setRelationType('manyToOne');
                         $field->setIsNativeType(false);
@@ -331,7 +331,7 @@ class EntityConfigLoader
                 //            }
                         break;
                     case 'Doctrine\ORM\Mapping\OneToOne':
-                //                $newField->setEntityType($field['targetEntity']);
+                        $field->setEntityType($annotation->targetEntity);
                 //                $newField->setType($newField->getEntityClassName());
                         $field->setRelationType('oneToOne');
                         $field->setIsNativeType(false);
@@ -344,7 +344,7 @@ class EntityConfigLoader
                         break;
                     case 'Doctrine\ORM\Mapping\OneToMany':
 //                      $newField->setType('\Doctrine\Common\Collections\ArrayCollection');
-//                      $newField->setEntityType($field['targetEntity']);
+                        $field->setEntityType($annotation->targetEntity);
                         $field->setRelationType('oneToMany');
                         $field->setIsNativeType(false);
                 //
@@ -356,7 +356,7 @@ class EntityConfigLoader
                         break;
                     case 'Doctrine\ORM\Mapping\ManyToMany':
 //                $newField->setType('\Doctrine\Common\Collections\ArrayCollection');
-//                $newField->setEntityType($field['targetEntity']);
+                        $field->setEntityType($annotation->targetEntity);
                         $field->setRelationType('manyToMany');
                         $field->setIsNativeType(false);
                 //
