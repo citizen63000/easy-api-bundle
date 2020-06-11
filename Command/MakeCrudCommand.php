@@ -56,7 +56,7 @@ final class MakeCrudCommand extends AbstractMakerCommand
         $dumpExistingFiles = !$dumpOption;
 
         // generate repository
-        $this->generateCrud($output, $bundle, null, $entityName, $dumpExistingFiles);
+        $this->generateCrud($output, $bundle, $entityName, null, null, $dumpExistingFiles);
 
     }
 }

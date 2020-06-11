@@ -4,6 +4,7 @@
 namespace EasyApiBundle\Command;
 
 use EasyApiBundle\Util\AbstractCommand;
+use EasyApiBundle\Util\Maker\CrudGenerator;
 use EasyApiBundle\Util\Maker\FormGenerator;
 use EasyApiBundle\Util\Maker\RepositoryGenerator;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
@@ -56,27 +57,25 @@ abstract class AbstractMakerCommand extends AbstractCommand
         $filePath = $generator->generate($bundle, $context, $entityName, $parent, $dumpExistingFiles);
         $output->writeln("file://{$filePath} created.\n");
     }
-//
-//    /**
-//     * @param OutputInterface $output
-//     * @param $bundle string
-//     * @param $context string
-//     * @param $entityName string
-//     * @param $parent string
-//     * @param $dumpExistingFiles boolean
-//     *
-//     * @throws \Twig\Error\Error
-//     */
-//    protected function generateCrud(OutputInterface $output, $bundle, $context, $entityName, $parent, $dumpExistingFiles = false)
-//    {
-//        $output->writeln("\n------------- Generate CRUD -------------");
-//        $generator = new CrudGenerator($this->getContainer());
-//        $filesPath = $generator->generate($bundle, $context, $entityName, $parent, $dumpExistingFiles);
-//        foreach ($filesPath as $type => $file) {
-//            $type = ucfirst($type);
-//            $output->writeln("{$type} {$file} created.");
-//        }
-//    }
+
+    /**
+     * @param OutputInterface $output
+     * @param $bundle string
+     * @param $context string
+     * @param $entityName string
+     * @param $parent string
+     * @param $dumpExistingFiles boolean
+     */
+    protected function generateCrud(OutputInterface $output, string $bundle, string $entityName, string $parent = null, $context = null, $dumpExistingFiles = false)
+    {
+        $output->writeln("\n------------- Generate CRUD -------------");
+        $generator = new CrudGenerator($this->getContainer());
+        $filesPath = $generator->generate($bundle, $context, $entityName, $parent, $dumpExistingFiles);
+        foreach ($filesPath as $type => $file) {
+            $type = ucfirst($type);
+            $output->writeln("{$type} file://{$file} created.");
+        }
+    }
 //
 //    /**
 //     * @param OutputInterface $output
