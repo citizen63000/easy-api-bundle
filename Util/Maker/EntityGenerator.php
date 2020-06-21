@@ -48,7 +48,7 @@ class EntityGenerator extends AbstractGenerator
         if($this->useDoctrineAnnotations) {
             $content['uses'][] = 'Doctrine\ORM\Mapping as '.self::doctrineAnnotationAlias;
             $content['classAnnotations'][] = static::$doctrineAnnotationPrefix.'\Entity()';
-            $schema = $this->config->getSchema() ? "schema=\"`{$this->config->getSchema()}`\", ": '' ;
+            $schema = $this->config->getSchema() ? "schema=\"{$this->config->getSchema()}\", ": '' ;
             $content['classAnnotations'][] = static::$doctrineAnnotationPrefix."\\Table({$schema}name=\"`{$this->config->getTableName()}`\")";
         }
 

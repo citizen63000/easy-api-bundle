@@ -42,7 +42,8 @@ class EntityConfigLoader
 
         // namespace
         if(null !== $context) {
-            $config->setNamespace("{$bundle}\Entity\\{$context}");
+            $contextNamespace = str_replace('/', '\\', $context);
+            $config->setNamespace("{$bundle}\Entity\\{$contextNamespace}");
         } else {
             $config->setNamespace("{$bundle}\Entity");
         }
@@ -153,18 +154,22 @@ class EntityConfigLoader
      */
     protected static function addManyToOneOrOneToOne(EntityConfiguration $config, string $columnName, string $referencedColumnName, string $entityName, string $bundle = null)
     {
-        $relationType = 'manyToOne';
-        $entityConfig = self::findAndCreateFromEntityName($entityName, $bundle);
-
-        if($entityConfig->hasField(lcfirst($config->getEntityName()))) {
-            $relationType = 'oneToOne';
+        if("{$config->getTableName()}_id" === $columnName) {
+            // self-referenced entity
+            $entityConfig = $config;
         } else {
-
-            // search unique index on this field
-
+            $entityConfig = self::findAndCreateFromEntityName($entityName, $bundle);
         }
 
         if(null !== $entityConfig) {
+
+            $relationType = 'manyToOne';
+            if($entityConfig->hasField(lcfirst($config->getEntityName()))) {
+                $relationType = 'oneToOne';
+            } else {
+                // @TODO search unique index on this field
+            }
+
             $newField = new entityField();
             $newField->setName(lcfirst($entityName));
             $newField->setEntityType($entityConfig->getFullName());
