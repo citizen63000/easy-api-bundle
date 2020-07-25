@@ -11,7 +11,7 @@ use {{ use }};
 
 use {{ entityNamespace }}\{{ classname }};
 
-class {{ classname }}Type extends {% if parent != '' %}{{ parent }} {% endif %}
+class {{ classname }}Type {% if parent != '' %}extends {{ parent }} {% endif %}
 
 {
     protected static $dataClass = {{ classname }}::class;

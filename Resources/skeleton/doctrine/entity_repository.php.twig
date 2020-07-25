@@ -2,9 +2,12 @@
 
 namespace {{ namespace }};
 
-use EasyApiBundle\Util\AbstractRepository;
+{% for use in uses %}
+use {{ use }};
+{% endfor %}
 
-class {{ class_name }} extends AbstractRepository
+class {{ class_name }} {% if parent != '' %}extends {{ parent }} {% endif %}
+
 {
 
 }

@@ -17,6 +17,10 @@ class RepositoryGenerator extends AbstractGenerator
         $content['class_name'] = $this->config->getEntityName().'Repository';
         $content['namespace'] = $this->config->getBundleName().'\Repository'.($this->config->getContextName() ? '\\'.$this->config->getContextName() : '');
 
+        $content['uses'] = [];
+        $content['uses'][] = $this->container->getParameter('easy_api.inheritance.repository');
+        $content['parent'] = EntityConfiguration::getEntityNameFromNamespace($this->container->getParameter('easy_api.inheritance.repository'));
+
         return $content;
     }
 

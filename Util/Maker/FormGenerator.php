@@ -50,8 +50,8 @@ class FormGenerator extends AbstractGenerator
             $content['uses'][] = $parent;
             $content['parent'] = $parent;
         } else {
-            $content['uses'][] = 'EasyApiBundle\Form\Type\AbstractApiType';
-            $content['parent'] = EntityConfiguration::getEntityNameFromNamespace('EasyApiBundle\Form\Type\AbstractApiType');
+            $content['uses'][] = $this->container->getParameter('easy_api.inheritance.form');
+            $content['parent'] = EntityConfiguration::getEntityNameFromNamespace($this->container->getParameter('easy_api.inheritance.form'));
         }
 
         $content['namespace'] = "{$bundle}\\Form\\Type".(!empty($context) ? "\\{$context}" : '');
