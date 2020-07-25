@@ -3,7 +3,6 @@
 
 namespace EasyApiBundle\Util\Maker;
 
-
 use EasyApiBundle\Model\Maker\EntityConfiguration;
 
 class RepositoryGenerator extends AbstractGenerator

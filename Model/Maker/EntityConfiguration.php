@@ -475,4 +475,15 @@ class EntityConfiguration
         }
         throw new \Exception("Unknow fieldname {$fieldName} to remove in configuration");
     }
+
+    /**
+     * @param string $namespace
+     * @return string
+     */
+    public static function getEntityNameFromNamespace(string $namespace)
+    {
+        $tab = explode('\\', $namespace);
+
+        return $tab[count($tab)-1];
+    }
 }

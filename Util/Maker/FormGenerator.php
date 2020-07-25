@@ -4,6 +4,7 @@
 namespace EasyApiBundle\Util\Maker;
 
 
+use EasyApiBundle\Model\Maker\EntityConfiguration;
 use EasyApiBundle\Model\Maker\EntityField;
 
 class FormGenerator extends AbstractGenerator
@@ -44,15 +45,19 @@ class FormGenerator extends AbstractGenerator
 
         if (null === $parent && $parentConfig = $this->getConfig()->getParentEntity()) {
             $content['uses'][] = "{$this->config->getBundleName()}\Form\Type\\".$parentConfig->getContextName().'\\'.$parentConfig->getEntityName().'Type';
+            $content['parent'] = $parentConfig->getEntityName();
         } elseif(null !== $parent) {
             $content['uses'][] = $parent;
+            $content['parent'] = $parent;
+        } else {
+            $content['uses'][] = 'EasyApiBundle\Form\Type\AbstractApiType';
+            $content['parent'] = EntityConfiguration::getEntityNameFromNamespace('EasyApiBundle\Form\Type\AbstractApiType');
         }
 
         $content['namespace'] = "{$bundle}\\Form\\Type".(!empty($context) ? "\\{$context}" : '');
         $content['entityNamespace'] = $this->config->getNamespace();//"{$bundle}\\Entity".(!empty($context) ? "\\{$context}" : '');
         $content['classname'] = $this->config->getEntityName();
         $content['extend'] = $this->config->getEntityType();
-        $content['parent'] = $parent;
         $content['block_prefix'] = strtolower($content['classname']);
         $content['error_context'] = strtolower("{$context}.{$content['classname']}");
 
@@ -84,6 +89,10 @@ class FormGenerator extends AbstractGenerator
                 }
 
                 $content['fields'][] = $fieldDescription;
+
+                if($field->isReferential()) {
+                    $content['uses'][] = 'Doctrine\ORM\EntityRepository';
+                }
             }
         }
 

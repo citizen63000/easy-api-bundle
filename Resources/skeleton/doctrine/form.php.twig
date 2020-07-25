@@ -2,15 +2,8 @@
 
 namespace {{ namespace }};
 
-{% if parent == '' %}
-use EasyApiBundle\Form\Type\AbstractApiType;
-{% endif %}
-
-//use EasyApiBundle\Util\ApiProblem;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
-use Doctrine\ORM\EntityRepository;
 
 {% for use in uses %}
 use {{ use }};
@@ -18,7 +11,7 @@ use {{ use }};
 
 use {{ entityNamespace }}\{{ classname }};
 
-class {{ classname }}Type extends {% if parent != '' %}{{ parent }} {% else %}AbstractApiType {% endif %}
+class {{ classname }}Type extends {% if parent != '' %}{{ parent }} {% endif %}
 
 {
     protected static $dataClass = {{ classname }}::class;
