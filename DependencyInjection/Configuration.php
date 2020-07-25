@@ -47,6 +47,8 @@ class Configuration implements ConfigurationInterface
             ->arrayNode('inheritance')
                 ->addDefaultsIfNotSet()
                 ->children()
+                    ->scalarNode('entity')->defaultValue('EasyApiBundle\Entity\AbstractBaseEntity')->end()
+                    ->scalarNode('entity_referential')->defaultValue('EasyApiBundle\Entity\AbstractBaseReferential')->end()
                     ->scalarNode('form')->defaultValue('EasyApiBundle\Form\Type\AbstractApiType')->end()
                     ->scalarNode('repository')->defaultValue('EasyApiBundle\Util\AbstractRepository')->end()
                 ->end()

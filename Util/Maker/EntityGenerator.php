@@ -3,6 +3,7 @@
 
 namespace EasyApiBundle\Util\Maker;
 
+use EasyApiBundle\Model\Maker\EntityConfiguration;
 use EasyApiBundle\Model\Maker\EntityField;
 use EasyApiBundle\Util\StringUtils\CaseConverter;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,17 +33,23 @@ class EntityGenerator extends AbstractGenerator
             $content['uses'][] = $parentConfig->getNamespace().'\\'.$parentConfig->getEntityName();
         } else {
             // Extends AbstractBaseEntity ?
-            if ( null === $content['parent']
-                && $this->getConfig()->hasField('id', 'integer', true)
-                && $this->getConfig()->hasField('createdAt', '\DateTime')
-                && $this->getConfig()->hasField('updatedAt', '\DateTime')
+            if ( null === $content['parent']) {
+                if (!$this->getConfig()->isReferential()
+                    && $this->getConfig()->hasField('id', 'integer', true)
+                    && $this->getConfig()->hasField('createdAt', '\DateTime')
+                    && $this->getConfig()->hasField('updatedAt', '\DateTime')
             ) {
-                $content['uses'][] = 'EasyApiBundle\Entity\AbstractBaseEntity';
-                $this->getConfig()->removeField('id');
-                $this->getConfig()->removeField('createdAt');
-                $this->getConfig()->removeField('updatedAt');
-                $content['parent'] = 'AbstractBaseEntity';
+                    $content['uses'][] = $this->container->getParameter('easy_api.inheritance.entity');
+                    $content['parent'] = EntityConfiguration::getEntityNameFromNamespace($this->container->getParameter('easy_api.inheritance.entity'));
+                    $this->getConfig()->removeField('id');
+                    $this->getConfig()->removeField('createdAt');
+                    $this->getConfig()->removeField('updatedAt');
+                } else { // referential
+                    $content['uses'][] = $this->container->getParameter('easy_api.inheritance.entity_referential');
+                    $content['parent'] = EntityConfiguration::getEntityNameFromNamespace($this->container->getParameter('easy_api.inheritance.entity_referential'));
+                }
             }
+
         }
 
         if($this->useDoctrineAnnotations) {
