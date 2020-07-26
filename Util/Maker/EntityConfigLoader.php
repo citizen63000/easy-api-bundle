@@ -162,7 +162,7 @@ class EntityConfigLoader
         // ManyToMany
         if(preg_match("/{$config->getTableName()}/", $relation['TABLE_NAME']) && isset($relation['target'])) {
             $relationType = 'manyToMany';
-            $newField->setName(CaseConverter::convertSnakeCaseToCamelCase('').'s');
+            $newField->setName(CaseConverter::convertSnakeCaseToCamelCase($relation['target']['REFERENCED_TABLE_NAME']).'s');
             $newField->setReferencedColumnName($relation['REFERENCED_COLUMN_NAME']);
             $newField->setTableColumnName($relation['COLUMN_NAME']);
             $newField->setJoinTable($relation['TABLE_NAME']);
