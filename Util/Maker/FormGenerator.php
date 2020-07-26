@@ -41,7 +41,7 @@ class FormGenerator extends AbstractGenerator
     {
         $bundle = $this->config->getBundleName();
         $context = str_replace('/', '\\', $this->config->getContextName());
-        $content = ['fields' => [], 'uses' => [], '__construct' => ['fields' => []]];
+        $content = ['fields' => [], 'uses' => [$this->config->getFullName() => $this->config->getFullName()], '__construct' => ['fields' => []]];
 
         if (null === $parent && $parentConfig = $this->getConfig()->getParentEntity()) {
             $content['uses'][] = "{$this->config->getBundleName()}\Form\Type\\".$parentConfig->getContextName().'\\'.$parentConfig->getEntityName().'Type';

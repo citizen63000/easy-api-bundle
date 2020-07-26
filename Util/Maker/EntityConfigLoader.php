@@ -153,10 +153,13 @@ class EntityConfigLoader
         return $config;
     }
 
+    /**
+     * @param EntityConfiguration $config
+     * @param array $relation
+     * @return EntityConfiguration
+     */
     protected static function addOneToManyAndManyToMany(EntityConfiguration $config, array $relation)
     {
-//        var_dump($relation);die;
-
         $newField = new entityField();
 
         // ManyToMany
@@ -359,7 +362,7 @@ class EntityConfigLoader
                 //            }
                         break;
                     case 'Doctrine\ORM\Mapping\OneToMany':
-//                      $newField->setType('\Doctrine\Common\Collections\ArrayCollection');
+                        $field->setType('\Doctrine\Common\Collections\ArrayCollection');
                         $field->setEntityType($annotation->targetEntity);
                         $field->setRelationType('oneToMany');
                         $field->setIsNativeType(false);
@@ -371,7 +374,7 @@ class EntityConfigLoader
                 //            }
                         break;
                     case 'Doctrine\ORM\Mapping\ManyToMany':
-//                $newField->setType('\Doctrine\Common\Collections\ArrayCollection');
+                        $field->setType('\Doctrine\Common\Collections\ArrayCollection');
                         $field->setEntityType($annotation->targetEntity);
                         $field->setRelationType('manyToMany');
                         $field->setIsNativeType(false);
@@ -384,6 +387,7 @@ class EntityConfigLoader
                         break;
                 }
             }
+
             $conf->addField($field);
         }
 

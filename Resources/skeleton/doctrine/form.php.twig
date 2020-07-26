@@ -9,8 +9,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 use {{ use }};
 {% endfor %}
 
-use {{ entityNamespace }}\{{ classname }};
-
 class {{ classname }}Type {% if parent != '' %}extends {{ parent }} {% endif %}
 
 {
@@ -42,6 +40,10 @@ class {{ classname }}Type {% if parent != '' %}extends {{ parent }} {% endif %}
                     'format' => 'yyyy-MM-dd',
 {% elseif field.type == 'EntityType' %}
                     'class' => {{ field.class }}::class,
+{% if field.relationType == 'manyToMany' %}
+                    'multiple' => true,
+                    'by_reference' => false,
+{% endif %}
 {% elseif field.type == 'ChoiceType' and field.originalType == 'boolean' %}
                     'choices' => [0, 1,],
 {% if field.isReferential %}
