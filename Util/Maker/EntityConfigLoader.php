@@ -259,24 +259,28 @@ class EntityConfigLoader
     }
 
     /**
-     * @param string $filepath
+     * @param string|null $filepath
+     * @param string|null $fullName
      * @return EntityConfiguration
-     * @throws \Exception
+     * @throws \ReflectionException
      */
-    protected static function createEntityConfigFromAnnotations(string $filepath)
+    public static function createEntityConfigFromAnnotations(?string $filepath, ?string $fullName = null)
     {
-        try {
-            $fileContent = file_get_contents($filepath);
-            preg_match('/namespace ([a-zA-Z\\\]+);/', $fileContent, $matches);
-            $namespace = $matches[1];
-            preg_match('/class ([a-zA-Z]+)/', $fileContent, $matches);
-            $classname = $matches[1];
-        } catch (\Exception $e) {
-            throw new \Exception('Impossible to load class '.$filepath.' '.$e->getMessage());
+        if(null !== $filepath) {
+            try {
+                $fileContent = file_get_contents($filepath);
+                preg_match('/namespace ([a-zA-Z\\\]+);/', $fileContent, $matches);
+                $namespace = $matches[1];
+                preg_match('/class ([a-zA-Z]+)/', $fileContent, $matches);
+                $classname = $matches[1];
+                $fullName = "{$namespace}\\{$classname}";
+            } catch (\Exception $e) {
+                throw new \Exception('Impossible to load class '.$filepath.' '.$e->getMessage());
+            }
         }
 
         $conf = new EntityConfiguration();
-        $r = new \ReflectionClass("{$namespace}\\{$classname}");
+        $r = new \ReflectionClass($fullName);
 
         // class annotations
         $reader = new AnnotationReader();
@@ -376,9 +380,10 @@ class EntityConfigLoader
             $conf->addField($field);
         }
 
-        $conf->setEntityFileClassPath($filepath);
+//        $conf->setEntityFileClassPath($filepath);
+        $conf->setEntityFileClassPath($r->getFileName());
         $conf->setNamespace($r->getNamespaceName());
-        $conf->setEntityName($classname);
+        $conf->setEntityName(EntityConfiguration::getEntityNameFromNamespace($fullName));
 
         return $conf;
     }

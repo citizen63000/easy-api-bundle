@@ -39,14 +39,26 @@ class EntityGenerator extends AbstractGenerator
                     && $this->getConfig()->hasField('createdAt', '\DateTime')
                     && $this->getConfig()->hasField('updatedAt', '\DateTime')
             ) {
-                    $content['uses'][] = $this->container->getParameter('easy_api.inheritance.entity');
-                    $content['parent'] = EntityConfiguration::getEntityNameFromNamespace($this->container->getParameter('easy_api.inheritance.entity'));
-                    $this->getConfig()->removeField('id');
-                    $this->getConfig()->removeField('createdAt');
-                    $this->getConfig()->removeField('updatedAt');
+                    $parent = $this->container->getParameter('easy_api.inheritance.entity');
+                    $content['uses'][] = $parent;
+                    $content['parent'] = EntityConfiguration::getEntityNameFromNamespace($parent);
+
+                    // remove fields of parent entity
+                    $parentConfig = EntityConfigLoader::createEntityConfigFromAnnotations(null, $parent);
+                    foreach ($parentConfig->getFields() as $field) {
+                        $this->getConfig()->removeField($field->getName());
+                    }
+
                 } else { // referential
-                    $content['uses'][] = $this->container->getParameter('easy_api.inheritance.entity_referential');
-                    $content['parent'] = EntityConfiguration::getEntityNameFromNamespace($this->container->getParameter('easy_api.inheritance.entity_referential'));
+                    $parent = $this->container->getParameter('easy_api.inheritance.entity_referential');
+                    $content['uses'][] = $parent;
+                    $content['parent'] = EntityConfiguration::getEntityNameFromNamespace($parent);
+
+                    // remove fields of parent entity
+                    $parentConfig = EntityConfigLoader::createEntityConfigFromAnnotations(null, $parent);
+                    foreach ($parentConfig->getFields() as $field) {
+                        $this->getConfig()->removeField($field->getName());
+                    }
                 }
             }
 
