@@ -162,11 +162,11 @@ class EntityGenerator extends AbstractGenerator
                     $annotations[] = $ormPrefix . "\JoinTable(name=\"{$field->getJoinTable()}\",";
                     $annotations[] = "\tjoinColumns={";
                     $annotations[] = "\t\t$ormPrefix" . "\JoinColumn(name=\"{$field->getTableColumnName()}\", referencedColumnName=\"{$field->getReferencedColumnName()}\")";
-                    $annotations[] = "\t}";
+                    $annotations[] = "\t},";
                     $annotations[] = "\tinverseJoinColumns={";
                     $annotations[] = "\t\t$ormPrefix" . "\JoinColumn(name=\"{$field->getInverseTableColumnName()}\", referencedColumnName=\"{$field->getInverseReferencedColumnName()}\")";
                     $annotations[] = "\t}";
-                    $annotations[] = '}';
+                    $annotations[] = ')';
                     break;
             }
         }
