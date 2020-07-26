@@ -11,5 +11,7 @@ easy_api:
     enable: false
     connection_history_class: AppBundle\Entity\User\ConnectionHistory
   inheritance:
+    entity: 'CoreBundle\Entity\AbstractEntity'
+    entityReferential: 'CoreBundle\Entity\AbstractReferential'
     form: 'CoreBundle\Form\Type\AbstractCoreType'
     repository: 'CoreBundle\Form\Type\AbstractRepository'
