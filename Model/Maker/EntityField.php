@@ -25,6 +25,21 @@ class EntityField
     protected $referencedColumnName;
 
     /**
+     * @var string
+     */
+    protected $inverseTableColumnName;
+
+    /**
+     * @var string
+     */
+    protected $inverseReferencedColumnName;
+
+    /**
+     * @var string
+     */
+    protected $joinTable;
+
+    /**
      * @var bool
      */
     protected $isPrimary = false;
@@ -94,20 +109,6 @@ class EntityField
     protected $randomValue;
 
     /**
-     * EntityField constructor.
-     *
-     * @param array|null $yamlDescription
-     */
-    public function __construct(array $yamlDescription = null)
-    {
-    }
-
-    public function createFromDoctrineAnnocations(string $blocComment)
-    {
-
-    }
-
-    /**
      * @return string
      */
     public function getName(): string
@@ -159,6 +160,54 @@ class EntityField
     public function setReferencedColumnName(string $referencedColumnName): void
     {
         $this->referencedColumnName = $referencedColumnName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInverseTableColumnName(): ?string
+    {
+        return $this->inverseTableColumnName;
+    }
+
+    /**
+     * @param string $inverseTableColumnName
+     */
+    public function setInverseTableColumnName(?string $inverseTableColumnName): void
+    {
+        $this->inverseTableColumnName = $inverseTableColumnName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInverseReferencedColumnName(): ?string
+    {
+        return $this->inverseReferencedColumnName;
+    }
+
+    /**
+     * @param string $inverseReferencedColumnName
+     */
+    public function setInverseReferencedColumnName(?string $inverseReferencedColumnName): void
+    {
+        $this->inverseReferencedColumnName = $inverseReferencedColumnName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getJoinTable(): string
+    {
+        return $this->joinTable;
+    }
+
+    /**
+     * @param string $joinTable
+     */
+    public function setJoinTable(string $joinTable): void
+    {
+        $this->joinTable = $joinTable;
     }
 
     /**

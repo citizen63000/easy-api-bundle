@@ -66,6 +66,7 @@ class DatabaseConfigurationLoader
     }
 
     /**
+     * Foreign Keys having table in target
      * @param string $tableName
      * @param string|null $schema
      * @return array
@@ -73,11 +74,31 @@ class DatabaseConfigurationLoader
      */
     protected function loadRelations(string $tableName, string $schema = null): array
     {
-        $sql = "SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME
+        $sql = "SELECT TABLE_SCHEMA, TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME
                 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
                 WHERE REFERENCED_TABLE_SCHEMA = '{$schema}' AND REFERENCED_TABLE_NAME = '{$tableName}'";
 
         $stmt = $this->em->getConnection()->executeQuery($sql);
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($results as $key => $result) {
+            if(preg_match("/{$tableName}/", $result['TABLE_NAME'])) {
+
+                $sql = "SELECT TABLE_SCHEMA, TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME
+                                FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+                                WHERE TABLE_SCHEMA = '{$schema}' AND TABLE_NAME = '{$result['TABLE_NAME']}'";
+                $foreignKeys = $this->em->getConnection()->executeQuery($sql)->fetchAll(\PDO::FETCH_ASSOC);
+
+                foreach ($foreignKeys as $foreignKey) {
+                    if("{$foreignKey['REFERENCED_TABLE_NAME']}_{$tableName}" === $result['TABLE_NAME'] || "{$tableName}_{$foreignKey['REFERENCED_TABLE_NAME']}" === $result['TABLE_NAME']) {
+                        $results[$key]['target']['REFERENCED_TABLE_NAME'] = $foreignKey['REFERENCED_TABLE_NAME'];
+                        $results[$key]['target']['COLUMN_NAME'] = $foreignKey['COLUMN_NAME'];
+                        $results[$key]['target']['REFERENCED_COLUMN_NAME'] = $foreignKey['REFERENCED_COLUMN_NAME'];
+                    }
+                }
+            }
+        }
+
+        return $results;
     }
 }

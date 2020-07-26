@@ -57,7 +57,6 @@ class EntityConfigLoader
         $dbLoader = new DatabaseConfigurationLoader($em);
         $tableDescription = $dbLoader->load($tableName, $schema);
         foreach ($tableDescription['columns'] as $column) {
-//            var_dump($column);
             if(preg_match('/([_a-zA-Z0-9]+)_(id|code)$/', $column['Field'], $matches)) {
                 $config = static::addManyToOneOrOneToOne($config, $column['Field'], $matches[2], CaseConverter::convertSnakeCaseToPascalCase($matches[1]));
             } else {
@@ -70,41 +69,10 @@ class EntityConfigLoader
             $config = static::addOneToManyAndManyToMany($config, $relation);
         }
 
-
         // discriminatorType
 //        if (isset($content[key($content)]['inheritanceType'])) {
 //            $config->setIsParentEntity(true);
 //            $config->setInheritanceType($content[key($content)]['inheritanceType']);
-//        }
-
-//        // oneToMany
-//        if (isset($content[key($content)]['oneToMany'])) {
-//            $fields = $content[key($content)]['oneToMany'];
-//            foreach ($fields as $name => $field) {
-//                $newField = new entityField();
-//                $newField->setName($name);
-//                $newField->setType('\Doctrine\Common\Collections\ArrayCollection');
-//                $newField->setRelationType('oneToMany');
-//                $newField->setEntityType($field['targetEntity']);
-//                $newField->setIsNativeType(false);
-//
-//                $config->addField($newField);
-//            }
-//        }
-//
-//        // manyToMany
-//        if (isset($content[key($content)]['manyToMany'])) {
-//            $fields = $content[key($content)]['manyToMany'];
-//            foreach ($fields as $name => $field) {
-//                $newField = new entityField();
-//                $newField->setName($name);
-//                $newField->setType('\Doctrine\Common\Collections\ArrayCollection');
-//                $newField->setRelationType('manyToMany');
-//                $newField->setEntityType($field['targetEntity']);
-//                $newField->setIsNativeType(false);
-//
-//                $config->addField($newField);
-//            }
 //        }
 
         return $config;
@@ -192,8 +160,21 @@ class EntityConfigLoader
         $newField = new entityField();
 
         // ManyToMany
-        if(preg_match('/([_a-zA-Z0-9]+)_(id|code)$/', $relation['TABLE_NAME'])) {
+        if(preg_match("/{$config->getTableName()}/", $relation['TABLE_NAME']) && isset($relation['target'])) {
             $relationType = 'manyToMany';
+            $newField->setName(CaseConverter::convertSnakeCaseToCamelCase('').'s');
+            $newField->setReferencedColumnName($relation['REFERENCED_COLUMN_NAME']);
+            $newField->setTableColumnName($relation['COLUMN_NAME']);
+            $newField->setJoinTable($relation['TABLE_NAME']);
+
+            // load link table
+            $newField->setInverseReferencedColumnName($relation['target']['REFERENCED_COLUMN_NAME']);
+            $newField->setInverseTableColumnName($relation['target']['COLUMN_NAME']);
+
+            $entityName = CaseConverter::convertSnakeCaseToPascalCase($relation['target']['REFERENCED_TABLE_NAME']);
+            $entityConfig = self::findAndCreateFromEntityName($entityName, $config->getBundleName());
+            $newField->setEntityType($entityConfig ? $entityConfig->getFullName() : $entityName);
+
         } else { // oneToMany
             $relationType = 'oneToMany';
             $newField->setName(CaseConverter::convertSnakeCaseToCamelCase($relation['TABLE_NAME']).'s');
@@ -202,12 +183,9 @@ class EntityConfigLoader
             $newField->setEntityType($entityConfig ? $entityConfig->getFullName() : $entityName);
         }
 
-//        $newField->setType($newField->getEntityClassName());
         $newField->setType('\Doctrine\Common\Collections\ArrayCollection');
         $newField->setRelationType($relationType);
         $newField->setIsNativeType(false);
-//        $newField->setTableColumnName($columnName);
-//        $newField->setReferencedColumnName($referencedColumnName);
 
         $config->addField($newField);
 
