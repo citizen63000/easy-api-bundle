@@ -11,6 +11,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 class CaseConverter
 {
     /**
+     * @example my_variable_name => MyVariableName
      * @param string $str
      * @return string
      */

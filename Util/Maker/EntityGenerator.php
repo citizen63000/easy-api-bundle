@@ -151,6 +151,10 @@ class EntityGenerator extends AbstractGenerator
                     $joinColumn = static::$doctrineAnnotationPrefix . "\JoinColumn(name=\"{$field->getTableColumnName()}\", referencedColumnName=\"{$field->getReferencedColumnName()}\")";
                     $annotations[] = static::$doctrineAnnotationPrefix . "\JoinColumns({$joinColumn})";
                     break;
+                case 'oneToMany':
+                    $mapped = lcfirst($this->config->getEntityName());
+                    $annotations[] = static::$doctrineAnnotationPrefix . "\OneToMany(targetEntity=\"{$field->getEntityType()}\", mappedBy=\"{$mapped}\", cascade={}, orphanRemoval=true)";
+                    break;
             }
         }
 

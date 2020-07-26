@@ -42,7 +42,7 @@ class {{ classname }}{% if parent != '' %} extends {{ parent }} {% endif %}
     $this->{{ field.name }} = Uuid::uuid4();
 {% endif %}
 {% endfor %}
-}
+    }
 {% endif %}
 {% for field in fields %}
 

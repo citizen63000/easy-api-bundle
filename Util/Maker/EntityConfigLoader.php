@@ -58,18 +58,18 @@ class EntityConfigLoader
         $tableDescription = $dbLoader->load($tableName, $schema);
         foreach ($tableDescription['columns'] as $column) {
 //            var_dump($column);
-
             if(preg_match('/([_a-zA-Z0-9]+)_(id|code)$/', $column['Field'], $matches)) {
                 $config = static::addManyToOneOrOneToOne($config, $column['Field'], $matches[2], CaseConverter::convertSnakeCaseToPascalCase($matches[1]));
             } else {
                 $config = static::addNativeField($config, $column);
             }
-
-            // search oneToMany
-
-            // search ManyToMany
-
         }
+
+        // search oneToMany and  ManyToMany
+        foreach ($tableDescription['relations'] as $relation) {
+            $config = static::addOneToManyAndManyToMany($config, $relation);
+        }
+
 
         // discriminatorType
 //        if (isset($content[key($content)]['inheritanceType'])) {
@@ -181,6 +181,35 @@ class EntityConfigLoader
 
             $config->addField($newField);
         }
+
+        return $config;
+    }
+
+    protected static function addOneToManyAndManyToMany(EntityConfiguration $config, array $relation)
+    {
+//        var_dump($relation);die;
+
+        $newField = new entityField();
+
+        // ManyToMany
+        if(preg_match('/([_a-zA-Z0-9]+)_(id|code)$/', $relation['TABLE_NAME'])) {
+            $relationType = 'manyToMany';
+        } else { // oneToMany
+            $relationType = 'oneToMany';
+            $newField->setName(CaseConverter::convertSnakeCaseToCamelCase($relation['TABLE_NAME']).'s');
+            $entityName = CaseConverter::convertSnakeCaseToPascalCase($relation['TABLE_NAME']);
+            $entityConfig = self::findAndCreateFromEntityName($entityName, $config->getBundleName());
+            $newField->setEntityType($entityConfig ? $entityConfig->getFullName() : $entityName);
+        }
+
+//        $newField->setType($newField->getEntityClassName());
+        $newField->setType('\Doctrine\Common\Collections\ArrayCollection');
+        $newField->setRelationType($relationType);
+        $newField->setIsNativeType(false);
+//        $newField->setTableColumnName($columnName);
+//        $newField->setReferencedColumnName($referencedColumnName);
+
+        $config->addField($newField);
 
         return $config;
     }
