@@ -114,7 +114,7 @@ trait ApiTestDataLoaderTrait
                 $arraySchemas[] = '\''.$schema.'\'';
             }
             $schemas = implode(',', $arraySchemas);
-            $stmt = self::$entityManager->getConnection()->executeQuery("SELECT CONCAT('`', TABLE_SCHEMA, '`', '.', '`', TABLE_NAME, '`') FROM information_schema.tables WHERE TABLE_SCHEMA IN {$schemas}");
+            $stmt = self::$entityManager->getConnection()->executeQuery("SELECT CONCAT('`', TABLE_SCHEMA, '`', '.', '`', TABLE_NAME, '`') FROM information_schema.tables WHERE TABLE_SCHEMA IN ({$schemas})");
             $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
             $listingQueries = [];
 
