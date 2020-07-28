@@ -114,14 +114,19 @@ trait ApiTestDataLoaderTrait
                 $arraySchemas[] = '\''.$schema.'\'';
             }
             $schemas = implode(',', $arraySchemas);
-            $stmt = self::$entityManager->getConnection()->executeQuery("SELECT CONCAT('`', TABLE_SCHEMA, '`', '.', '`', TABLE_NAME, '`') FROM information_schema.tables WHERE TABLE_SCHEMA IN ({$schemas})");
+            $sql = "SELECT CONCAT('`', TABLE_SCHEMA, '`', '.', '`', TABLE_NAME, '`')
+                    FROM information_schema.tables
+                    WHERE TABLE_SCHEMA IN ({$schemas})
+                    AND TABLE_TYPE = 'BASE TABLE'
+                    AND TABLE_NAME NOT LIKE 'ref_%'
+                    AND TABLE_NAME NOT LIKE 'v_%'
+                    ";
+            $stmt = self::$entityManager->getConnection()->executeQuery($sql);
             $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
             $listingQueries = [];
 
             foreach ($tables as $table) {
-                if (!preg_match('/^(v_|ref_)/', strtolower($table))) {
-                    $listingQueries[] = "SELECT '{$table}' as `table`, count(1) as nbRows FROM {$table}\n";
-                }
+                $listingQueries[] = "SELECT '{$table}' as `table`, count(1) as nbRows FROM {$table}\n";
             }
 
             $listingQuery = implode(' UNION ', $listingQueries);
