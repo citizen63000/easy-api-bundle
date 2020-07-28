@@ -19,6 +19,11 @@ trait ApiTestDataLoaderTrait
      */
     protected static $csvDataFilesPath;
 
+    /**
+     * @var array
+     */
+    protected static $schemas = [];
+
     protected static function initializeLoader(): void
     {
         self::initializeCache();
@@ -104,7 +109,12 @@ trait ApiTestDataLoaderTrait
 
         if (!$cachedQuery->isHit() || !static::$useCache) {
 
-            $stmt = self::$entityManager->getConnection()->executeQuery('show tables');
+            $arraySchemas = [];
+            foreach (static::$schemas as $schema) {
+                $arraySchemas[] = '\''.$schema.'\'';
+            }
+            $schemas = implode(',', $arraySchemas);
+            $stmt = self::$entityManager->getConnection()->executeQuery("SELECT CONCAT('`', TABLE_SCHEMA, '`', '.', '`', TABLE_NAME, '`') FROM information_schema.tables WHERE TABLE_SCHEMA IN {$schemas}");
             $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
             $listingQueries = [];
 
