@@ -41,8 +41,6 @@ class {{ entity_name }}Controller extends AbstractApiController
      *
      * @param {{ entity_name }} $entity
      *
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     *
      * @return {{ entity_name }}
      */
     public function getAction({{ entity_name }} $entity)
@@ -126,8 +124,6 @@ class {{ entity_name }}Controller extends AbstractApiController
      * @param Request           $request
      * @param {{ entity_name }} $entity
      *
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     *
      * @Rest\View(serializerGroups={ {{ serialization_groups|raw }} })
      *
      * @return {{ entity_name }}
@@ -149,8 +145,6 @@ class {{ entity_name }}Controller extends AbstractApiController
      *
      * @param {{ entity_name }} $entity
      *
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     *
      * @return View
      */
     public function deleteAction({{ entity_name }} $entity)
@@ -159,28 +153,23 @@ class {{ entity_name }}Controller extends AbstractApiController
     }
 
    /**
-    * Describe form.
-    *
     * Describe fields of {{ entity_name }} forms.
     *
     * @SWG\Tag(name="{{ entity_name }}")
     *
     * @SWG\Response(
     *     response=200,
-    *     description="Parameters data.",
-    *     @SWG\Schema(
-    *         type="array",
-    *         @SWG\Items(ref="#/definitions/form")
-    *     ),
+    *     description="Successful operation",
+    *     @SWG\Schema(ref=@Model(type=SerializedForm::class, groups={"public"}))
     * ),
     *
     * @SWG\Response(response="404", ref="#/definitions/404"),
     * @SWG\Response(response="405", ref="#/definitions/405"),
     * @SWG\Response(response="415", ref="#/definitions/415")
     *
-    * @Rest\View()
+    * @Rest\View(serializerGroups={ "public" })
     *
-    * @return \APIGeneratorBundle\Model\SerializedForm
+    * @return SerializedForm
     */
     public function describeFormAction()
     {

@@ -8,52 +8,61 @@ class SerializedFormField
 {
     /**
      * @var string
+     * @Groups({"public"})
      */
     protected $name;
 
     /**
      * @var string
+     * @Groups({"public"})
      */
     protected $label;
 
     /**
      * @var string
+     * @Groups({"public"})
      */
     protected $placeholder;
 
     /**
      * @var string
+     * @Groups({"public"})
      */
     protected $key;
 
     /**
      * @var string
+     * @Groups({"public"})
      */
     protected $type = '';
 
     /**
      * @var string
+     * @Groups({"public"})
      */
     protected $format;
 
     /**
      * @var bool
+     * @Groups({"public"})
      */
     protected $required;
 
     /**
-     * @var array
+     * @var string[]
+     * @Groups({"public"})
      */
     protected $conditions = [];
 
     /**
-     * @var array
+     * @var string[]
      * @Groups({"private"})
      */
     protected $validationGroups = [];
 
     /**
-     * @var array
+     * @var string[]
+     * @Groups({"public"})
      */
     protected $conditionedFields = [];
 
@@ -61,53 +70,55 @@ class SerializedFormField
      * EmbeddedForm.
      *
      * @var SerializedForm
+     * @Groups({"public"})
      */
     protected $form;
 
     /**
-     * @Serializer\Exclude()
-     *
      * @var SerializedForm
+     * @Groups({"public"})
      */
     protected $parentForm = null;
 
     /**
-     * @var array
+     * @var string[]
+     * @Groups({"public"})
      */
     protected $values;
 
     /**
      * @var string
+     * @Groups({"public"})
      */
     protected $widget = 'input';
 
     /**
-     * @var string|int
-     * @Serializer\SerializedName("defaultValue")
+     * @var string
+     * @Groups({"public"})
      */
     protected $defaultValue = '';
 
     /**
      * @var string
+     * @Groups({"public"})
      */
     protected $group = '';
 
     /**
-     * @Serializer\Exclude()
-     *
-     * @var array
+     * @var string[]
+     * @Groups({"public"})
      */
     protected $attr = [];
 
     /**
      * @var string
+     * @Groups({"public"})
      */
     protected $discriminator = '';
 
     /**
-     * @var array
-     * @Serializer\SerializedName("dynamicChoices")
-     * @Serializer\SkipWhenEmpty()
+     * @var string[]
+     * @Groups({"public"})
      */
     private $dynamicChoices = [];
 

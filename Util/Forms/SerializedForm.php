@@ -11,16 +11,19 @@ class SerializedForm
 
     /**
      * @var string
+     * @Groups({"public"})
      */
     protected $name;
 
     /**
      * @var string
+     * @Groups({"public"})
      */
     protected $route;
 
     /**
-     * @var array
+     * @var SerializedFormField[]
+     * @Groups({"public"})
      */
     protected $fields;
 
@@ -132,7 +135,7 @@ class SerializedForm
     }
 
     /**
-     * @param string $parentType
+     * @param ?string $parentType
      */
     public function setParentType(string $parentType = null): void
     {
@@ -146,5 +149,4 @@ class SerializedForm
     {
         return $this->getParentType() === self::PARENT_TYPE_COLLECTION;
     }
-
 }
