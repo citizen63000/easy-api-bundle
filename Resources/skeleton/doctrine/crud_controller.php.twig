@@ -2,16 +2,9 @@
 
 namespace {{ namespace }};
 
-use EasyApiBundle\Util\ApiProblem;
-use EasyApiBundle\Exception\ApiProblemException;
-
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-
 use FOS\RestBundle\Controller\Annotations as Rest;
-use JMS\SecurityExtraBundle\Annotation as Security;
-
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 
@@ -19,6 +12,11 @@ use Swagger\Annotations as SWG;
 use {{ use }};
 {% endfor %}
 
+/**
+ * Class {{ entity_name }}Controller
+ * @package {{ namespace }}
+ * @SWG\Tag(name="{{ entity_name }}")
+ */
 class {{ entity_name }}Controller extends AbstractApiController
 {
     protected static $entityClass = {{ entity_name }}::class;
@@ -29,8 +27,6 @@ class {{ entity_name }}Controller extends AbstractApiController
 
     /**
      * Get {{ entity_name }} entity.
-     *
-     * @SWG\Tag(name="{{ entity_name }}")
      *
      * @SWG\Response(
      *     response=200,
@@ -49,7 +45,7 @@ class {{ entity_name }}Controller extends AbstractApiController
     }
 
     /**
-     * @SWG\Tag(name="{{ entity_name }}")
+     * List {{ entity_name }} entities.
      *
      * @SWG\Response(
      *     response=200,
@@ -61,7 +57,7 @@ class {{ entity_name }}Controller extends AbstractApiController
      * ),
      * @Rest\View(serializerGroups={ {{ serialization_groups|raw }} })
      *
-     * @return array
+     * @return {{ entity_name }}[]
      */
     public function listAction()
     {
@@ -70,8 +66,6 @@ class {{ entity_name }}Controller extends AbstractApiController
 
     /**
      * Create {{ entity_name }} entity.
-     *
-     * @SWG\Tag(name="{{ entity_name }}")
      *
      * @SWG\Parameter(
      *     name="data",
@@ -102,8 +96,6 @@ class {{ entity_name }}Controller extends AbstractApiController
 
     /**
      * Update {{ entity_name }} entity.
-     *
-     * @SWG\Tag(name="{{ entity_name }}")
      *
      * @SWG\Parameter(
      *     name="data",
@@ -136,8 +128,6 @@ class {{ entity_name }}Controller extends AbstractApiController
     /**
      * Delete {{ entity_name }} entity.
      *
-     * @SWG\Tag(name="{{ entity_name }}")
-     *
      * @SWG\Response(
      *     response=204,
      *     description="Successful operation",
@@ -154,8 +144,6 @@ class {{ entity_name }}Controller extends AbstractApiController
 
    /**
     * Describe fields of {{ entity_name }} forms.
-    *
-    * @SWG\Tag(name="{{ entity_name }}")
     *
     * @SWG\Response(
     *     response=200,
@@ -175,5 +163,4 @@ class {{ entity_name }}Controller extends AbstractApiController
     {
         return $this->describeForm({{ entity_name }}Type::class);
     }
-
 }
