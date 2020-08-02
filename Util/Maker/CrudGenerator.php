@@ -134,7 +134,11 @@ class CrudGenerator extends AbstractGenerator
         $bundleName = $this->config->getBundleName();
         $prefix = str_replace(['API', 'Bundle'], ['api_', ''], $bundleName);
 
-        return CaseConverter::convertToPascalCase($prefix.'_'.str_replace(['\\', '/'], '_', $this->config->getContextName()));
+        if(!empty($this->config->getContextName())) {
+            return CaseConverter::convertToPascalCase($prefix.'_'.str_replace(['\\', '/'], '_', $this->config->getContextName()));
+        }
+
+        return CaseConverter::convertToPascalCase($prefix);
     }
 
     /**
@@ -165,6 +169,7 @@ class CrudGenerator extends AbstractGenerator
             'entity_url_name' => str_replace('_', '-', CaseConverter::convertToPascalCase($this->config->getEntityName())),
             'serialization_groups' => implode(', ', $this->getSerializerGroups()),
             'uses' => $uses,
+            'routingControllerPath' => "{$bundle}:".(!empty($context) ? "{$context}\\" : '').$this->config->getEntityName(),
         ];
 
         return $content;

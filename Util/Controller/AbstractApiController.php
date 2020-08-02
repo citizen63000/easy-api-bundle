@@ -73,8 +73,7 @@ abstract class AbstractApiController extends FOSRestController
     }
 
     /**
-     * @param string $entityClass
-     *
+     * @param ?string $entityClass
      * @return object[]
      */
     protected function getEntityListAction(string $entityClass = null)
@@ -85,7 +84,7 @@ abstract class AbstractApiController extends FOSRestController
     }
 
     /**
-     * @param string $entityClass
+     * @param ?string $entityClass
      *
      * @return object[]
      */
@@ -98,13 +97,12 @@ abstract class AbstractApiController extends FOSRestController
 
     /**
      * @param Request $request
-     * @param string  $entitySearchTypeClass
-     * @param string  $entityClass
-     * @param array  $serializationGroups
-     * @param SearchModel $model
-     * @param string  $methodName
-     *
-     * @return Response
+     * @param string|null $entitySearchTypeClass
+     * @param string|null $entityClass
+     * @param array|null $serializationGroups
+     * @param SearchModel|null $model
+     * @param string $methodName
+     * @return Response|null
      */
     protected function getEntityListSearchAction(Request $request,
                                                  string $entitySearchTypeClass = null,
@@ -134,7 +132,7 @@ abstract class AbstractApiController extends FOSRestController
     /**
      * @param Request $request
      * @param mixed   $entity          The entity
-     * @param string  $entityTypeClass Form Type
+     * @param ?string  $entityTypeClass Form Type
      *
      * @return View
      */
@@ -154,7 +152,7 @@ abstract class AbstractApiController extends FOSRestController
     /**
      * @param Request $request
      * @param $entity
-     * @param string $entityTypeClass Form Type
+     * @param ?string $entityTypeClass Form Type
      *
      * @return mixed
      */
