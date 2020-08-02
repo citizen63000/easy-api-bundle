@@ -95,7 +95,7 @@ class CrudGenerator extends AbstractGenerator
         try {
             if (!preg_match("/{$routeName}/", $content)) {
                 $content .= "\n\n".$this->getContainer()->get('templating')->render(
-                        $this->getTemplatePath('bundle_routing.yml.twig'),
+                        $this->getTemplatePath('doctrine/bundle_routing.yml.twig'),
                         $dataContent
                     );
             }
