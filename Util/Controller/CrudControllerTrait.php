@@ -13,7 +13,6 @@ use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
-use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\View\View;
 
@@ -47,6 +46,10 @@ trait CrudControllerTrait
         }
     }
 
+    /**
+     * @param AbstractBaseEntity $entity
+     * @return mixed
+     */
     public function getAction(AbstractBaseEntity $entity)
     {
         return parent::getEntityAction($entity);

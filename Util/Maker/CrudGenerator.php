@@ -6,7 +6,7 @@ namespace EasyApiBundle\Util\Maker;
 
 use EasyApiBundle\Util\StringUtils\CaseConverter;
 
-class CrudGenerator
+class CrudGenerator extends AbstractGenerator
 {
     /**
      * @var string
@@ -26,7 +26,7 @@ class CrudGenerator
      */
     public function generate($bundle, $context, $entityName, $parentEntityName, $dumpExistingFiles = false)
     {
-        $this->loadDoctrineYamlConfig($bundle, $context, $entityName, $parentEntityName);
+        $this->config = $this->loadEntityConfig($entityName, $bundle, $context);
         $paths = [];
         $paths['controller'] = $this->generateController($dumpExistingFiles);
         $paths['routing'] = $this->generateRouting($dumpExistingFiles);
@@ -46,11 +46,11 @@ class CrudGenerator
     protected function generateController($dumpExistingFiles)
     {
         $fileContent = $this->getContainer()->get('templating')->render(
-            $this->getTemplatePath('crud_controller.php.twig'),
+            $this->getTemplatePath('doctrine/crud_controller.php.twig'),
             $this->generateContent()
         );
 
-        return $this->writeFile($this->getControllerDirectoryPath(), $this->config->getEntityName().'Controller.php', $fileContent, $dumpExistingFiles);
+        return "{$this->container->getParameter('kernel.project_dir')}/".$this->writeFile($this->getControllerDirectoryPath(), $this->config->getEntityName().'Controller.php', $fileContent, $dumpExistingFiles);
     }
 
     /**
@@ -69,11 +69,11 @@ class CrudGenerator
 
         // Generate specific routing file
         $fileContent = $this->getContainer()->get('templating')->render(
-            $this->getTemplatePath('crud_routing.yml.twig'),
+            $this->getTemplatePath('doctrine/crud_routing.yml.twig'),
             $this->generateContent()
         );
 
-        return $this->writeFile($this->getRoutingDirectoryPath(), $this->config->getEntityName().'.yml', $fileContent, $dumpExistingFiles);
+        return "{$this->container->getParameter('kernel.project_dir')}/".$this->writeFile($this->getRoutingDirectoryPath(), $this->config->getEntityName().'.yml', $fileContent, $dumpExistingFiles);
     }
 
     /**
@@ -143,16 +143,28 @@ class CrudGenerator
     protected function generateContent()
     {
         $transformedContext = str_replace('\\', '/', $this->config->getContextName());
+        $bundle = $this->config->getBundleName();
+        $context = str_replace('/', '\\', $this->config->getContextName());
+
+        $uses = [
+            $this->container->getParameter('easy_api.inheritance.controller'),
+            "{$bundle}\\Entity\\".(!empty($context) ? "{$context}\\" : '').$this->config->getEntityName(),
+            "{$bundle}\\Form\Type\\".(!empty($context) ? "{$context}\\" : '')."{$this->config->getEntityName()}Type",
+            "{$bundle}\\Entity\\".(!empty($context) ? "{$context}\\" : '')."{$this->config->getEntityName()}SearchModel",
+            "{$bundle}\\Form\Type\\".(!empty($context) ? "{$context}\\" : '')."{$this->config->getEntityName()}SearchModelType",
+        ];
 
         $content = [
+            'namespace' => "{$bundle}\\Controller".(!empty($context) ? "\\{$context}" : ''),
             'entity_name' => $this->config->getEntityName(),
             'bundle_name' => $this->config->getBundleName(),
-            'routing_url' => "{$this->config->getBundleName()}/Resources/config/routing/{$transformedContext}/{$this->config->getEntityName()}.yml",
-            'context_name' => str_replace('/', '\\', $this->config->getContextName()),
+            'routing_url' => "{$this->config->getBundleName()}/Resources/config/routing/".(!empty($context) ? "{$transformedContext}/" : '')."{$this->config->getEntityName()}.yml",
+            'context_name' => $context,
             'route_name_prefix' => $this->getRouteNamePrefix(),
             'entity_route_name' => CaseConverter::convertToPascalCase($this->config->getEntityName()),
             'entity_url_name' => str_replace('_', '-', CaseConverter::convertToPascalCase($this->config->getEntityName())),
             'serialization_groups' => implode(', ', $this->getSerializerGroups()),
+            'uses' => $uses,
         ];
 
         return $content;

@@ -1,8 +1,7 @@
 <?php
 
-namespace {{ bundle_name }}\Controller\{{ context_name }};
+namespace {{ namespace }};
 
-use EasyApiBundle\Controller\AbstractPlatformController;
 use EasyApiBundle\Util\ApiProblem;
 use EasyApiBundle\Exception\ApiProblemException;
 
@@ -16,18 +15,17 @@ use JMS\SecurityExtraBundle\Annotation as Security;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 
-use {{ bundle_name }}\Entity\{{ context_name }}\{{ entity_name }};
-use {{ bundle_name }}\Form\Type\{{ context_name }}\{{ entity_name }}Type;
-//use {{ bundle_name }}\Entity\{{ context_name }}\{{ entity_name }}SearchModel;
-//use {{ bundle_name }}\Form\Type\{{ context_name }}\{{ entity_name }}SearchModelType;
+{% for use in uses %}
+use {{ use }};
+{% endfor %}
 
-class {{ entity_name }}Controller extends AbstractPlatformController
+class {{ entity_name }}Controller extends AbstractApiController
 {
     protected static $entityClass = {{ entity_name }}::class;
     protected static $entityTypeClass = {{ entity_name }}Type::class;
     //protected static $entitySearchModelClass = {{ entity_name }}SearchModel::class;
     //protected static $entitySearchTypeClass = {{ entity_name }}SearchModelType::class;
-    //protected static $serializationGroups = [serialization_groups|raw];
+    protected static $serializationGroups = [{{ serialization_groups|raw }}];
 
     /**
      * Get {{ entity_name }} entity.
