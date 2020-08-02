@@ -148,6 +148,6 @@ abstract class AbstractApiType extends AbstractType
      */
     public function getBlockPrefix()
     {
-        return lcfirst(substr(static::$dataClass, strrpos(static::$dataClass, '-') + 1));
+        return lcfirst(substr(static::$dataClass, strrpos(static::$dataClass, '\\') + 1));
     }
 }
