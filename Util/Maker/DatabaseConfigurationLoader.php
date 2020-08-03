@@ -86,7 +86,7 @@ class DatabaseConfigurationLoader
 
                 $sql = "SELECT TABLE_SCHEMA, TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME
                                 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-                                WHERE TABLE_SCHEMA = '{$schema}' AND TABLE_NAME = '{$result['TABLE_NAME']}'";
+                                WHERE TABLE_SCHEMA = '{$result['TABLE_SCHEMA']}' AND TABLE_NAME = '{$result['TABLE_NAME']}'";
                 $foreignKeys = $this->em->getConnection()->executeQuery($sql)->fetchAll(\PDO::FETCH_ASSOC);
 
                 foreach ($foreignKeys as $foreignKey) {
