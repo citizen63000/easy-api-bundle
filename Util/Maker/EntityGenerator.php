@@ -45,23 +45,27 @@ class EntityGenerator extends AbstractGenerator
 
                     // remove fields of parent entity
                     $parentConfig = EntityConfigLoader::createEntityConfigFromAnnotations(null, $parent);
-                    foreach ($parentConfig->getFields() as $field) {
-                        $this->getConfig()->removeField($field->getName());
-                    }
 
-                } else { // referential
+                } elseif($this->getConfig()->isReferential()) { // referential
                     $parent = $this->container->getParameter('easy_api.inheritance.entity_referential');
                     $content['uses'][] = $parent;
                     $content['parent'] = EntityConfiguration::getEntityNameFromNamespace($parent);
 
                     // remove fields of parent entity
                     $parentConfig = EntityConfigLoader::createEntityConfigFromAnnotations(null, $parent);
-                    foreach ($parentConfig->getFields() as $field) {
-                        $this->getConfig()->removeField($field->getName());
-                    }
                 }
             }
 
+        }
+
+        if(null !== $parentConfig) {
+            foreach ($parentConfig->getFields() as $field) {
+                if($this->getConfig()->hasField($field->getName())) {
+                    $this->getConfig()->removeField($field->getName());
+                } else {
+                    throw new \Exception("The table must have a field named {$field->getName()} (field of {$parentConfig->getFullName()} parent class)");
+                }
+            }
         }
 
         if($this->useDoctrineAnnotations) {
