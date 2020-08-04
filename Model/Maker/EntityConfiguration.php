@@ -399,7 +399,7 @@ class EntityConfiguration
      */
     public function isReferential()
     {
-        return 1 === preg_match('/Ref[A-Z]{1}[a-z]+/', $this->getEntityName());
+        return 1 === preg_match('/^Ref[A-Z]{1}[a-z]+/', $this->getEntityName());
     }
 
     /**
