@@ -3,12 +3,13 @@
 
 namespace EasyApiBundle\Util\Maker;
 
-use JMS\Serializer\SerializationContext;
-use EasyApiBundle\Util\Forms\FormDescriber;
+use EasyApiBundle\Model\Maker\EntityConfiguration;
+use EasyApiBundle\Util\Forms\FormSerializer;
 use EasyApiBundle\Util\StringUtils\CaseConverter;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Serializer\Serializer;
 
-class TiCrudGenerator
+class TiCrudGenerator extends AbstractGenerator
 {
     /**
      * @var string
@@ -41,7 +42,7 @@ class TiCrudGenerator
      */
     public function generate(string $bundle, string $context, string $entityName, string $parent = null, bool $dumpExistingFiles = false)
     {
-        $this->loadDoctrineYamlConfig($bundle, $context, $entityName, $parent);
+        $this->config = $this->loadEntityConfig($entityName, $bundle, $context);
 
         $paths = [];
         $paths['context'] = $this->generateAbstractContext($dumpExistingFiles);
@@ -294,7 +295,7 @@ class TiCrudGenerator
             }
 
             // form
-            $describer = new FormDescriber($this->container->get('form.factory'), $this->container->get('router'));
+            $describer = new FormSerializer($this->container->get('form.factory'), $this->container->get('router'));
             $formName = $this->config->getBundleName().'\\Form\\Type\\'.$this->config->getContextName().'\\'.$this->config->getEntityName().'Type';
             $form = $describer->normalize($this->createForm($formName));
             $formFields = [];
@@ -366,13 +367,12 @@ class TiCrudGenerator
     }
 
     /**
-     * @param YamlDoctrineConfig $config
-     * @param array              $fixtures
-     * @param YamlDoctrineConfig $childEntityConfig
-     *
+     * @param EntityConfiguration $config
+     * @param array $fixtures
+     * @param EntityConfiguration|null $childEntityConfig
      * @return array
      */
-    protected function prepareSqlInsertData(YamlDoctrineConfig $config, array $fixtures, YamlDoctrineConfig $childEntityConfig = null)
+    protected function prepareSqlInsertData(EntityConfiguration $config, array $fixtures, EntityConfiguration $childEntityConfig = null)
     {
         $columns = [];
         $values = [];
@@ -382,7 +382,7 @@ class TiCrudGenerator
 
         // Has parent class ?
         if ($parent = $config->getParentEntity()) {
-            $parentConfig = YamlDoctrineConfigReader::findAndCreateFromEntityName($parent->getEntityName(), $config->getBundleName());
+            $parentConfig = EntityConfigLoader::findAndCreateFromEntityName($parent->getEntityName(), $config->getBundleName());
             $sqlParent = $this->prepareSqlInsertData($parentConfig, $fixtures, $config);
             $columnIdName = $config->isReferential() ? 'code' : 'id';
             $columns[] = $columnIdName;
@@ -393,9 +393,9 @@ class TiCrudGenerator
         // is parent class ?
         // Inheritance Type column
         if ($config->isParentEntity() && null !== $childEntityConfig) {
-            $columns[] = '`'.YamlDoctrineConfig::inheritanceTypeColumnName.'`';
-            $values[YamlDoctrineConfig::inheritanceTypeColumnName] = '\''.$childEntityConfig->getEntityName().'\'';
-            $values2[YamlDoctrineConfig::inheritanceTypeColumnName] = $values[YamlDoctrineConfig::inheritanceTypeColumnName];
+            $columns[] = '`'.EntityConfiguration::inheritanceTypeColumnName.'`';
+            $values[EntityConfiguration::inheritanceTypeColumnName] = '\''.$childEntityConfig->getEntityName().'\'';
+            $values2[EntityConfiguration::inheritanceTypeColumnName] = $values[EntityConfiguration::inheritanceTypeColumnName];
         }
 
         // Other fields
@@ -412,7 +412,7 @@ class TiCrudGenerator
                     }
                 } else {
                     $field->setRandomValue(1);
-                    $foreignConfig = YamlDoctrineConfigReader::findAndCreateFromEntityName($field->getEntityClassName());
+                    $foreignConfig = EntityConfigLoader::findAndCreateFromEntityName($field->getEntityClassName());
                     $tables[] = [
                         'tableName' => (null !== $foreignConfig) ? $foreignConfig->getTableName() : str_replace('_id', '', $field->getTableColumnName()),
                         'columns' => ['id', 'created_at', 'updated_at'],
@@ -446,11 +446,11 @@ class TiCrudGenerator
     }
 
     /**
-     * @param YamlDoctrineConfig $config
+     * @param EntityConfiguration $config
      *
      * @return array
      */
-    protected function generateFixtures(YamlDoctrineConfig $config)
+    protected function generateFixtures(EntityConfiguration $config)
     {
         $fields = $config->getFields();
         $values = [];
@@ -458,19 +458,19 @@ class TiCrudGenerator
         $parentFixtures = null;
 
         if ($parent = $config->getParentEntity()) {
-            $parentConfig = YamlDoctrineConfigReader::findAndCreateFromEntityName($parent->getEntityName(), $config->getBundleName());
+            $parentConfig = EntityConfigLoader::findAndCreateFromEntityName($parent->getEntityName(), $config->getBundleName());
             $parentFixtures = $this->generateFixtures($parentConfig);
         }
 
         foreach ($fields as $field) {
             if (!$field->isNativeType()) {
                 // Referential ?
-                if (preg_match('/ref[A-Z]{1}[a-z]+/', $field->getName())) {
+                if ($field->isReferential()) {
                     try {
                         $instances = $this->getDoctrine()->getRepository($field->getEntityType())->findAll();
                         if (count($instances)) {
-                            $serializer = $this->container->get('jms_serializer');
-                            $data = $serializer->serialize($instances[0], 'json', SerializationContext::create()->setGroups(['referential_short']));
+                            $serializer = $this->container->get('serializer');
+                            $data = $serializer->serialize($instances[0], 'json', ['groups' => 'referential_short']);
                             $values[$field->getName()]['value'] = json_decode($data, true);
                             $values[$field->getName()]['type'] = 'entity';
                         } else {
@@ -483,7 +483,7 @@ class TiCrudGenerator
                     }
                 } else {
                     //TODO
-//                $config = YamlDoctrineConfigReader::findAndCreateFromEntityName($field->getEntityClassName());
+//                $config = EntityConfigLoader::findAndCreateFromEntityName($field->getEntityClassName());
 //                $tables[] = prepareSqlInsertData($config)
                     $values[$field->getName()]['value'] = $field->getRandomValue(true);
                     $values[$field->getName()]['type'] = $field->getType();
@@ -513,7 +513,7 @@ class TiCrudGenerator
     {
         $context = $this->config->getContextNameForPath();
 
-        return 'tests/'.$this->config->getBundleName()."/$context/";
+        return 'tests/'.$this->config->getBundleName()."/{$context}/";
     }
 
     /**
@@ -525,7 +525,7 @@ class TiCrudGenerator
         $prefix = str_replace(['API', 'Bundle'], ['api_', ''], $bundleName);
         $contextName = str_replace(['\\', '/'], '_', $this->config->getContextName());
 
-        return CaseConverter::convertToPascalCase($prefix.'_'.$contextName);
+        return CaseConverter::convertToPascalCase("{$prefix}_{$contextName}");
     }
 
     /**
@@ -550,7 +550,7 @@ class TiCrudGenerator
     {
         $contextDirectory = ucfirst(strtolower($this->getConfig()->getContextNameForPath()));
 
-        return "{$this->config->getBundleName()}/$contextDirectory/";
+        return "{$this->config->getBundleName()}/{$contextDirectory}/";
     }
 
     /**

@@ -7,6 +7,7 @@ use EasyApiBundle\Util\AbstractCommand;
 use EasyApiBundle\Util\Maker\CrudGenerator;
 use EasyApiBundle\Util\Maker\FormGenerator;
 use EasyApiBundle\Util\Maker\RepositoryGenerator;
+use EasyApiBundle\Util\Maker\TiCrudGenerator;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -76,23 +77,23 @@ abstract class AbstractMakerCommand extends AbstractCommand
             $output->writeln("file://{$file} created.");
         }
     }
-//
-//    /**
-//     * @param OutputInterface $output
-//     * @param $bundle string
-//     * @param $context string
-//     * @param $entityName string
-//     * @param $parent string
-//     * @param $dumpExistingFiles boolean
-//     */
-//    protected function generateTI(OutputInterface $output, $bundle, $context, $entityName, $parent, $dumpExistingFiles = false)
-//    {
-//        $output->writeln("\n------------- Generate TI -------------");
-//        $generator = new CrudTIGenerator($this->getContainer());
-//        $filesPath = $generator->generate($bundle, $context, $entityName, $parent, $dumpExistingFiles);
-//        foreach ($filesPath as $type => $file) {
-//            $type = ucfirst($type);
-//            $output->writeln("{$type} {$file} created.");
-//        }
-//    }
+
+    /**
+     * @param OutputInterface $output
+     * @param $bundle string
+     * @param $context string
+     * @param $entityName string
+     * @param $parent string
+     * @param $dumpExistingFiles boolean
+     */
+    protected function generateTI(OutputInterface $output, $bundle, $context, $entityName, $parent, $dumpExistingFiles = false)
+    {
+        $output->writeln("\n------------- Generate TI -------------");
+        $generator = new TiCrudGenerator($this->getContainer());
+        $filesPath = $generator->generate($bundle, $context, $entityName, $parent, $dumpExistingFiles);
+        foreach ($filesPath as $type => $file) {
+            $type = ucfirst($type);
+            $output->writeln("{$type} {$file} created.");
+        }
+    }
 }

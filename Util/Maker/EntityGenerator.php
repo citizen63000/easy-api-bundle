@@ -1,12 +1,10 @@
 <?php
 
-
 namespace EasyApiBundle\Util\Maker;
 
 use EasyApiBundle\Model\Maker\EntityConfiguration;
 use EasyApiBundle\Model\Maker\EntityField;
 use EasyApiBundle\Util\StringUtils\CaseConverter;
-use Symfony\Component\HttpFoundation\Response;
 
 class EntityGenerator extends AbstractGenerator
 {
@@ -17,12 +15,12 @@ class EntityGenerator extends AbstractGenerator
     protected static $doctrineAnnotationPrefix = '@'.self::doctrineAnnotationAlias;
 
     /**
-     * @throws \Exception
+     * @return array
+     * @throws \ReflectionException
      */
     protected function generateContent()
     {
         $content = ['fields' => [], 'uses' => [], '__construct' => ['fields' => []], 'classAnnotations' => []];
-
         $content['namespace'] = $this->getConfig()->getNamespace();
         $content['classname'] = $this->getConfig()->getEntityName();
         $content['extend'] = $this->getConfig()->getEntityType();
@@ -55,7 +53,6 @@ class EntityGenerator extends AbstractGenerator
                     $parentConfig = EntityConfigLoader::createEntityConfigFromAnnotations(null, $parent);
                 }
             }
-
         }
 
         if(null !== $parentConfig) {
@@ -214,6 +211,7 @@ class EntityGenerator extends AbstractGenerator
      * @param bool $dumpExistingFiles
      * @return string
      * @throws \Doctrine\DBAL\DBALException
+     * @throws \ReflectionException
      */
     public function generate(string $bundle, string $tableName, string $entityName, string $schema = null, string $parentName = null, string $inheritanceType = null, string $context = null, bool $dumpExistingFiles = true)
     {
