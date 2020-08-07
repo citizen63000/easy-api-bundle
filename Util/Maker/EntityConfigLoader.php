@@ -169,6 +169,7 @@ class EntityConfigLoader
             $newField->setReferencedColumnName($relation['REFERENCED_COLUMN_NAME']);
             $newField->setTableColumnName($relation['COLUMN_NAME']);
             $newField->setJoinTable($relation['TABLE_NAME']);
+            $newField->setJoinTableSchema($relation['TABLE_SCHEMA']);
 
             // load link table
             $newField->setInverseReferencedColumnName($relation['target']['REFERENCED_COLUMN_NAME']);

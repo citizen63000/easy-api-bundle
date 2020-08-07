@@ -40,6 +40,11 @@ class EntityField
     protected $joinTable;
 
     /**
+     * @var string
+     */
+    protected $joinTableSchema;
+
+    /**
      * @var bool
      */
     protected $isPrimary = false;
@@ -208,6 +213,22 @@ class EntityField
     public function setJoinTable(string $joinTable): void
     {
         $this->joinTable = $joinTable;
+    }
+
+    /**
+     * @return string
+     */
+    public function getJoinTableSchema(): string
+    {
+        return $this->joinTableSchema;
+    }
+
+    /**
+     * @param string $joinTableSchema
+     */
+    public function setJoinTableSchema(string $joinTableSchema): void
+    {
+        $this->joinTableSchema = $joinTableSchema;
     }
 
     /**

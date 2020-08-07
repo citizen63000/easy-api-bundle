@@ -122,50 +122,50 @@ class EntityGenerator extends AbstractGenerator
     protected function getDoctrineAnnotationsForField(EntityField $field)
     {
         $annotations = [];
-        $options = '';
+        $options = $field->isRequired() ? ', nullable=false' : ', nullable=true';
         $ormPrefix = static::$doctrineAnnotationPrefix;
-
-        $options .= $field->isRequired() ? ', nullable=false' : ', nullable=true';
 
         if('decimal' === $field->getType()) {
             $options = ', scale=' . $field->getScale() . ', precision=' . $field->getPrecision();
         }
 
         if ($field->isPrimary()) {
-            $annotations[] = $ormPrefix . '\Id()';
+            $annotations[] = "{$ormPrefix}\Id()";
 
             if ($field->isAutoIncremented()) {
-                $annotations[] = $ormPrefix . '\GeneratedValue()';
+                $annotations[] = "{$ormPrefix}\GeneratedValue()";
             }
         }
 
         if ($field->isNativeType()) {
-            $annotations[] = $ormPrefix . "\Column(type=\"{$field->getType()}\"{$options})";
+            $annotations[] = "{$ormPrefix}\Column(type=\"{$field->getType()}\"{$options})";
         } else {
             switch ($field->getRelationType()) {
                 case 'manyToOne':
-                    $annotations[] = $ormPrefix . "\ManyToOne(targetEntity=\"{$field->getEntityType()}\")";
-                    $joinColumn = $ormPrefix . "\JoinColumn(name=\"{$field->getTableColumnName()}\", referencedColumnName=\"{$field->getReferencedColumnName()}\")";
-                    $annotations[] = $ormPrefix . "\JoinColumns({$joinColumn})";
+                    $inversedBy = lcfirst($this->config->getEntityName());
+                    $annotations[] = "{$ormPrefix}\ManyToOne(targetEntity=\"{$field->getEntityType()}\", inversedBy=\"{$inversedBy}\")";
+                    $joinColumn = "{$ormPrefix}\JoinColumn(name=\"{$field->getTableColumnName()}\", referencedColumnName=\"{$field->getReferencedColumnName()}\")";
+                    $annotations[] = "{$ormPrefix}\JoinColumns({$joinColumn})";
                     break;
                 case 'oneToOne':
-                    $annotations[] = $ormPrefix . "\OneToOne(targetEntity=\"{$field->getEntityType()}\")";
-                    $joinColumn = $ormPrefix . "\JoinColumn(name=\"{$field->getTableColumnName()}\", referencedColumnName=\"{$field->getReferencedColumnName()}\")";
-                    $annotations[] = $ormPrefix . "\JoinColumns({$joinColumn})";
+                    $annotations[] = "{$ormPrefix}\OneToOne(targetEntity=\"{$field->getEntityType()}\")";
+                    $joinColumn = "{$ormPrefix}\JoinColumn(name=\"{$field->getTableColumnName()}\", referencedColumnName=\"{$field->getReferencedColumnName()}\")";
+                    $annotations[] = "{$ormPrefix}\JoinColumns({$joinColumn})";
                     break;
                 case 'oneToMany':
                     $mapped = lcfirst($this->config->getEntityName());
-                    $annotations[] = $ormPrefix . "\OneToMany(targetEntity=\"{$field->getEntityType()}\", mappedBy=\"{$mapped}\", cascade={}, orphanRemoval=true)";
+                    $annotations[] = "{$ormPrefix}\OneToMany(targetEntity=\"{$field->getEntityType()}\", mappedBy=\"{$mapped}\", cascade={}, orphanRemoval=true)";
                     break;
                 case 'manyToMany':
-                    $inversed = lcfirst($this->config->getEntityName()).'s';
-                    $annotations[] = $ormPrefix . "\ManyToMany(targetEntity=\"{$field->getEntityType()}\", inversedBy=\"{$inversed}\", cascade={})";
-                    $annotations[] = $ormPrefix . "\JoinTable(name=\"{$field->getJoinTable()}\",";
+                    $inversedBy = lcfirst($this->config->getEntityName()).'s';
+                    $annotations[] = '@TODO replace inversedBy by mappedBy if this entity is the owner of the relation, modify targetEntity instead';
+                    $annotations[] = "{$ormPrefix}\ManyToMany(targetEntity=\"{$field->getEntityType()}\", inversedBy=\"{$inversedBy}\", cascade={})";
+                    $annotations[] = "{$ormPrefix}\JoinTable(schema=\"{$field->getJoinTableSchema()}\", name=\"{$field->getJoinTable()}\",";
                     $annotations[] = "\tjoinColumns={";
-                    $annotations[] = "\t\t$ormPrefix" . "\JoinColumn(name=\"{$field->getTableColumnName()}\", referencedColumnName=\"{$field->getReferencedColumnName()}\")";
+                    $annotations[] = "\t\t{$ormPrefix}\JoinColumn(name=\"{$field->getTableColumnName()}\", referencedColumnName=\"{$field->getReferencedColumnName()}\")";
                     $annotations[] = "\t},";
                     $annotations[] = "\tinverseJoinColumns={";
-                    $annotations[] = "\t\t$ormPrefix" . "\JoinColumn(name=\"{$field->getInverseTableColumnName()}\", referencedColumnName=\"{$field->getInverseReferencedColumnName()}\")";
+                    $annotations[] = "\t\t{$ormPrefix}\JoinColumn(name=\"{$field->getInverseTableColumnName()}\", referencedColumnName=\"{$field->getInverseReferencedColumnName()}\")";
                     $annotations[] = "\t}";
                     $annotations[] = ')';
                     break;
