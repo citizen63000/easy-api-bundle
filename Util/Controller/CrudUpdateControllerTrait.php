@@ -1,0 +1,39 @@
+<?php
+
+namespace EasyApiBundle\Util\Controller;
+
+trait CrudUpdateControllerTrait
+{
+    /**
+     * Update Entity.
+     *
+     * @Swagger\Annotations\Parameter(
+     *     name="data",
+     *     in="body",
+     *     description="Create data.",
+     *     required=true,
+     *     @Swagger\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type=EasyApiBundle\Util\Controller\AbstractApiController::entityTypeClass))
+     * ),
+     * @Swagger\Annotations\Response(
+     *     response=201,
+     *     description="Successful operation",
+     *     @Swagger\Annotations\Schema(
+     *          ref=@Nelmio\ApiDocBundle\Annotation\Model(
+     *              type=EasyApiBundle\Util\Controller\AbstractApiController::entityClass,
+     *              groups=EasyApiBundle\Util\Controller\AbstractApiController::serializationGroups
+     *          )
+     *      )
+     * ),
+     * @Swagger\Annotations\Response(response="404", ref="#/definitions/404"),
+     * @Swagger\Annotations\Response(response="405", ref="#/definitions/405"),
+     * @Swagger\Annotations\Response(response="415", ref="#/definitions/415")
+     *
+     * @param Symfony\Component\HttpFoundation\Request          $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function updateAction(Symfony\Component\HttpFoundation\Request $request)
+    {
+        return $this->updateEntityAction($request, $this->getEntityOfRequest($request));
+    }
+}

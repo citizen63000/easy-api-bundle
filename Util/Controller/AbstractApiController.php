@@ -2,7 +2,6 @@
 
 namespace EasyApiBundle\Util\Controller;
 
-use EasyApiBundle\Util\Forms\FormDescriber;
 use EasyApiBundle\Util\Forms\FormSerializer;
 use EasyApiBundle\Util\Forms\SerializedForm;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -15,7 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
-use FOS\RestBundle\View\View;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class AbstractApiController extends FOSRestController
 {
@@ -24,22 +23,22 @@ abstract class AbstractApiController extends FOSRestController
     /**
      * @var string
      */
-    public const entityClass = '';
+    public const entityClass = 'crud.entityClass';
 
     /**
      * @var string
      */
-    public const entityTypeClass = '';
+    public const entityTypeClass = 'crud.entityTypeClass';
 
     /**
      * @var string
      */
-    public const entitySearchModelClass = '';
+    public const entitySearchModelClass = 'crud.searchModelClass';
 
     /**
      * @var string
      */
-    public const entitySearchTypeClass = '';
+    public const entitySearchTypeClass = 'crud.searchTypeClass';
 
     /**
      * @var array
@@ -63,8 +62,21 @@ abstract class AbstractApiController extends FOSRestController
     }
 
     /**
+     * @param Request $request
+     */
+    protected function getEntityOfRequest(Request $request)
+    {
+        $entity = $this->getRepository(static::entitytClass)->find($request->get('id'));
+
+        if(null === $entity) {
+            throw new NotFoundHttpException();
+        }
+    }
+
+    /**
      * @param $entity
      * @param array|null $serializationGroups
+     *
      * @return Response
      */
     protected function getEntityAction($entity, array $serializationGroups = null): Response
@@ -75,6 +87,7 @@ abstract class AbstractApiController extends FOSRestController
     /**
      * @param string|null $entityClass
      * @param array|null $serializationGroups
+     *
      * @return Response
      */
     protected function getEntityListAction(string $entityClass = null, array $serializationGroups = null): Response
@@ -89,6 +102,7 @@ abstract class AbstractApiController extends FOSRestController
     /**
      * @param string|null $entityClass
      * @param array|null $serializationGroups
+     *
      * @return Response
      */
     protected function getEntityListOrderedAction(string $entityClass = null, array $serializationGroups = null): Response
@@ -107,6 +121,7 @@ abstract class AbstractApiController extends FOSRestController
      * @param array|null $serializationGroups
      * @param SearchModel|null $model
      * @param string $methodName
+     *
      * @return Response|null
      */
     protected function getEntityListSearchAction(Request $request,
@@ -183,13 +198,13 @@ abstract class AbstractApiController extends FOSRestController
     /**
      * @param $entity
      *
-     * @return View
+     * @return Response
      */
     protected function deleteEntityAction($entity)
     {
         $this->removeAndFlush($entity);
 
-        return View::create(null, Response::HTTP_NO_CONTENT);
+        return static::renderResponse(null, Response::HTTP_NO_CONTENT);
     }
 
     /**
@@ -247,13 +262,15 @@ abstract class AbstractApiController extends FOSRestController
     }
 
     /**
-     * @param string $content
+     * @param string|null $content
+     * @param int $status
+     * @param array $headers
      *
      * @return Response
      */
-    protected function renderResponse(string $content)
+    protected function renderResponse(?string $content, int $status = 200, array $headers = [])
     {
-        return (new Response($content));
+        return (new Response($content, $status, $headers));
     }
 
     /**
