@@ -23,6 +23,6 @@ trait CrudDescribeFormControllerTrait
      */
     public function describeFormAction()
     {
-        return $this->describeForm(static::$entityTypeClass);
+        return $this->describeForm(static::entityTypeClass);
     }
 }
