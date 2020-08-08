@@ -84,7 +84,7 @@ class SerializedFormField
      * @var string[]
      * @Groups({"public"})
      */
-    protected $values;
+    protected $values = [];
 
     /**
      * @var string
@@ -141,15 +141,15 @@ class SerializedFormField
     /**
      * @return string
      */
-    public function getLabel(): string
+    public function getLabel(): ?string
     {
         return $this->label;
     }
 
     /**
-     * @param string $label
+     * @param string|null $label
      */
-    public function setLabel(string $label): void
+    public function setLabel(?string $label): void
     {
         $this->label = $label;
     }
@@ -157,7 +157,7 @@ class SerializedFormField
     /**
      * @return string
      */
-    public function getPlaceholder(): string
+    public function getPlaceholder(): ?string
     {
         return $this->placeholder;
     }
@@ -173,7 +173,7 @@ class SerializedFormField
     /**
      * @return string
      */
-    public function getKey(): string
+    public function getKey(): ?string
     {
         return $this->key;
     }
@@ -203,17 +203,17 @@ class SerializedFormField
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getFormat(): string
+    public function getFormat(): ?string
     {
         return $this->format;
     }
 
     /**
-     * @param string $format
+     * @param string|null $format
      */
-    public function setFormat(string $format): void
+    public function setFormat(?string $format): void
     {
         $this->format = $format;
     }
@@ -307,7 +307,7 @@ class SerializedFormField
     }
 
     /**
-     * @param SerializedForm $parentForm
+     * @param SerializedForm|null $parentForm
      */
     public function setParentForm(SerializedForm $parentForm = null): void
     {
@@ -331,17 +331,17 @@ class SerializedFormField
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getWidget(): string
+    public function getWidget(): ?string
     {
         return $this->widget;
     }
 
     /**
-     * @param string $widget
+     * @param string|null $widget
      */
-    public function setWidget(string $widget): void
+    public function setWidget(?string $widget): void
     {
         $this->widget = $widget;
     }
@@ -363,17 +363,17 @@ class SerializedFormField
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getGroup(): string
+    public function getGroup(): ?string
     {
         return $this->group;
     }
 
     /**
-     * @param string $group
+     * @param string|null $group
      */
-    public function setGroup(string $group): void
+    public function setGroup(?string $group): void
     {
         $this->group = $group;
     }
@@ -395,17 +395,17 @@ class SerializedFormField
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getDiscriminator(): string
+    public function getDiscriminator(): ?string
     {
         return $this->discriminator;
     }
 
     /**
-     * @param string $discriminator
+     * @param string|null $discriminator
      */
-    public function setDiscriminator(string $discriminator): void
+    public function setDiscriminator(?string $discriminator): void
     {
         $this->discriminator = $discriminator;
     }

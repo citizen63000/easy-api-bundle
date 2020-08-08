@@ -51,17 +51,17 @@ class SerializedForm
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getRoute(): string
+    public function getRoute(): ?string
     {
         return $this->route;
     }
 
     /**
-     * @param string $route
+     * @param string|null $route
      */
-    public function setRoute(string $route): void
+    public function setRoute(?string $route): void
     {
         $this->route = $route;
     }
