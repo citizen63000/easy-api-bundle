@@ -1,6 +1,6 @@
 {
   "name": "citizen63000/easy-api-bundle",
-  "description": "Complete API bundle to create ",
+  "description": "Complete API bundle to create easily APIs",
   "keywords": ["api", "rest"],
   "type": "symfony-bundle",
   "authors": [
@@ -21,6 +21,7 @@
     "doctrine/doctrine-bundle": "^1.10",
     "doctrine/doctrine-cache-bundle": "^1.3",
     "stof/doctrine-extensions-bundle": "^1.3",
+    "ramsey/uuid-doctrine": "^1.6",
     "jms/di-extra-bundle": "~1.9",
     "jms/security-extra-bundle": "~1.6",
     "friendsofsymfony/user-bundle": "~2.0",
@@ -35,8 +36,7 @@
     "vich/uploader-bundle": "^1.8",
     "oneup/flysystem-bundle": "^3.0",
     "whichbrowser/parser": "^2.0",
-    "thadafinser/user-agent-parser": "^2.0",
-    "ramsey/uuid-doctrine": "^1.6"
+    "thadafinser/user-agent-parser": "^2.0"
   },
   "require-dev": {
     "guzzlehttp/psr7": "^1.3",

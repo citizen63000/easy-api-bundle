@@ -24,27 +24,27 @@ abstract class AbstractApiController extends FOSRestController
     /**
      * @var string
      */
-    protected static $entityClass;
+    public const entityClass = '';
 
     /**
      * @var string
      */
-    protected static $entityTypeClass;
+    public const entityTypeClass = '';
 
     /**
      * @var string
      */
-    protected static $entitySearchModelClass;
+    public const entitySearchModelClass = '';
 
     /**
      * @var string
      */
-    protected static $entitySearchTypeClass;
+    public const entitySearchTypeClass = '';
 
     /**
      * @var array
      */
-    protected static $serializationGroups;
+    public const serializationGroups = [];
 
     /**
      * @return ContainerInterface
@@ -64,35 +64,40 @@ abstract class AbstractApiController extends FOSRestController
 
     /**
      * @param $entity
-     *
-     * @return mixed
+     * @param array|null $serializationGroups
+     * @return Response
      */
-    protected function getEntityAction($entity)
+    protected function getEntityAction($entity, array $serializationGroups = null): Response
     {
-        return $entity;
+        return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups);
     }
 
     /**
-     * @param ?string $entityClass
-     * @return object[]
+     * @param string|null $entityClass
+     * @param array|null $serializationGroups
+     * @return Response
      */
-    protected function getEntityListAction(string $entityClass = null)
+    protected function getEntityListAction(string $entityClass = null, array $serializationGroups = null): Response
     {
-        $entityClass = $entityClass ?? static::$entityClass;
+        $entityClass = $entityClass ?? static::entityClass;
 
-        return $this->getDoctrine()->getRepository($entityClass)->findAll();
+        $entities = $this->getDoctrine()->getRepository($entityClass)->findAll();
+
+        return static::renderEntityResponse($entities, $serializationGroups ?? static::serializationGroups);
     }
 
     /**
-     * @param ?string $entityClass
-     *
-     * @return object[]
+     * @param string|null $entityClass
+     * @param array|null $serializationGroups
+     * @return Response
      */
-    protected function getEntityListOrderedAction(string $entityClass = null)
+    protected function getEntityListOrderedAction(string $entityClass = null, array $serializationGroups = null): Response
     {
-        $entityClass = $entityClass ?? static::$entityClass;
+        $entityClass = $entityClass ?? static::entityClass;
 
-        return $this->getDoctrine()->getRepository($entityClass)->findBy([], ['rank' => 'ASC']);
+        $entities = $this->getDoctrine()->getRepository($entityClass)->findBy([], ['rank' => 'ASC']);
+
+        return static::renderEntityResponse($entities, $serializationGroups ?? static::serializationGroups);
     }
 
     /**
@@ -109,11 +114,11 @@ abstract class AbstractApiController extends FOSRestController
                                                  string $entityClass = null,
                                                  array $serializationGroups = null,
                                                  SearchModel $model = null,
-                                                 string $methodName = 'search'): ?Response
+                                                 string $methodName = 'search'): Response
     {
-        $entitySearchTypeClass = $entitySearchTypeClass ?? static::$entitySearchTypeClass;
-        $serializationGroups = $serializationGroups ?? static::$serializationGroups;
-        $entityClass = $entityClass ?? static::$entityClass;
+        $entitySearchTypeClass = $entitySearchTypeClass ?? static::entitySearchTypeClass;
+        $serializationGroups = $serializationGroups ?? static::serializationGroups;
+        $entityClass = $entityClass ?? static::entityClass;
 
         $form = $this->createForm($entitySearchTypeClass, $model, ['method' => 'GET']);
         $form->submit($request->query->all());
@@ -131,19 +136,22 @@ abstract class AbstractApiController extends FOSRestController
 
     /**
      * @param Request $request
-     * @param mixed   $entity          The entity
-     * @param ?string  $entityTypeClass Form Type
-     *
-     * @return View
+     * @param null $entity
+     * @param string|null $entityTypeClass
+     * @param array|null $serializationGroups
+     * @return Response
      */
-    protected function createEntityAction(Request $request, $entity = null, string $entityTypeClass = null): ?View
+    protected function createEntityAction(Request $request, $entity = null, string $entityTypeClass = null, array $serializationGroups = null): Response
     {
-        $form = $this->createForm($entityTypeClass ?? static::$entityTypeClass, $entity);
+        $form = $this->createForm($entityTypeClass ?? static::entityTypeClass, $entity);
 
         $form->submit($request->request->all());
 
         if ($form->isValid()) {
-            return View::create($this->persistAndFlush($form->getData()), Response::HTTP_CREATED);
+
+            $entity = $this->persistAndFlush($form->getData());
+
+            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, Response::HTTP_CREATED);
         }
 
         $this->throwUnprocessableEntity($form);
@@ -152,18 +160,21 @@ abstract class AbstractApiController extends FOSRestController
     /**
      * @param Request $request
      * @param $entity
-     * @param ?string $entityTypeClass Form Type
-     *
-     * @return mixed
+     * @param string|null $entityTypeClass
+     * @param array|null $serializationGroups
+     * @return Response
      */
-    protected function updateEntityAction(Request $request, $entity, string $entityTypeClass = null)
+    protected function updateEntityAction(Request $request, $entity, string $entityTypeClass = null, array $serializationGroups = null): Response
     {
-        $form = $this->createForm($entityTypeClass ?? static::$entityTypeClass, $entity);
+        $form = $this->createForm($entityTypeClass ?? static::entityTypeClass, $entity);
 
         $form->submit($request->request->all(), false);
 
         if ($form->isValid()) {
-            return $this->persistAndFlush($entity);
+
+            $entity = $this->persistAndFlush($entity);
+
+            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, Response::HTTP_CREATED);
         }
 
         $this->throwUnprocessableEntity($form);
@@ -176,7 +187,7 @@ abstract class AbstractApiController extends FOSRestController
      */
     protected function deleteEntityAction($entity)
     {
-       $this->removeAndFlush($entity);
+        $this->removeAndFlush($entity);
 
         return View::create(null, Response::HTTP_NO_CONTENT);
     }
@@ -200,15 +211,15 @@ abstract class AbstractApiController extends FOSRestController
     /**
      * @param array $results
      * @param int   $nbResults
-     * @param array $groups
+     * @param array $serializationGroups
      * @param array $headers
      *
      * @return Response
      */
-    protected function createPaginateResponse(array $results, int $nbResults, array $groups = ['Default'], array $headers = [])
+    protected function createPaginateResponse(array $results, int $nbResults, array $serializationGroups = ['Default'], array $headers = [])
     {
         $serializer = $this->container->get('serializer');
-        $data = $serializer->serialize($results, 'json', ['groups' => $groups]);
+        $data = $serializer->serialize($results, 'json', ['groups' => $serializationGroups]);
         $headers['X-Total-Results'] = $nbResults;
 
         $response = new Response($data);
@@ -242,11 +253,23 @@ abstract class AbstractApiController extends FOSRestController
      */
     protected function renderResponse(string $content)
     {
-        $response = new Response();
+        return (new Response($content));
+    }
 
-        $response->setContent($content);
+    /**
+     * @param $entity
+     * @param array $serializationGroups
+     * @param int $status
+     * @param array $headers
+     *
+     * @return Response
+     */
+    protected function renderEntityResponse($entity, array $serializationGroups = [], int $status = 200, array $headers = [])
+    {
+        $serializer = $this->container->get('serializer');
+        $data = $serializer->serialize($entity, 'json', ['groups' => $serializationGroups]);
 
-        return $response;
+        return $this->renderResponse($data, $status, $headers);
     }
 
 }
