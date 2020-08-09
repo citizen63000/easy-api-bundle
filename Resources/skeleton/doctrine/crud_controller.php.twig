@@ -2,7 +2,6 @@
 
 namespace {{ namespace }};
 
-use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -19,11 +18,13 @@ use {{ use }};
  */
 class {{ entity_name }}Controller extends AbstractApiController
 {
-    protected static $entityClass = {{ entity_name }}::class;
-    protected static $entityTypeClass = {{ entity_name }}Type::class;
-    //protected static $entitySearchModelClass = {{ entity_name }}SearchModel::class;
-    //protected static $entitySearchTypeClass = {{ entity_name }}SearchModelType::class;
-    protected static $serializationGroups = [{{ serialization_groups|raw }}];
+    use CrudDescribeFormControllerTrait;
+
+    public const entityClass = {{ entity_name }}::class;
+    public const entityTypeClass = {{ entity_name }}Type::class;
+    //public const entitySearchModelClass = {{ entity_name }}SearchModel::class;
+    //public const entitySearchTypeClass = {{ entity_name }}SearchModelType::class;
+    public const serializationGroups = [{{ serialization_groups|raw }}];
 
     /**
      * Get {{ entity_name }} entity.
@@ -33,11 +34,10 @@ class {{ entity_name }}Controller extends AbstractApiController
      *     description="Successful operation",
      *     @SWG\Schema(ref=@Model(type={{ entity_name }}::class, groups={ {{ serialization_groups|raw }} }))
      * ),
-     * @Rest\View(serializerGroups={ {{ serialization_groups|raw }} })
      *
      * @param {{ entity_name }} $entity
      *
-     * @return {{ entity_name }}
+     * @return Response
      */
     public function getAction({{ entity_name }} $entity)
     {
@@ -55,9 +55,8 @@ class {{ entity_name }}Controller extends AbstractApiController
      *         @SWG\Items(ref=@Model(type={{ entity_name }}::class, groups={ {{ serialization_groups|raw }} }))
      *     )
      * ),
-     * @Rest\View(serializerGroups={ {{ serialization_groups|raw }} })
      *
-     * @return {{ entity_name }}[]
+     * @return Response
      */
     public function listAction()
     {
@@ -85,9 +84,7 @@ class {{ entity_name }}Controller extends AbstractApiController
      *
      * @param Request $request
      *
-     * @Rest\View(serializerGroups={ {{ serialization_groups|raw }} })
-     *
-     * @return View
+     * @return Response
      */
     public function createAction(Request $request)
     {
@@ -116,9 +113,7 @@ class {{ entity_name }}Controller extends AbstractApiController
      * @param Request           $request
      * @param {{ entity_name }} $entity
      *
-     * @Rest\View(serializerGroups={ {{ serialization_groups|raw }} })
-     *
-     * @return {{ entity_name }}
+     * @return Response
      */
     public function updateAction(Request $request, {{ entity_name }} $entity)
     {
@@ -135,32 +130,10 @@ class {{ entity_name }}Controller extends AbstractApiController
      *
      * @param {{ entity_name }} $entity
      *
-     * @return View
+     * @return Response
      */
     public function deleteAction({{ entity_name }} $entity)
     {
         return $this->deleteEntityAction($entity);
-    }
-
-   /**
-    * Describe fields of {{ entity_name }} forms.
-    *
-    * @SWG\Response(
-    *     response=200,
-    *     description="Successful operation",
-    *     @SWG\Schema(ref=@Model(type=SerializedForm::class, groups={"public"}))
-    * ),
-    *
-    * @SWG\Response(response="404", ref="#/definitions/404"),
-    * @SWG\Response(response="405", ref="#/definitions/405"),
-    * @SWG\Response(response="415", ref="#/definitions/415")
-    *
-    * @Rest\View(serializerGroups={ "public" })
-    *
-    * @return SerializedForm
-    */
-    public function describeFormAction()
-    {
-        return $this->describeForm({{ entity_name }}Type::class);
     }
 }
