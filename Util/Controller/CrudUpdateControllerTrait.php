@@ -12,15 +12,15 @@ trait CrudUpdateControllerTrait
      *     in="body",
      *     description="Create data.",
      *     required=true,
-     *     @Swagger\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type=EasyApiBundle\Util\Controller\AbstractApiController::entityTypeClass))
+     *     @Swagger\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type="static::entityTypeClass"))
      * ),
      * @Swagger\Annotations\Response(
      *     response=201,
      *     description="Successful operation",
      *     @Swagger\Annotations\Schema(
      *          ref=@Nelmio\ApiDocBundle\Annotation\Model(
-     *              type=EasyApiBundle\Util\Controller\AbstractApiController::entityClass,
-     *              groups=EasyApiBundle\Util\Controller\AbstractApiController::serializationGroups
+     *              type="static::entityClass",
+     *              groups={"static::serializationGroups"}
      *          )
      *      )
      * ),

@@ -12,8 +12,8 @@ trait CrudGetControllerTrait
      *     description="Successful operation",
      *     @Swagger\Annotations\Schema(
      *          ref=@Nelmio\ApiDocBundle\Annotation\Model(
-     *              type=AbstractApiController::entityClass,
-     *              groups=AbstractApiController::serializationGroups
+     *              type="static::entityClass",
+     *              groups={"static::serializationGroups"}
      *          )
      *      )
      * ),
