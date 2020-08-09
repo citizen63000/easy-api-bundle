@@ -275,16 +275,16 @@ abstract class AbstractApiController extends FOSRestController
 
     /**
      * @param $entity
-     * @param array $serializationGroups
+     * @param array|null $serializationGroups
      * @param int $status
      * @param array $headers
      *
      * @return Response
      */
-    protected function renderEntityResponse($entity, array $serializationGroups = [], int $status = 200, array $headers = [])
+    protected function renderEntityResponse($entity, array $serializationGroups = null, int $status = 200, array $headers = [])
     {
         $serializer = $this->container->get('serializer');
-        $data = $serializer->serialize($entity, 'json', ['groups' => $serializationGroups]);
+        $data = $serializer->serialize($entity, 'json', (null !== $serializationGroups ? ['groups' => $serializationGroups] : []));
 
         return $this->renderResponse($data, $status, $headers);
     }
