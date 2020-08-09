@@ -114,13 +114,24 @@ final class ModelRegister
         }
     }
 
+    /**
+     * @author citizen63000
+     * @param ModelAnnotation $model
+     * @param array|null $parentGroups
+     * @return array|mixed
+     */
     private function getGroups(ModelAnnotation $model, array $parentGroups = null)
     {
         if (null === $model->groups) {
             return $parentGroups;
         }
 
-        return array_merge($parentGroups ?? [], $model->groups);
+        $groups = array_merge($parentGroups ?? [], $model->groups);
+        if(1 === count($groups) && 0 === strpos($groups[0], 'static::')) {
+            $groups = constant(str_replace('static', $model->_context->flullClassname, $groups[0]));
+        }
+
+        return $groups;
     }
 
     private function detach(ModelAnnotation $model, AbstractAnnotation $annotation, Analysis $analysis)

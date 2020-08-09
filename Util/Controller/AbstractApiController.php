@@ -43,7 +43,7 @@ abstract class AbstractApiController extends FOSRestController
     /**
      * @var array
      */
-    public const serializationGroups = [];
+    public const serializationGroups = ['static::serializationGroups'];
 
     /**
      * @return ContainerInterface
