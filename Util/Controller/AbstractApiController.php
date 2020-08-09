@@ -23,22 +23,22 @@ abstract class AbstractApiController extends FOSRestController
     /**
      * @var string
      */
-    public const entityClass = 'crud.entityClass';
+    public const entityClass = 'static::entityClass';
 
     /**
      * @var string
      */
-    public const entityTypeClass = 'crud.entityTypeClass';
+    public const entityTypeClass = 'static::entityTypeClass';
 
     /**
      * @var string
      */
-    public const entitySearchModelClass = 'crud.searchModelClass';
+    public const entitySearchModelClass = 'static::entitySearchModelClass';
 
     /**
      * @var string
      */
-    public const entitySearchTypeClass = 'crud.searchTypeClass';
+    public const entitySearchTypeClass = 'static::entitySearchTypeClass';
 
     /**
      * @var array
