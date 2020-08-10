@@ -2,6 +2,9 @@
 
 namespace EasyApiBundle\Util\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
 trait CrudGetControllerTrait
 {
     /**
@@ -17,11 +20,11 @@ trait CrudGetControllerTrait
      *          )
      *      )
      * ),
-     * @param Symfony\Component\HttpFoundation\Request $request
+     * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
-    public function getAction(Symfony\Component\HttpFoundation\Request $request)
+    public function getAction(Request $request)
     {
         return $this->getEntityAction($this->getEntityOfRequest($request));
     }
