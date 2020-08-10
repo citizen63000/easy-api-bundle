@@ -192,7 +192,7 @@ abstract class AbstractApiController extends FOSRestController
 
             $entity = $this->persistAndFlush($entity);
 
-            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, Response::HTTP_CREATED);
+            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, Response::HTTP_OK);
         }
 
         $this->throwUnprocessableEntity($form);
