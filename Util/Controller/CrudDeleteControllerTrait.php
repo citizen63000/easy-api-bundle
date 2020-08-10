@@ -2,6 +2,9 @@
 
 namespace EasyApiBundle\Util\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
 trait CrudDeleteControllerTrait
 {
     /**
@@ -12,11 +15,11 @@ trait CrudDeleteControllerTrait
      *     description="Successful operation",
      * ),
      *
-     * @param Symfony\Component\HttpFoundation\Request $entity
+     * @param Request $entity
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
-    public function deleteAction(Symfony\Component\HttpFoundation\Request $request)
+    public function deleteAction(Request $request)
     {
         return $this->deleteEntityAction($this->getEntityOfRequest($request));
     }
