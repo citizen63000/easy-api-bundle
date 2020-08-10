@@ -63,6 +63,7 @@ abstract class AbstractApiController extends FOSRestController
 
     /**
      * @param Request $request
+     * @return null|object
      */
     protected function getEntityOfRequest(Request $request)
     {
@@ -71,6 +72,8 @@ abstract class AbstractApiController extends FOSRestController
         if(null === $entity) {
             throw new NotFoundHttpException();
         }
+        
+        return $entity;
     }
 
     /**
