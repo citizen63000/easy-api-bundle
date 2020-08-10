@@ -3,6 +3,8 @@
 
 namespace EasyApiBundle\Util\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 trait CrudCreateControllerTrait
 {
@@ -30,11 +32,11 @@ trait CrudCreateControllerTrait
      * @Swagger\Annotations\Response(response="405", ref="#/definitions/405"),
      * @Swagger\Annotations\Response(response="415", ref="#/definitions/415")
      *
-     * @param Symfony\Component\HttpFoundation\Request $request
+     * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
-    public function createAction(Symfony\Component\HttpFoundation\Request $request)
+    public function createAction(Request $request)
     {
         return $this->createEntityAction($request);
     }
