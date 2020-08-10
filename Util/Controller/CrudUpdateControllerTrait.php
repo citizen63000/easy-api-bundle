@@ -2,6 +2,9 @@
 
 namespace EasyApiBundle\Util\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
 trait CrudUpdateControllerTrait
 {
     /**
@@ -28,11 +31,11 @@ trait CrudUpdateControllerTrait
      * @Swagger\Annotations\Response(response="405", ref="#/definitions/405"),
      * @Swagger\Annotations\Response(response="415", ref="#/definitions/415")
      *
-     * @param Symfony\Component\HttpFoundation\Request          $request
+     * @param Request          $request
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
-    public function updateAction(Symfony\Component\HttpFoundation\Request $request)
+    public function updateAction(Request $request)
     {
         return $this->updateEntityAction($request, $this->getEntityOfRequest($request));
     }
