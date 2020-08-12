@@ -7,6 +7,8 @@ trait CrudDescribeFormControllerTrait
     /**
      * Describe fields of form.
      *
+     * @Symfony\Component\Routing\Annotation\Route("/describeForm", methods={"GET"}, name="describe_form")
+     *
      * @Swagger\Annotations\Response(
      *     response=200,
      *     description="Successful operation",
