@@ -44,7 +44,7 @@ class SearchModel
     }
 
     /**
-     * @param int $page
+     * @param ?int $page
      */
     public function setPage(int $page = null): void
     {
@@ -62,7 +62,7 @@ class SearchModel
     }
 
     /**
-     * @param int $limit
+     * @param ?int $limit
      */
     public function setLimit(int $limit = null): void
     {
@@ -71,8 +71,11 @@ class SearchModel
         }
     }
 
+    /**
+     * @return int
+     */
     public function getFirstResult()
     {
-        return ($this->getPage() - 1) * (int)$this->getLimit();
+        return ($this->getPage() - 1) * (int) $this->getLimit();
     }
 }

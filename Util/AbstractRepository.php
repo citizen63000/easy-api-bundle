@@ -6,6 +6,7 @@ namespace EasyApiBundle\Util;
 use EasyApiBundle\Exception\ApiProblemException;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use EasyApiBundle\Form\Model\Search\SearchModel;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -121,6 +122,20 @@ abstract class AbstractRepository extends EntityRepository
         throw new ApiProblemException(
             new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::RESULT_SORT_MALFORMED)
         );
+    }
+
+    /**
+     * @param SearchModel $search
+     * @param false $count
+     * @param QueryBuilder $qb
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function filter(SearchModel $search, $count = false, QueryBuilder $qb)
+    {
+        $qb = $qb ?? $this->createQueryBuilder('q');
+
+        return static::paginateResult($qb, 'q.id', $search->getPage(), $search->getLimit(), $count);
     }
 
     /**

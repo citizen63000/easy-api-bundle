@@ -2,6 +2,7 @@
 
 namespace EasyApiBundle\Util\Controller;
 
+use EasyApiBundle\Util\AbstractRepository;
 use EasyApiBundle\Util\Forms\FormSerializer;
 use EasyApiBundle\Util\Forms\SerializedForm;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -23,27 +24,37 @@ abstract class AbstractApiController extends FOSRestController
     /**
      * @var string
      */
-    public const entityClass = 'static::entityClass';
+    public const entityClass = null;
 
     /**
      * @var string
      */
-    public const entityTypeClass = 'static::entityTypeClass';
+    public const entityTypeClass = null;
 
     /**
      * @var string
      */
-    public const entitySearchModelClass = 'static::entitySearchModelClass';
+    public const entityCreateTypeClass = null;
 
     /**
      * @var string
      */
-    public const entitySearchTypeClass = 'static::entitySearchTypeClass';
+    public const entityUpdateTypeClass = null;
+
+    /**
+     * @var string
+     */
+    public const entitySearchModelClass = null;
+
+    /**
+     * @var string
+     */
+    public const entitySearchTypeClass = null;
 
     /**
      * @var array
      */
-    public const serializationGroups = ['static::serializationGroups'];
+    public const serializationGroups = [];
 
     /**
      * @return ContainerInterface
@@ -67,7 +78,7 @@ abstract class AbstractApiController extends FOSRestController
      */
     protected function getEntityOfRequest(Request $request)
     {
-        $entity = $this->getRepository(static::entitytClass)->find($request->get('id'));
+        $entity = $this->getRepository(static::entityClass)->find($request->get('id'));
 
         if(null === $entity) {
             throw new NotFoundHttpException();
@@ -153,6 +164,44 @@ abstract class AbstractApiController extends FOSRestController
     }
 
     /**
+     * @WIP
+     * @param Request $request
+     * @param string|null $entitySearchTypeClass
+     * @param string|null $entityClass
+     * @param array|null $serializationGroups
+     * @param SearchModel|null $model
+     *
+     * @return Response|null
+     */
+    protected function getEntityFilteredListAction(Request $request,
+                                                 string $entitySearchTypeClass = null,
+                                                 string $entityClass = null,
+                                                 array $serializationGroups = null,
+                                                 SearchModel $model = null): Response
+    {
+        $entitySearchTypeClass = $entitySearchTypeClass ?? static::entitySearchTypeClass;
+        $serializationGroups = $serializationGroups ?? static::serializationGroups;
+        $entityClass = $entityClass ?? static::entityClass;
+
+        $form = $this->createForm($entitySearchTypeClass, $model, ['method' => 'GET']);
+        $form->submit($request->query->all());
+
+        if ($form->isValid()) {
+
+            /** @var AbstractRepository $repo */
+            $repo = $this->getDoctrine()->getRepository($entityClass);
+            $resultQuery = $repo->createQueryBuilder('q');
+//            $this->get('lexik_form_filter.query_builder_updater')->addFilterConditions($form, $resultQuery);
+            $results = $repo->filter($form->getData(), false, $resultQuery);
+            $nbResults = (int) $repo->filter($form->getData(), true, $resultQuery);
+
+            return $this->createPaginateResponse($results, $nbResults, $serializationGroups);
+        }
+
+        $this->throwUnprocessableEntity($form);
+    }
+
+    /**
      * @param Request $request
      * @param null $entity
      * @param string|null $entityTypeClass
@@ -161,7 +210,7 @@ abstract class AbstractApiController extends FOSRestController
      */
     protected function createEntityAction(Request $request, $entity = null, string $entityTypeClass = null, array $serializationGroups = null): Response
     {
-        $form = $this->createForm($entityTypeClass ?? static::entityTypeClass, $entity);
+        $form = $this->createForm($entityTypeClass ?? static::entityCreateTypeClass ?? static::entityTypeClass, $entity);
 
         $form->submit($request->request->all());
 
@@ -184,7 +233,7 @@ abstract class AbstractApiController extends FOSRestController
      */
     protected function updateEntityAction(Request $request, $entity, string $entityTypeClass = null, array $serializationGroups = null): Response
     {
-        $form = $this->createForm($entityTypeClass ?? static::entityTypeClass, $entity);
+        $form = $this->createForm($entityTypeClass ?? static::entityUpdateTypeClass ?? static::entityTypeClass, $entity);
 
         $form->submit($request->request->all(), false);
 
