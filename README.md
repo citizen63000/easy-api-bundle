@@ -31,6 +31,8 @@ easy_api:
     entityReferential: 'CoreBundle\Entity\AbstractReferential'
     form: 'CoreBundle\Form\Type\AbstractCoreType'
     repository: 'CoreBundle\Form\Type\AbstractRepository'
+    controller: 'CoreBundle\Controller\AbstractApiController'
+    serialized_form: 'CoreBundle\Form\Model\SerializedForm'
 ```
 ### API-DOC Annotations
 You can use all annotations of the nelmio api bundle.
