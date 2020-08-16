@@ -164,7 +164,7 @@ abstract class AbstractApiController extends FOSRestController
     }
 
     /**
-     * @WIP
+     * WIP
      * @param Request $request
      * @param string|null $entitySearchTypeClass
      * @param string|null $entityClass

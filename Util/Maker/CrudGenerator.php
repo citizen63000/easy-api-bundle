@@ -113,7 +113,7 @@ class CrudGenerator extends AbstractGenerator
     {
         $context = str_replace('\\', '/', $this->config->getContextName());
 
-        return 'src/'.$this->config->getBundleName()."/Controller/{$context}/";
+        return 'src/'.$this->config->getBundleName()."/Controller/{$context}";
     }
 
     /**
@@ -123,7 +123,7 @@ class CrudGenerator extends AbstractGenerator
     {
         $context = str_replace('\\', '/', $this->config->getContextName());
 
-        return 'src/'.$this->config->getBundleName()."/Resources/config/routing/$context/";
+        return 'src/'.$this->config->getBundleName()."/Resources/config/routing/{$context}";
     }
 
     /**
@@ -152,7 +152,6 @@ class CrudGenerator extends AbstractGenerator
 
         $uses = [
             $this->container->getParameter('easy_api.inheritance.controller'),
-            $this->container->getParameter('easy_api.inheritance.serialized_form'),
             "{$bundle}\\Entity\\".(!empty($context) ? "{$context}\\" : '').$this->config->getEntityName(),
             "{$bundle}\\Form\Type\\".(!empty($context) ? "{$context}\\" : '')."{$this->config->getEntityName()}Type",
             "{$bundle}\\Entity\\".(!empty($context) ? "{$context}\\" : '')."{$this->config->getEntityName()}SearchModel",

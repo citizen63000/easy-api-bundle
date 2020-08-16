@@ -107,7 +107,7 @@ class AbstractGenerator
      */
     protected function writeFile($directory, $filename, $fileContent, $dumpExistingFiles = false)
     {
-        $destinationFile = "$directory$filename";
+        $destinationFile = "{$directory}{$filename}";
 
         // create directory if necessary
         if (!is_dir($directory) && !mkdir($directory, 0755, true)) {
@@ -115,7 +115,7 @@ class AbstractGenerator
         }
 
         if ($dumpExistingFiles && file_exists($destinationFile)) {
-            rename($destinationFile, $destinationFile.'.old');
+            rename($destinationFile, "{$destinationFile}.old");
         }
 
         file_put_contents($destinationFile, $fileContent);

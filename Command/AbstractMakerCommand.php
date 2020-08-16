@@ -61,13 +61,14 @@ abstract class AbstractMakerCommand extends AbstractCommand
 
     /**
      * @param OutputInterface $output
-     * @param $bundle string
-     * @param $context string
-     * @param $entityName string
-     * @param $parent string
-     * @param $dumpExistingFiles boolean
+     * @param string $bundle
+     * @param string $entityName
+     * @param string|null $parent
+     * @param string|null $context
+     * @param bool $dumpExistingFiles
+     * @throws \Twig\Error\Error
      */
-    protected function generateCrud(OutputInterface $output, string $bundle, string $entityName, string $parent = null, $context = null, $dumpExistingFiles = false)
+    protected function generateCrud(OutputInterface $output, string $bundle, string $entityName, string $parent = null, string $context = null, bool $dumpExistingFiles = false)
     {
         $output->writeln("\n------------- Generate CRUD -------------");
         $generator = new CrudGenerator($this->getContainer());
