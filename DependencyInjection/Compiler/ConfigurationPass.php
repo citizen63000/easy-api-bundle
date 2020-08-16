@@ -17,7 +17,7 @@ final class ConfigurationPass implements CompilerPassInterface
     {
         $nelmioApiDocConfig = $container->getParameter('nelmio_api_doc.areas');
         foreach ($nelmioApiDocConfig as $area) {
-            $container->register("nelmio_api_doc.toto.nelmio_swagger_php.{$area}", SwaggerPhpDescriber::class)
+            $container->register("nelmio_api_doc.nelmio_swagger_php.{$area}", SwaggerPhpDescriber::class)
                 ->setPublic(false)
                 ->setArguments([
                     new Reference("nelmio_api_doc.routes.{$area}"),
@@ -25,7 +25,7 @@ final class ConfigurationPass implements CompilerPassInterface
                     new Reference('annotation_reader'),
                     new Reference('logger'),
                 ])
-                ->addTag("nelmio_api_doc.describer.{$area}"/*, ['priority' => -199]*/);
+                ->addTag("nelmio_api_doc.describer.{$area}");
         }
     }
 }
