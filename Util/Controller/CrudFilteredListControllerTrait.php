@@ -2,31 +2,25 @@
 
 namespace EasyApiBundle\Util\Controller;
 
-trait CrudListControllerTrait
+trait CrudFilteredListControllerTrait
 {
     /**
-     * Create entity.
+     * List entities.
      *
-     * @Swagger\Annotations\Parameter(
-     *     name="data",
-     *     in="body",
-     *     description="Create data.",
-     *     required=true,
-     *     @Swagger\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type="static::entitySearchTypeClass"))
-     * ),
+     * @EasyApiBundle\Annotation\GetFormParameter(type="static::entitySearchTypeClass")
      * @Swagger\Annotations\Response(
      *     response=201,
      *     description="Successful operation",
      *     @Swagger\Annotations\Schema(
      *         type="array",
-     *         @Swagger\Items(
+     *         @Swagger\Annotations\Items(
      *              ref=@Nelmio\ApiDocBundle\Annotation\Model(
      *                  type="static::entityClass",
      *                  groups={"static::serializationGroups"}
      *              )
      *          )
      *     )
-     * ),
+     * )
      * @Swagger\Annotations\Response(response="404", ref="#/definitions/404"),
      * @Swagger\Annotations\Response(response="405", ref="#/definitions/405"),
      * @Swagger\Annotations\Response(response="415", ref="#/definitions/415")
@@ -35,7 +29,7 @@ trait CrudListControllerTrait
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function createForEntityAction(Symfony\Component\HttpFoundation\Request $request)
+    public function listAction(Symfony\Component\HttpFoundation\Request $request)
     {
         return $this->getEntityFilteredListAction($request, static::entitySearchTypeClass, static::entityClass, static::serializationGroups);
     }

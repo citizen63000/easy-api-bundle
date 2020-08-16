@@ -2,6 +2,8 @@
 
 namespace EasyApiBundle\Util\Controller;
 
+use EasyApiBundle\Form\Model\FilterModel;
+use EasyApiBundle\Form\Type\AbstractFilterType;
 use EasyApiBundle\Util\AbstractRepository;
 use EasyApiBundle\Util\Forms\FormSerializer;
 use EasyApiBundle\Util\Forms\SerializedForm;
@@ -37,14 +39,19 @@ abstract class AbstractApiController extends FOSRestController
     public const entityUpdateTypeClass = null;
 
     /**
-     * @var string
+     * @var array
      */
-    public const entitySearchModelClass = null;
+    public const filters = [];
 
     /**
      * @var string
      */
-    public const entitySearchTypeClass = null;
+    public const entitySearchModelClass = FilterModel::class;
+
+    /**
+     * @var string
+     */
+    public const entitySearchTypeClass = AbstractFilterType::class;
 
     /**
      * @var array
