@@ -29,11 +29,6 @@ abstract class AbstractApiController extends FOSRestController
     /**
      * @var string
      */
-    public const entityTypeClass = null;
-
-    /**
-     * @var string
-     */
     public const entityCreateTypeClass = null;
 
     /**
@@ -210,7 +205,7 @@ abstract class AbstractApiController extends FOSRestController
      */
     protected function createEntityAction(Request $request, $entity = null, string $entityTypeClass = null, array $serializationGroups = null): Response
     {
-        $form = $this->createForm($entityTypeClass ?? static::entityCreateTypeClass ?? static::entityTypeClass, $entity);
+        $form = $this->createForm($entityTypeClass ?? static::entityCreateTypeClass, $entity);
 
         $form->submit($request->request->all());
 
@@ -233,7 +228,7 @@ abstract class AbstractApiController extends FOSRestController
      */
     protected function updateEntityAction(Request $request, $entity, string $entityTypeClass = null, array $serializationGroups = null): Response
     {
-        $form = $this->createForm($entityTypeClass ?? static::entityUpdateTypeClass ?? static::entityTypeClass, $entity);
+        $form = $this->createForm($entityTypeClass ?? static::entityUpdateTypeClass, $entity);
 
         $form->submit($request->request->all(), false);
 

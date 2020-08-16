@@ -2,9 +2,7 @@
 
 namespace {{ namespace }};
 
-use EasyApiBundle\Util\Controller\CrudControllerTrait;
 use Swagger\Annotations as SWG;
-
 {% for use in uses %}
 use {{ use }};
 {% endfor %}
@@ -12,10 +10,11 @@ use {{ use }};
 /**
  * @SWG\Tag(name="{{ entity_name }}")
  */
-class {{ entity_name }}Controller extends AbstractApiController
+class {{ entity_name }}Controller extends {{ parent }}
 {
     public const entityClass = {{ entity_name }}::class;
-    public const entityTypeClass = {{ entity_name }}Type::class;
+    public const entityCreateTypeClass = {{ entity_name }}Type::class;
+    public const entityUpdateTypeClass = {{ entity_name }}Type::class;
     //public const entitySearchModelClass = {{ entity_name }}SearchModel::class;
     //public const entitySearchTypeClass = {{ entity_name }}SearchModelType::class;
     public const serializationGroups = [{{ serialization_groups|raw }}];

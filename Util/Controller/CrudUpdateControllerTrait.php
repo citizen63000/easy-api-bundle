@@ -15,7 +15,7 @@ trait CrudUpdateControllerTrait
      *     in="body",
      *     description="Create data.",
      *     required=true,
-     *     @Swagger\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type="static::entityTypeClass"))
+     *     @Swagger\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type="static::entityUpdateTypeClass"))
      * ),
      * @Swagger\Annotations\Response(
      *     response=201,

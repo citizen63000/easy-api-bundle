@@ -459,7 +459,7 @@ class EntityConfigLoader
      *
      * @return string
      */
-    protected static function getShortEntityType($fullEntityType)
+    public static function getShortEntityType($fullEntityType)
     {
         $tab = explode('\\', $fullEntityType);
 

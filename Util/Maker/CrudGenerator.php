@@ -152,6 +152,7 @@ class CrudGenerator extends AbstractGenerator
 
         $uses = [
             $this->container->getParameter('easy_api.inheritance.controller'),
+            $this->container->getParameter('easy_api.traits.crud'),
             "{$bundle}\\Entity\\".(!empty($context) ? "{$context}\\" : '').$this->config->getEntityName(),
             "{$bundle}\\Form\Type\\".(!empty($context) ? "{$context}\\" : '')."{$this->config->getEntityName()}Type",
             "{$bundle}\\Entity\\".(!empty($context) ? "{$context}\\" : '')."{$this->config->getEntityName()}SearchModel",
@@ -160,6 +161,7 @@ class CrudGenerator extends AbstractGenerator
 
         $content = [
             'namespace' => "{$bundle}\\Controller".(!empty($context) ? "\\{$context}" : ''),
+            'parent' => EntityConfigLoader::getShortEntityType($this->container->getParameter('easy_api.inheritance.controller')),
             'entity_name' => $this->config->getEntityName(),
             'bundle_name' => $this->config->getBundleName(),
             'routing_url' => "{$this->config->getBundleName()}/Resources/config/routing/".(!empty($context) ? "{$transformedContext}/" : '')."{$this->config->getEntityName()}.yml",
@@ -180,26 +182,26 @@ class CrudGenerator extends AbstractGenerator
      */
     protected function getSerializerGroups()
     {
-        $groups = ['"'.CaseConverter::convertToPascalCase($this->config->getEntityName()).'_full"'];
+        $groups = ['\''.CaseConverter::convertToPascalCase($this->config->getEntityName()).'_full\''];
 
         // parent secrializer groups
         $parentConfig = $this->config->getParentEntity();
         if (null !== $parentConfig) {
-            $groups[] = '"'.CaseConverter::convertToPascalCase($parentConfig->getEntityName()).'_full"';
+            $groups[] = '\''.CaseConverter::convertToPascalCase($parentConfig->getEntityName()).'_full\'';
             foreach ($parentConfig->getFields() as $field) {
-                if ($field->isReferential() && !in_array('"referential_short"', $groups)) {
-                    $groups[] = '"referential_short"';
+                if ($field->isReferential() && !in_array('\'referential_short\'', $groups)) {
+                    $groups[] = '\'referential_short\'';
                 } elseif (!$field->isNativeType() && ('manyToOne' === $field->getRelationType() || 'oneToOne' === $field->getRelationType())) {
-                    $groups[] = '"'.CaseConverter::convertToPascalCase($field->getName()).'_id"';
+                    $groups[] = '\''.CaseConverter::convertToPascalCase($field->getName()).'_id\'';
                 }
             }
         }
 
         foreach ($this->config->getFields() as $field) {
             if ($field->isReferential() && !in_array('"referential_short"', $groups)) {
-                $groups[] = '"referential_short"';
+                $groups[] = '\'referential_short\'';
             } elseif (!$field->isNativeType() && ('manyToOne' === $field->getRelationType() || 'oneToOne' === $field->getRelationType())) {
-                $groups[] = '"'.CaseConverter::convertToPascalCase($field->getName()).'_id"';
+                $groups[] = '\''.CaseConverter::convertToPascalCase($field->getName()).'_id\'';
             }
         }
 
