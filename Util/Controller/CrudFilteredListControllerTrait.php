@@ -2,6 +2,9 @@
 
 namespace EasyApiBundle\Util\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
 trait CrudFilteredListControllerTrait
 {
     /**
@@ -25,12 +28,12 @@ trait CrudFilteredListControllerTrait
      * @Swagger\Annotations\Response(response="405", ref="#/definitions/405"),
      * @Swagger\Annotations\Response(response="415", ref="#/definitions/415")
      *
-     * @param Symfony\Component\HttpFoundation\Request $request
+     * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
-    public function listAction(Symfony\Component\HttpFoundation\Request $request)
+    public function listAction(Request $request)
     {
-        return $this->getEntityFilteredListAction($request, static::entitySearchTypeClass, static::entityClass, static::serializationGroups);
+        return $this->getEntityFilteredListAction($request);
     }
 }

@@ -6,6 +6,7 @@ namespace EasyApiBundle\Util;
 use EasyApiBundle\Exception\ApiProblemException;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Form\Model\Search\SearchModel;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -125,13 +126,13 @@ abstract class AbstractRepository extends EntityRepository
     }
 
     /**
-     * @param SearchModel $search
+     * @param FilterModel $search
      * @param false $count
      * @param QueryBuilder $qb
      * @return mixed
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function filter(SearchModel $search, $count = false, QueryBuilder $qb)
+    public function filter(FilterModel $search, $count = false, QueryBuilder $qb)
     {
         $qb = $qb ?? $this->createQueryBuilder('q');
 
@@ -153,6 +154,8 @@ abstract class AbstractRepository extends EntityRepository
     {
         if ($count) {
             $qb->select($qb->expr()->count($alias));
+            $qb->setFirstResult(0);
+            $qb->setMaxResults(1);
 
             return $qb->getQuery()->getSingleScalarResult();
         }

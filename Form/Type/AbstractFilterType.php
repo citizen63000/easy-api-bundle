@@ -15,13 +15,14 @@ class AbstractFilterType extends AbstractApiType
 
     /**
      * @param FormBuilderInterface $builder
-     * @param array                $options
+     * @param array $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('sort', TextType::class,
                 [
+                    'required' => false,
                     'constraints' => new Assert\Length([
                         'max' => 255,
                         'maxMessage' => sprintf(ApiProblem::ENTITY_FIELD_TOO_LONG, 'filter', 'sort'),
@@ -30,6 +31,7 @@ class AbstractFilterType extends AbstractApiType
             )
             ->add('page', IntegerType::class,
                 [
+                    'required' => false,
                     'constraints' => new Assert\Length([
                         'max' => 7,
                         'maxMessage' => sprintf(ApiProblem::ENTITY_FIELD_TOO_LONG, 'filter', 'page'),
@@ -38,13 +40,27 @@ class AbstractFilterType extends AbstractApiType
             )
             ->add('limit', IntegerType::class,
                 [
+                    'required' => false,
                     'constraints' => new Assert\Length([
                         'max' => 7,
                         'maxMessage' => sprintf(ApiProblem::ENTITY_FIELD_TOO_LONG, 'filter', 'limit'),
                     ]),
                 ]
-            )
-        ;
+            );
 //        $builder->add('code', TextType::class, []);
+    }
+
+    protected static function addTextFilter(FormBuilderInterface $builder, $name)
+    {
+        $builder ->add($name, TextType::class,
+            [
+                'constraints' => new Assert\Length([
+                    'max' => 255,
+                    'maxMessage' => sprintf(ApiProblem::ENTITY_FIELD_TOO_LONG, 'filter', 'sort'),
+                ]),
+            ]
+        );
+
+        return $builder;
     }
 }
