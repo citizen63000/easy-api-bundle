@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
-class AbstractFilterType extends AbstractApiType
+abstract class AbstractFilterType extends AbstractApiType
 {
     protected static $dataClass = FilterModel::class;
 

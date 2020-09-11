@@ -3,7 +3,8 @@
 namespace EasyApiBundle\Util\Controller;
 
 use EasyApiBundle\Form\Model\FilterModel;
-use EasyApiBundle\Form\Type\AbstractFilterType;
+use EasyApiBundle\Form\Type\FilterType;
+use EasyApiBundle\Services\listFilter;
 use EasyApiBundle\Util\AbstractRepository;
 use EasyApiBundle\Util\Forms\FormSerializer;
 use EasyApiBundle\Util\Forms\SerializedForm;
@@ -44,14 +45,26 @@ abstract class AbstractApiController extends FOSRestController
     public const filters = [];
 
     /**
+     * @deprecated
      * @var string
      */
     public const entitySearchModelClass = FilterModel::class;
 
     /**
+     * @deprecated
      * @var string
      */
-    public const entitySearchTypeClass = AbstractFilterType::class;
+    public const entitySearchTypeClass = FilterType::class;
+
+    /**
+     * @var string
+     */
+    public const entityFilterModelClass = FilterModel::class;
+
+    /**
+     * @var string
+     */
+    public const entityFilterTypeClass = FilterType::class;
 
     /**
      * @var array
@@ -131,6 +144,7 @@ abstract class AbstractApiController extends FOSRestController
     }
 
     /**
+     * @deprecated
      * @param Request $request
      * @param string|null $entitySearchTypeClass
      * @param string|null $entityClass
@@ -168,34 +182,39 @@ abstract class AbstractApiController extends FOSRestController
     /**
      * WIP
      * @param Request $request
-     * @param string|null $entitySearchTypeClass
+     * @param string|null $entityFilterTypeClass
      * @param string|null $entityClass
      * @param array|null $serializationGroups
-     * @param SearchModel|null $model
+     * @param FilterModel|null $model
      *
      * @return Response|null
      */
     protected function getEntityFilteredListAction(Request $request,
-                                                 string $entitySearchTypeClass = null,
+                                                 string $entityFilterTypeClass = null,
                                                  string $entityClass = null,
                                                  array $serializationGroups = null,
-                                                 SearchModel $model = null): Response
+                                                 FilterModel $entityFilterModel = null): Response
     {
-        $entitySearchTypeClass = $entitySearchTypeClass ?? static::entitySearchTypeClass;
+        $entityFilterTypeClass = $entityFilterTypeClass ?? static::entityFilterTypeClass;
+        $entityFilterModelClass = static::entityFilterModelClass;
+        $entityFilterModel = $entityFilterModel ?? new $entityFilterModelClass;
         $serializationGroups = $serializationGroups ?? static::serializationGroups;
         $entityClass = $entityClass ?? static::entityClass;
 
-        $form = $this->createForm($entitySearchTypeClass, $model, ['method' => 'GET']);
+        $form = $this->createForm($entityFilterTypeClass, $entityFilterModel, ['method' => 'GET']);
         $form->submit($request->query->all());
 
         if ($form->isValid()) {
 
             /** @var AbstractRepository $repo */
-            $repo = $this->getDoctrine()->getRepository($entityClass);
-            $resultQuery = $repo->createQueryBuilder('q');
+//            $repo = $this->getDoctrine()->getRepository($entityClass);
+//            $resultQuery = $repo->createQueryBuilder('q');
 //            $this->get('lexik_form_filter.query_builder_updater')->addFilterConditions($form, $resultQuery);
-            $results = $repo->filter($form->getData(), false, $resultQuery);
-            $nbResults = (int) $repo->filter($form->getData(), true, $resultQuery);
+//            $results = $repo->filter($form->getData(), false, $resultQuery);
+//            $nbResults = (int) $repo->filter($form->getData(), true, $resultQuery);
+            $filterService = $this->get(listFilter::class);
+            $results = $filterService->filter($form->getData(), $entityClass, false);
+            $nbResults = (int) $filterService->filter($form->getData(), $entityClass, true);
 
             return $this->createPaginateResponse($results, $nbResults, $serializationGroups);
         }
