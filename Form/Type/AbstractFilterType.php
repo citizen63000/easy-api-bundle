@@ -25,7 +25,7 @@ abstract class AbstractFilterType extends AbstractApiType
     /**
      * string[]
      */
-    protected const excluded = ['sort', 'page', 'limit'];
+    public const excluded = ['sort', 'page', 'limit'];
 
     /**
      * @var string
@@ -102,7 +102,6 @@ abstract class AbstractFilterType extends AbstractApiType
         foreach ($options['fields'] as $fieldName) {
             if(!in_array($fieldName, self::excluded)) {
                 if($entityConfiguration->hasField($fieldName)){
-                    var_dump($fieldName);echo "<br >";
                     $field = $entityConfiguration->getField($fieldName);
                     if($field->isNativeType()) {
                         $method = self::convertEntityNativeTypeToFormFieldMethod($field->getType());
@@ -123,7 +122,6 @@ abstract class AbstractFilterType extends AbstractApiType
      */
     protected static function convertEntityNativeTypeToFormFieldMethod($type)
     {
-        var_dump($type);
         switch ($type) {
             case 'integer':
                 return 'addIntegerFilter';

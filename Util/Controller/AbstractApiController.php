@@ -184,8 +184,9 @@ abstract class AbstractApiController extends FOSRestController
      * @param Request $request
      * @param string|null $entityFilterTypeClass
      * @param string|null $entityClass
+     * @param array|null $fields
      * @param array|null $serializationGroups
-     * @param FilterModel|null $model
+     * @param FilterModel|null $entityFilterModel
      *
      * @return Response|null
      */
@@ -209,8 +210,8 @@ abstract class AbstractApiController extends FOSRestController
         if ($form->isValid()) {
 
             $filterService = $this->get(listFilter::class);
-            $results = $filterService->filter($form->getData(), $entityClass, false);
-            $nbResults = (int) $filterService->filter($form->getData(), $entityClass, true);
+            $results = $filterService->filter($form, $entityClass, false);
+            $nbResults = (int) $filterService->filter($form, $entityClass, true);
 
             return $this->createPaginateResponse($results, $nbResults, $serializationGroups);
         }
