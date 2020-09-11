@@ -5,6 +5,9 @@ namespace EasyApiBundle\Form\Type;
 use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Util\ApiProblem;
 use EasyApiBundle\Util\Maker\EntityConfigLoader;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -96,15 +99,17 @@ abstract class AbstractFilterType extends AbstractApiType
     protected function addFilterFields(FormBuilderInterface $builder, array $options): void
     {
         $entityConfiguration = EntityConfigLoader::createEntityConfigFromEntityFullName($options['entityClass']);
-//        $modelReflection = new \ReflectionClass(static::$dataClass);
-//        foreach ($modelReflection->getProperties() as $var) {
         foreach ($options['fields'] as $fieldName) {
-//            $fieldName = $var->getName();
             if(!in_array($fieldName, self::excluded)) {
                 if($entityConfiguration->hasField($fieldName)){
+                    var_dump($fieldName);echo "<br >";
                     $field = $entityConfiguration->getField($fieldName);
-                    $method = self::convertEntityTypeToFormFieldMethod($field->getType());
-                    static::$method($builder, $fieldName);
+                    if($field->isNativeType()) {
+                        $method = self::convertEntityNativeTypeToFormFieldMethod($field->getType());
+                        static::$method($builder, $fieldName);
+                    } else {
+                        static::addEntityFilter($builder, $fieldName, $field->getEntityType());
+                    }
                 } else {
                     static::addTextFilter($builder, $fieldName);
                 }
@@ -116,7 +121,7 @@ abstract class AbstractFilterType extends AbstractApiType
      * @param $type
      * @return string
      */
-    protected static function convertEntityTypeToFormFieldMethod($type)
+    protected static function convertEntityNativeTypeToFormFieldMethod($type)
     {
         var_dump($type);
         switch ($type) {
@@ -124,6 +129,10 @@ abstract class AbstractFilterType extends AbstractApiType
                 return 'addIntegerFilter';
             case 'float':
                 return 'addNumberFilter';
+            case 'date':
+                return 'addDateFilter';
+            case 'datetime':
+                return 'addDateTimeFilter';
             default:
                 return 'addTextFilter';
         }
@@ -146,20 +155,46 @@ abstract class AbstractFilterType extends AbstractApiType
 
     protected static function addIntegerFilter(FormBuilderInterface $builder, string $name)
     {
-        $builder ->add($name, IntegerType::class,
-            [
-                'required' => false,
-            ]
-        );
+        $builder->add($name, IntegerType::class, ['required' => false,]);
+        $builder->add("{$name}_min", IntegerType::class, ['required' => false,]);
+        $builder->add("{$name}_max", IntegerType::class, ['required' => false,]);
 
         return $builder;
     }
 
     protected static function addNumberFilter(FormBuilderInterface $builder, string $name)
     {
-        $builder ->add($name, NumberType::class,
+        $builder->add($name, NumberType::class, ['required' => false,]);
+        $builder->add("{$name}_min", NumberType::class, ['required' => false,]);
+        $builder->add("{$name}_max", NumberType::class, ['required' => false,]);
+
+        return $builder;
+    }
+
+    protected static function addDateFilter(FormBuilderInterface $builder, string $name)
+    {
+        $builder->add($name, DateType::class, ['required' => false,]);
+        $builder->add("{$name}_min", DateType::class, ['required' => false,]);
+        $builder->add("{$name}_max", DateType::class, ['required' => false,]);
+
+        return $builder;
+    }
+
+    protected static function addDateTimeFilter(FormBuilderInterface $builder, string $name)
+    {
+        $builder->add($name, DateTimeType::class, ['required' => false,]);
+        $builder->add("{$name}_min", DateTimeType::class, ['required' => false,]);
+        $builder->add("{$name}_max", DateTimeType::class, ['required' => false,]);
+
+        return $builder;
+    }
+
+    protected static function addEntityFilter(FormBuilderInterface $builder, string $name, $fieldEntityClass)
+    {
+        $builder ->add($name, EntityType::class,
             [
                 'required' => false,
+                'class' => $fieldEntityClass,
             ]
         );
 

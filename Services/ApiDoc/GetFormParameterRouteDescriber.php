@@ -2,6 +2,7 @@
 
 namespace EasyApiBundle\Services\ApiDoc;
 
+use EasyApiBundle\Util\Maker\EntityConfigLoader;
 use ReflectionMethod;
 
 use Doctrine\Common\Annotations\Reader;
@@ -9,11 +10,13 @@ use EXSyst\Component\Swagger\Parameter;
 use EXSyst\Component\Swagger\Swagger;
 use Nelmio\ApiDocBundle\RouteDescriber\RouteDescriberTrait;
 
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\FormConfigBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\Routing\Route;
@@ -71,19 +74,15 @@ class GetFormParameterRouteDescriber
 
         $filterForm = $this->createForm($controllerName, $annotation);
         foreach ($this->getOperations($api, $route) as $operation) {
-
             foreach ($filterForm->all() as $field) {
+                $parameter = new Parameter([
+                    'in' => 'query',
+                    'name' => $field->getName(),
+                    'required' => $field->getConfig()->getRequired(),
+                    'type' => $this->convertFormTypeToParameterType($field->getConfig()),
+                ]);
 
-                if ($field->count() === 0) {
-                    $parameter = new Parameter([
-                        'in' => 'query',
-                        'name' => $field->getName(),
-                        'required' => $field->getConfig()->getRequired(),
-                        'type' => $this->convertFormTypeToParameterType($field->getConfig()->getType()->getInnerType()),
-                    ]);
-
-                    $operation->getParameters()->add($parameter);
-                }
+                $operation->getParameters()->add($parameter);
             }
         }
     }
@@ -100,7 +99,7 @@ class GetFormParameterRouteDescriber
         } else {
             $type = $annotation->type;
         }
-var_dump(static::getFormOptions($controllerName, $annotation));
+
         return $this->formFactory->create($type, null, static::getFormOptions($controllerName, $annotation));
     }
 
@@ -127,11 +126,13 @@ var_dump(static::getFormOptions($controllerName, $annotation));
     }
 
     /**
-     * @param FormTypeInterface $formType
+     * @param FormConfigBuilderInterface $config
      * @return string
      */
-    protected function convertFormTypeToParameterType(FormTypeInterface $formType): string
+    protected function convertFormTypeToParameterType(FormConfigBuilderInterface $config): string
     {
+        $formType = $config->getType()->getInnerType();
+
         if ($formType instanceof IntegerType) {
             return 'integer';
         }
@@ -150,6 +151,16 @@ var_dump(static::getFormOptions($controllerName, $annotation));
 
         if ($formType instanceof DateTimeType) {
             return 'dateTime';
+        }
+
+        if ($formType instanceof EntityType) {
+
+            $classConfig = EntityConfigLoader::createEntityConfigFromEntityFullName($config->getOption('class'));
+            foreach ($classConfig->getFields() as $field) {
+                if($field->isPrimary()) {
+                    return $field->getType();
+                }
+            }
         }
 
         return 'string';

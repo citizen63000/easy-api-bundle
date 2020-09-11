@@ -27,6 +27,7 @@ class GetFormFilterParameterRouteDescriber extends GetFormParameterRouteDescribe
         } else {
             $fields = $annotation->fields;
         }
+
         return ['entityClass' => $entityClass, 'fields' => $fields];
     }
 }
