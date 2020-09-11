@@ -3,7 +3,6 @@
 namespace EasyApiBundle\Services\ApiDoc;
 
 use ReflectionMethod;
-use RuntimeException;
 
 use Doctrine\Common\Annotations\Reader;
 use EXSyst\Component\Swagger\Parameter;
@@ -29,7 +28,9 @@ class GetFormParameterRouteDescriber
     private $annotationReader;
 
     /** @var FormFactoryInterface */
-    private $formFactory;
+    protected $formFactory;
+
+    protected const annotationClass = GetFormParameter::class;
 
     /**
      * GetFormParameterRouteDescriber constructor.
@@ -52,7 +53,8 @@ class GetFormParameterRouteDescriber
         $annotations = $this->annotationReader->getMethodAnnotations($reflectionMethod);
 
         foreach ($annotations as $annotation) {
-            if ($annotation instanceof GetFormParameter) {
+            $annotationClass = static::annotationClass;
+            if ($annotation instanceof $annotationClass) {
                 $this->addParameters($api, $route, $annotation);
             }
         }
@@ -65,15 +67,9 @@ class GetFormParameterRouteDescriber
      */
     private function addParameters(Swagger $api, Route $route, GetFormParameter $annotation): void
     {
-        $controller = $route->getDefault('_controller');
+        $controllerName = $route->getDefault('_controller');
 
-        if(0 === strpos($annotation->type, 'static::')) {
-            $type = constant(str_replace('static', explode('::', $controller)[0], $annotation->type));
-        } else {
-            $type = $annotation->type;
-        }
-
-        $filterForm = $this->formFactory->create($type);
+        $filterForm = $this->createForm($controllerName, $annotation);
         foreach ($this->getOperations($api, $route) as $operation) {
 
             foreach ($filterForm->all() as $field) {
@@ -87,11 +83,47 @@ class GetFormParameterRouteDescriber
                     ]);
 
                     $operation->getParameters()->add($parameter);
-                } else {
-                    // @TODO recursive parameters
                 }
             }
         }
+    }
+
+    /**
+     * @param string $controllerName
+     * @param GetFormParameter $annotation
+     * @return \Symfony\Component\Form\FormInterface
+     */
+    protected function createForm(string $controllerName, GetFormParameter $annotation)
+    {
+        if(0 === strpos($annotation->type, 'static::')) {
+            $type = static::getConstValue($controllerName, $annotation->type);
+        } else {
+            $type = $annotation->type;
+        }
+var_dump(static::getFormOptions($controllerName, $annotation));
+        return $this->formFactory->create($type, null, static::getFormOptions($controllerName, $annotation));
+    }
+
+    /**
+     * @param string $controllerName
+     * @param GetFormParameter $annotation
+     * @return array
+     */
+    protected static function getFormOptions(string $controllerName, GetFormParameter $annotation)
+    {
+        return [];
+    }
+
+    /**
+     * @param string $controllerName
+     * @param string|array $varName
+     * @return mixed
+     */
+    protected static function getConstValue(string $controllerName, $varName)
+    {
+        $varName = is_array($varName) && count($varName) ? $varName[0] : $varName;
+
+        return constant(str_replace('static', explode('::', $controllerName)[0], $varName));
     }
 
     /**

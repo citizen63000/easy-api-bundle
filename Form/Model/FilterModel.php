@@ -5,13 +5,6 @@ namespace EasyApiBundle\Form\Model;
 
 class FilterModel
 {
-    public function __construct($filters = [])
-    {
-        foreach ($filters as $filter) {
-            $this->$filter = null;
-        }
-    }
-
     /**
      * @var string
      */
@@ -26,6 +19,35 @@ class FilterModel
      * @var int
      */
     private $limit;
+
+    /**
+     * FilterModel constructor.
+     * @param array $filters
+     */
+    public function __construct($filters = [])
+    {
+        foreach ($filters as $filter) {
+            $this->$filter = null;
+        }
+    }
+
+    /**
+     * @param string $property
+     * @return null
+     */
+    public function __get(string $property)
+    {
+        return $this->$property ?? null;
+    }
+
+    /**
+     * @param string $property
+     * @param $value
+     */
+    public function __set(string $property, $value): void
+    {
+        $this->$property = $value;
+    }
 
     /**
      * @return mixed

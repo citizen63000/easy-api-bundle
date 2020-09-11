@@ -8,11 +8,17 @@ use Doctrine\Common\Annotations\Annotation;
  * @Annotation
  * @Annotation\Target("METHOD")
  */
-class EntityFilter
+class GetFormFilterParameter extends GetFormParameter
 {
     /**
      *  @var string
      * @Annotation\Required()
      */
-    public $type;
+    public $entityClass;
+
+    /**
+     *  @var array
+     * @Annotation\Required()
+     */
+    public $fields;
 }

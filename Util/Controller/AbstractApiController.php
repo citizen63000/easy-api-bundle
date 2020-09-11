@@ -42,7 +42,7 @@ abstract class AbstractApiController extends FOSRestController
     /**
      * @var array
      */
-    public const filters = [];
+    public const filterFields = [];
 
     /**
      * @deprecated
@@ -192,6 +192,7 @@ abstract class AbstractApiController extends FOSRestController
     protected function getEntityFilteredListAction(Request $request,
                                                  string $entityFilterTypeClass = null,
                                                  string $entityClass = null,
+                                                 array $fields = null,
                                                  array $serializationGroups = null,
                                                  FilterModel $entityFilterModel = null): Response
     {
@@ -200,18 +201,13 @@ abstract class AbstractApiController extends FOSRestController
         $entityFilterModel = $entityFilterModel ?? new $entityFilterModelClass;
         $serializationGroups = $serializationGroups ?? static::serializationGroups;
         $entityClass = $entityClass ?? static::entityClass;
+        $fields = $fields ?? static::filterFields;
 
-        $form = $this->createForm($entityFilterTypeClass, $entityFilterModel, ['method' => 'GET']);
+        $form = $this->createForm($entityFilterTypeClass, $entityFilterModel, ['method' => 'GET', 'entityClass' => $entityClass, 'fields' => $fields]);
         $form->submit($request->query->all());
 
         if ($form->isValid()) {
 
-            /** @var AbstractRepository $repo */
-//            $repo = $this->getDoctrine()->getRepository($entityClass);
-//            $resultQuery = $repo->createQueryBuilder('q');
-//            $this->get('lexik_form_filter.query_builder_updater')->addFilterConditions($form, $resultQuery);
-//            $results = $repo->filter($form->getData(), false, $resultQuery);
-//            $nbResults = (int) $repo->filter($form->getData(), true, $resultQuery);
             $filterService = $this->get(listFilter::class);
             $results = $filterService->filter($form->getData(), $entityClass, false);
             $nbResults = (int) $filterService->filter($form->getData(), $entityClass, true);
