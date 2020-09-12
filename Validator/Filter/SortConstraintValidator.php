@@ -22,7 +22,6 @@ class SortConstraintValidator extends ConstraintValidator
                 foreach ($strOrders as $order) {
                     $parts = explode(':', $order);
                     if (!in_array($parts[0], $entity->getSortFields(), true)) {
-//                        echo sprintf(SortConstraint::invalidFieldSort, $parts[0]);die;
                         $this->buildViolation(sprintf(SortConstraint::invalidFieldSort, $parts[0]));
                     }
                 }
