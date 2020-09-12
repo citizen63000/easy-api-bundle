@@ -3,13 +3,16 @@
 namespace EasyApiBundle\Services;
 
 use Doctrine\ORM\QueryBuilder;
+use EasyApiBundle\Exception\ApiProblemException;
 use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Form\Type\AbstractFilterType;
 use EasyApiBundle\Util\AbstractRepository;
 use EasyApiBundle\Util\AbstractService;
+use EasyApiBundle\Util\ApiProblem;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use \Symfony\Component\Form\FormInterface;
 use \Doctrine\ORM;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Service qui fabrique la requête à partir d'une classe et d'un model (dans le form),
@@ -33,7 +36,7 @@ class listFilter extends AbstractService
         $repo = $this->getRepository($entityClass);
         $qb = $qb ?? $repo->createQueryBuilder('e');
 
-        /** @var  $field */
+        // value filters
         foreach ($filterForm->all() as $field) {
             $fieldName = $field->getName();
             if(null !== $model->$fieldName && !in_array($fieldName, AbstractFilterType::excluded)) {
@@ -60,6 +63,16 @@ class listFilter extends AbstractService
             }
         }
 
+        // sort
+        if(!empty($model->getSort())) {
+            $strOrders = explode(',', $model->getSort());
+            foreach ($strOrders as $order) {
+                $parts = explode(':', $order);
+                $qb->addOrderBy("e.{$parts[0]}", $parts[1]);
+            }
+        }
+
         return AbstractRepository::paginateResult($qb, 'e.id', $model->getPage(), $model->getLimit(), $count);
     }
+
 }
