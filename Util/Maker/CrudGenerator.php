@@ -155,8 +155,6 @@ class CrudGenerator extends AbstractGenerator
             $this->container->getParameter('easy_api.traits.crud'),
             "{$bundle}\\Entity\\".(!empty($context) ? "{$context}\\" : '').$this->config->getEntityName(),
             "{$bundle}\\Form\Type\\".(!empty($context) ? "{$context}\\" : '')."{$this->config->getEntityName()}Type",
-            "{$bundle}\\Entity\\".(!empty($context) ? "{$context}\\" : '')."{$this->config->getEntityName()}SearchModel",
-            "{$bundle}\\Form\Type\\".(!empty($context) ? "{$context}\\" : '')."{$this->config->getEntityName()}SearchModelType",
         ];
 
         $content = [
@@ -172,6 +170,7 @@ class CrudGenerator extends AbstractGenerator
             'serialization_groups' => implode(', ', $this->getSerializerGroups()),
             'uses' => $uses,
             'routingControllerPath' => "{$bundle}:".(!empty($context) ? "{$context}\\" : '').$this->config->getEntityName(),
+            'nativeFieldsNames' => implode(', ', array_map(function($val) { return "'{$val}'"; }, $this->config->getNativeFieldsNames(false))),
         ];
 
         return $content;

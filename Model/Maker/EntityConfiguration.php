@@ -347,6 +347,23 @@ class EntityConfiguration
     }
 
     /**
+     * @param bool $withId
+     * @return array
+     */
+    public function getNativeFieldsNames($withId = true)
+    {
+        $fieldsNames = [];
+
+        foreach ($this->getNativeFields() as $field) {
+            if($withId || 'id' !== $field->getName()) {
+                $fieldsNames[] = $field->getName();
+            }
+        }
+
+        return $fieldsNames;
+    }
+
+    /**
      * @return array
      */
     public function getEntityFields()

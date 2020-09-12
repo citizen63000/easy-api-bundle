@@ -15,9 +15,9 @@ class {{ entity_name }}Controller extends {{ parent }}
     public const entityClass = {{ entity_name }}::class;
     public const entityCreateTypeClass = {{ entity_name }}Type::class;
     public const entityUpdateTypeClass = {{ entity_name }}Type::class;
-    //public const entitySearchModelClass = {{ entity_name }}SearchModel::class;
-    //public const entitySearchTypeClass = {{ entity_name }}SearchModelType::class;
     public const serializationGroups = [{{ serialization_groups|raw }}];
+    public const filterFields = [{{ nativeFieldsNames|raw }}];
+    public const filterSortFields = [{{ nativeFieldsNames|raw }}];
 
     use CrudControllerTrait;
 }
