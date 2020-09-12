@@ -6,6 +6,17 @@ services:
     tags:
       - 'nelmio_api_doc.route_describer'
 
+  EasyApiBundle\Services\ApiDoc\GetFormFilterParameterRouteDescriber:
+    autowire: true
+    autoconfigure: true
+    tags:
+      - 'nelmio_api_doc.route_describer'
+
+  EasyApiBundle\Services\listFilter:
+    autowire: true
+    autoconfigure: true
+    arguments: ['@service_container', '@security.token_storage']
+
   app.jwt_authentication.jws_provider:
     class: EasyApiBundle\Services\JWS\JWSProvider
     arguments:

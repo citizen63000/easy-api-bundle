@@ -290,6 +290,16 @@ class EntityConfigLoader
             }
         }
 
+        return static::createEntityConfigFromEntityFullName($fullName);
+    }
+
+    /**
+     * @param string $fullName
+     * @return EntityConfiguration
+     * @throws \ReflectionException
+     */
+    public function createEntityConfigFromEntityFullName(string $fullName)
+    {
         $conf = new EntityConfiguration();
         $r = new \ReflectionClass($fullName);
 
@@ -299,7 +309,7 @@ class EntityConfigLoader
 
         foreach ($annotations as $annotation) {
             switch (get_class($annotation)) {
-                case 'Doctrine\ORM\Mapping\Table)':
+                case 'Doctrine\ORM\Mapping\Table':
                     $conf->setTableName($annotation->name);
                     if(isset($annotation->schema)) {
                         $conf->setSchema($annotation->schema);
@@ -340,51 +350,51 @@ class EntityConfigLoader
                         break;
                     case 'Doctrine\ORM\Mapping\ManyToOne':
                         $field->setEntityType($annotation->targetEntity);
-                //                $newField->setType($newField->getEntityClassName());
+                        //                $newField->setType($newField->getEntityClassName());
                         $field->setRelationType('manyToOne');
                         $field->setIsNativeType(false);
-                //
-                //                if (isset($field['joinColumns'])) {
-                //                    $newField->setTableColumnName(array_keys($field['joinColumns'])[0]);
-                //                }
-                //
-                //            }
+                        //
+                        //                if (isset($field['joinColumns'])) {
+                        //                    $newField->setTableColumnName(array_keys($field['joinColumns'])[0]);
+                        //                }
+                        //
+                        //            }
                         break;
                     case 'Doctrine\ORM\Mapping\OneToOne':
                         $field->setEntityType($annotation->targetEntity);
-                //                $newField->setType($newField->getEntityClassName());
+                        //                $newField->setType($newField->getEntityClassName());
                         $field->setRelationType('oneToOne');
                         $field->setIsNativeType(false);
-                //
-                //                if (isset($field['joinColumns'])) {
-                //                    $newField->setTableColumnName(array_keys($field['joinColumns'])[0]);
-                //                }
-                //
-                //            }
+                        //
+                        //                if (isset($field['joinColumns'])) {
+                        //                    $newField->setTableColumnName(array_keys($field['joinColumns'])[0]);
+                        //                }
+                        //
+                        //            }
                         break;
                     case 'Doctrine\ORM\Mapping\OneToMany':
                         $field->setType('\Doctrine\Common\Collections\ArrayCollection');
                         $field->setEntityType($annotation->targetEntity);
                         $field->setRelationType('oneToMany');
                         $field->setIsNativeType(false);
-                //
-                //                if (isset($field['joinColumns'])) {
-                //                    $newField->setTableColumnName(array_keys($field['joinColumns'])[0]);
-                //                }
-                //
-                //            }
+                        //
+                        //                if (isset($field['joinColumns'])) {
+                        //                    $newField->setTableColumnName(array_keys($field['joinColumns'])[0]);
+                        //                }
+                        //
+                        //            }
                         break;
                     case 'Doctrine\ORM\Mapping\ManyToMany':
                         $field->setType('\Doctrine\Common\Collections\ArrayCollection');
                         $field->setEntityType($annotation->targetEntity);
                         $field->setRelationType('manyToMany');
                         $field->setIsNativeType(false);
-                //
-                //                if (isset($field['joinColumns'])) {
-                //                    $newField->setTableColumnName(array_keys($field['joinColumns'])[0]);
-                //                }
-                //
-                //            }
+                        //
+                        //                if (isset($field['joinColumns'])) {
+                        //                    $newField->setTableColumnName(array_keys($field['joinColumns'])[0]);
+                        //                }
+                        //
+                        //            }
                         break;
                 }
             }

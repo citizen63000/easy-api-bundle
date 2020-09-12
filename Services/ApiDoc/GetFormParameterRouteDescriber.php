@@ -2,21 +2,23 @@
 
 namespace EasyApiBundle\Services\ApiDoc;
 
+use EasyApiBundle\Util\Maker\EntityConfigLoader;
 use ReflectionMethod;
-use RuntimeException;
 
 use Doctrine\Common\Annotations\Reader;
 use EXSyst\Component\Swagger\Parameter;
 use EXSyst\Component\Swagger\Swagger;
 use Nelmio\ApiDocBundle\RouteDescriber\RouteDescriberTrait;
 
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\FormConfigBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\Form\FormTypeInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Routing\Route;
 
 use EasyApiBundle\Annotation\GetFormParameter;
@@ -29,7 +31,9 @@ class GetFormParameterRouteDescriber
     private $annotationReader;
 
     /** @var FormFactoryInterface */
-    private $formFactory;
+    protected $formFactory;
+
+    protected const annotationClass = GetFormParameter::class;
 
     /**
      * GetFormParameterRouteDescriber constructor.
@@ -52,7 +56,8 @@ class GetFormParameterRouteDescriber
         $annotations = $this->annotationReader->getMethodAnnotations($reflectionMethod);
 
         foreach ($annotations as $annotation) {
-            if ($annotation instanceof GetFormParameter) {
+            $annotationClass = static::annotationClass;
+            if ($annotation instanceof $annotationClass) {
                 $this->addParameters($api, $route, $annotation);
             }
         }
@@ -65,41 +70,76 @@ class GetFormParameterRouteDescriber
      */
     private function addParameters(Swagger $api, Route $route, GetFormParameter $annotation): void
     {
-        $controller = $route->getDefault('_controller');
+        $controllerName = $route->getDefault('_controller');
 
-        if(0 === strpos($annotation->type, 'static::')) {
-            $type = constant(str_replace('static', explode('::', $controller)[0], $annotation->type));
-        } else {
-            $type = $annotation->type;
-        }
-
-        $filterForm = $this->formFactory->create($type);
+        $filterForm = $this->createForm($controllerName, $annotation);
         foreach ($this->getOperations($api, $route) as $operation) {
-
             foreach ($filterForm->all() as $field) {
-
-                if ($field->count() === 0) {
-                    $parameter = new Parameter([
-                        'in' => 'query',
-                        'name' => $field->getName(),
-                        'required' => $field->getConfig()->getRequired(),
-                        'type' => $this->convertFormTypeToParameterType($field->getConfig()->getType()->getInnerType()),
-                    ]);
-
-                    $operation->getParameters()->add($parameter);
-                } else {
-                    // @TODO recursive parameters
-                }
+                $operation->getParameters()->add($this->createParameter($field));
             }
         }
     }
 
     /**
-     * @param FormTypeInterface $formType
+     * @param FormInterface $field
+     * @return Parameter
+     */
+    protected function createParameter(FormInterface $field)
+    {
+        return new Parameter([
+            'in' => 'query',
+            'name' => $field->getName(),
+            'required' => $field->getConfig()->getRequired(),
+            'type' => $this->convertFormTypeToParameterType($field->getConfig()),
+        ]);
+    }
+
+    /**
+     * @param string $controllerName
+     * @param GetFormParameter $annotation
+     * @return \Symfony\Component\Form\FormInterface
+     */
+    protected function createForm(string $controllerName, GetFormParameter $annotation)
+    {
+        if(0 === strpos($annotation->type, 'static::')) {
+            $type = static::getConstValue($controllerName, $annotation->type);
+        } else {
+            $type = $annotation->type;
+        }
+
+        return $this->formFactory->create($type, null, static::getFormOptions($controllerName, $annotation));
+    }
+
+    /**
+     * @param string $controllerName
+     * @param GetFormParameter $annotation
+     * @return array
+     */
+    protected static function getFormOptions(string $controllerName, GetFormParameter $annotation)
+    {
+        return [];
+    }
+
+    /**
+     * @param string $controllerName
+     * @param string|array $varName
+     * @return mixed
+     */
+    protected static function getConstValue(string $controllerName, $varName)
+    {
+        $varName = is_array($varName) && count($varName) ? $varName[0] : $varName;
+
+        return constant(str_replace('static', explode('::', $controllerName)[0], $varName));
+    }
+
+    /**
+     * @param FormConfigBuilderInterface $config
      * @return string
      */
-    protected function convertFormTypeToParameterType(FormTypeInterface $formType): string
+    protected function convertFormTypeToParameterType(FormConfigBuilderInterface $config): string
     {
+        $formType = $config->getType()->getInnerType();
+
         if ($formType instanceof IntegerType) {
             return 'integer';
         }
@@ -118,6 +158,15 @@ class GetFormParameterRouteDescriber
 
         if ($formType instanceof DateTimeType) {
             return 'dateTime';
+        }
+
+        if ($formType instanceof EntityType) {
+            $classConfig = EntityConfigLoader::createEntityConfigFromEntityFullName($config->getOption('class'));
+            foreach ($classConfig->getFields() as $field) {
+                if($field->isPrimary()) {
+                    return $field->getType();
+                }
+            }
         }
 
         return 'string';

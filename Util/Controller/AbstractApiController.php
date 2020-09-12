@@ -2,7 +2,9 @@
 
 namespace EasyApiBundle\Util\Controller;
 
-use EasyApiBundle\Util\AbstractRepository;
+use EasyApiBundle\Form\Model\FilterModel;
+use EasyApiBundle\Form\Type\FilterType;
+use EasyApiBundle\Services\listFilter;
 use EasyApiBundle\Util\Forms\FormSerializer;
 use EasyApiBundle\Util\Forms\SerializedForm;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -16,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use \Doctrine\ORM;
 
 abstract class AbstractApiController extends FOSRestController
 {
@@ -37,14 +40,36 @@ abstract class AbstractApiController extends FOSRestController
     public const entityUpdateTypeClass = null;
 
     /**
+     * @var array
+     */
+    public const filterFields = [];
+
+    /**
+     * @var array
+     */
+    public const filterSortFields = [];
+
+    /**
+     * @deprecated
      * @var string
      */
-    public const entitySearchModelClass = null;
+    public const entitySearchModelClass = FilterModel::class;
+
+    /**
+     * @deprecated
+     * @var string
+     */
+    public const entitySearchTypeClass = FilterType::class;
 
     /**
      * @var string
      */
-    public const entitySearchTypeClass = null;
+    public const entityFilterModelClass = FilterModel::class;
+
+    /**
+     * @var string
+     */
+    public const entityFilterTypeClass = FilterType::class;
 
     /**
      * @var array
@@ -124,6 +149,7 @@ abstract class AbstractApiController extends FOSRestController
     }
 
     /**
+     * @deprecated
      * @param Request $request
      * @param string|null $entitySearchTypeClass
      * @param string|null $entityClass
@@ -159,36 +185,45 @@ abstract class AbstractApiController extends FOSRestController
     }
 
     /**
-     * WIP
      * @param Request $request
-     * @param string|null $entitySearchTypeClass
+     * @param string|null $entityFilterTypeClass
      * @param string|null $entityClass
+     * @param array|null $fields
+     * @param array|null $sortFields
      * @param array|null $serializationGroups
-     * @param SearchModel|null $model
+     * @param FilterModel|null $entityFilterModel
      *
      * @return Response|null
+     *
+     * @throws ORM\NoResultException
+     * @throws ORM\NonUniqueResultException
      */
     protected function getEntityFilteredListAction(Request $request,
-                                                 string $entitySearchTypeClass = null,
-                                                 string $entityClass = null,
-                                                 array $serializationGroups = null,
-                                                 SearchModel $model = null): Response
+                                                   string $entityFilterTypeClass = null,
+                                                   string $entityClass = null,
+                                                   array $fields = null,
+                                                   array $sortFields = null,
+                                                   array $serializationGroups = null,
+                                                   FilterModel $entityFilterModel = null): Response
     {
-        $entitySearchTypeClass = $entitySearchTypeClass ?? static::entitySearchTypeClass;
+        $entityFilterTypeClass = $entityFilterTypeClass ?? static::entityFilterTypeClass;
+        $entityFilterModelClass = static::entityFilterModelClass;
+        $entityFilterModel = $entityFilterModel ?? new $entityFilterModelClass;
         $serializationGroups = $serializationGroups ?? static::serializationGroups;
         $entityClass = $entityClass ?? static::entityClass;
+        $fields = $fields ?? static::filterFields;
+        $sortFields = $sortFields ?? static::filterSortFields;
 
-        $form = $this->createForm($entitySearchTypeClass, $model, ['method' => 'GET']);
+        $formOptions = ['method' => 'GET', 'entityClass' => $entityClass, 'fields' => $fields, 'sortFields' => $sortFields];
+
+        $form = $this->createForm($entityFilterTypeClass, $entityFilterModel, $formOptions);
         $form->submit($request->query->all());
 
         if ($form->isValid()) {
 
-            /** @var AbstractRepository $repo */
-            $repo = $this->getDoctrine()->getRepository($entityClass);
-            $resultQuery = $repo->createQueryBuilder('q');
-//            $this->get('lexik_form_filter.query_builder_updater')->addFilterConditions($form, $resultQuery);
-            $results = $repo->filter($form->getData(), false, $resultQuery);
-            $nbResults = (int) $repo->filter($form->getData(), true, $resultQuery);
+            $filterService = $this->get(listFilter::class);
+            $results = $filterService->filter($form, $entityClass, false);
+            $nbResults = (int) $filterService->filter($form, $entityClass, true);
 
             return $this->createPaginateResponse($results, $nbResults, $serializationGroups);
         }

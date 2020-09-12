@@ -6,6 +6,7 @@ namespace EasyApiBundle\Util;
 use EasyApiBundle\Exception\ApiProblemException;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Form\Model\Search\SearchModel;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -90,13 +91,13 @@ abstract class AbstractRepository extends EntityRepository
      * Validates the sort param.
      *
      * @param array $fields
-     * @param string $sort
+     * @param string|null $sort
      *
      * @return array|string
      *
      * @throws ApiProblemException
      */
-    protected static function validateSort(array $fields, string $sort = null)
+    public static function validateSort(array $fields, string $sort = null)
     {
         if (null === $sort) {
             return $sort;
@@ -125,13 +126,13 @@ abstract class AbstractRepository extends EntityRepository
     }
 
     /**
-     * @param SearchModel $search
+     * @param FilterModel $search
      * @param false $count
      * @param QueryBuilder $qb
      * @return mixed
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function filter(SearchModel $search, $count = false, QueryBuilder $qb)
+    public function filter(FilterModel $search, $count = false, QueryBuilder $qb)
     {
         $qb = $qb ?? $this->createQueryBuilder('q');
 
@@ -147,12 +148,15 @@ abstract class AbstractRepository extends EntityRepository
      *
      * @return mixed
      *
+     * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    protected static function paginateResult(QueryBuilder $qb, string $alias, int $page = null, int $limit = null, bool $count = false)
+    public static function paginateResult(QueryBuilder $qb, string $alias, int $page = null, int $limit = null, bool $count = false)
     {
         if ($count) {
             $qb->select($qb->expr()->count($alias));
+            $qb->setFirstResult(0);
+            $qb->setMaxResults(1);
 
             return $qb->getQuery()->getSingleScalarResult();
         }
