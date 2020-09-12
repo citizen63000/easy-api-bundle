@@ -107,9 +107,10 @@ class FormErrorsSerializer
                 } elseif ('This value should not be null.' === $error->getMessage()) {
                     $localErrors[$key] = sprintf(ApiProblem::ENTITY_FIELD_REQUIRED, $formName, $key);
                 } else {
-                    if (false === strpos($error->getMessage(), 'already_exists')
-                        && false === strpos($error->getMessage(), 'too_long')
-                        && false === strpos($error->getMessage(), 'malformed')) {
+                    if (false === strpos($error->getMessage(), '.already_exists')
+                        && false === strpos($error->getMessage(), '.too_long')
+                        && false === strpos($error->getMessage(), '.malformed')
+                        && false === strpos($error->getMessage(), '.invalid')) {
                         $localErrors[$key] = sprintf(ApiProblem::ENTITY_FIELD_INVALID, $formName, $key);
                     } else {
                         $localErrors[$key] = sprintf($error->getMessage(), $formName, $key);
@@ -159,11 +160,11 @@ class FormErrorsSerializer
                     $this->arrayFlatten(
                         $value,
                         $separator,
-                        (strlen($flattenedKey) > 0 ? $flattenedKey.$separator : '').$key
+                        (strlen($flattenedKey) > 0 ? "{$flattenedKey}{$separator}" : '').$key
                     )
                 );
             } else {
-                $flattenedArray[(strlen($flattenedKey) > 0 ? $flattenedKey.$separator : '').$key] = $value;
+                $flattenedArray[(strlen($flattenedKey) > 0 ? "{$flattenedKey}{$separator}" : '').$key] = $value;
             }
         }
 
