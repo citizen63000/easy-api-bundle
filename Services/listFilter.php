@@ -63,7 +63,7 @@ class listFilter extends AbstractService
             }
         }
 
-        // sort
+        // sort (field1:asc|desc, field2:asc|desc)
         if(!empty($model->getSort())) {
             $strOrders = explode(',', $model->getSort());
             foreach ($strOrders as $order) {
