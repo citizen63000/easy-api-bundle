@@ -4,6 +4,7 @@ namespace EasyApiBundle\Util;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
 use \Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\ORM\EntityRepository;
 use EasyApiBundle\Services\User\UserManager;
 use \Symfony\Component\DependencyInjection\ContainerInterface;
 use \Doctrine\Common\Persistence\ObjectManager;
@@ -37,7 +38,7 @@ trait CoreUtilsTrait
     /**
      * @param string $repository
      *
-     * @return ObjectRepository
+     * @return EntityRepository
      */
     protected function getRepository(string $repository)
     {
