@@ -10,7 +10,12 @@ trait CrudFilteredListControllerTrait
     /**
      * List entities.
      *
-     * @EasyApiBundle\Annotation\GetFormFilterParameter(type="static::entitySearchTypeClass", entityClass="static::entityClass", fields={"static::filterFields"})
+     * @EasyApiBundle\Annotation\GetFormFilterParameter(
+     *     type="static::entitySearchTypeClass",
+     *     entityClass="static::entityClass",
+     *     fields={"static::filterFields"},
+     *     sortFields={"static::filterSortFields"}
+     *  )
      * @Swagger\Annotations\Response(
      *     response=201,
      *     description="Successful operation",

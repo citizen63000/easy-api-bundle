@@ -18,6 +18,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormConfigBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Routing\Route;
 
 use EasyApiBundle\Annotation\GetFormParameter;
@@ -74,16 +75,23 @@ class GetFormParameterRouteDescriber
         $filterForm = $this->createForm($controllerName, $annotation);
         foreach ($this->getOperations($api, $route) as $operation) {
             foreach ($filterForm->all() as $field) {
-                $parameter = new Parameter([
-                    'in' => 'query',
-                    'name' => $field->getName(),
-                    'required' => $field->getConfig()->getRequired(),
-                    'type' => $this->convertFormTypeToParameterType($field->getConfig()),
-                ]);
-
-                $operation->getParameters()->add($parameter);
+                $operation->getParameters()->add($this->createParameter($field));
             }
         }
+    }
+
+    /**
+     * @param FormInterface $field
+     * @return Parameter
+     */
+    protected function createParameter(FormInterface $field)
+    {
+        return new Parameter([
+            'in' => 'query',
+            'name' => $field->getName(),
+            'required' => $field->getConfig()->getRequired(),
+            'type' => $this->convertFormTypeToParameterType($field->getConfig()),
+        ]);
     }
 
     /**
@@ -153,7 +161,6 @@ class GetFormParameterRouteDescriber
         }
 
         if ($formType instanceof EntityType) {
-
             $classConfig = EntityConfigLoader::createEntityConfigFromEntityFullName($config->getOption('class'));
             foreach ($classConfig->getFields() as $field) {
                 if($field->isPrimary()) {

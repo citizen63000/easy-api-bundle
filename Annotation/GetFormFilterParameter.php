@@ -21,4 +21,10 @@ class GetFormFilterParameter extends GetFormParameter
      * @Annotation\Required()
      */
     public $fields;
+
+    /**
+     *  @var array
+     * @Annotation\Required()
+     */
+    public $sortFields;
 }

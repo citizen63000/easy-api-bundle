@@ -55,9 +55,11 @@ abstract class AbstractFilterType extends AbstractApiType
         /** @var FilterModel $model */
         $entityFilterModel = $builder->getData();
 
-        $entityFilterModel->setFields($options['fields']);
-        $entityFilterModel->setSortFields($options['sortFields']);
-        $entityFilterModel->setEntityClass($options['entityClass']);
+        if(null !== $entityFilterModel) {
+            $entityFilterModel->setFields($options['fields']);
+            $entityFilterModel->setSortFields($options['sortFields']);
+            $entityFilterModel->setEntityClass($options['entityClass']);
+        }
 
         static::addFilterFields($builder, $options);
 
@@ -120,19 +122,21 @@ abstract class AbstractFilterType extends AbstractApiType
      */
     protected function addFilterFields(FormBuilderInterface $builder, array $options): void
     {
-        $entityConfiguration = EntityConfigLoader::createEntityConfigFromEntityFullName($options['entityClass']);
-        foreach ($options['fields'] as $fieldName) {
-            if(!in_array($fieldName, self::excluded)) {
-                if($entityConfiguration->hasField($fieldName)){
-                    $field = $entityConfiguration->getField($fieldName);
-                    if($field->isNativeType()) {
-                        $method = self::convertEntityNativeTypeToFormFieldMethod($field->getType());
-                        static::$method($builder, $fieldName);
+        if(null !== $options['entityClass']) {
+            $entityConfiguration = EntityConfigLoader::createEntityConfigFromEntityFullName($options['entityClass']);
+            foreach ($options['fields'] as $fieldName) {
+                if(!in_array($fieldName, self::excluded)) {
+                    if($entityConfiguration->hasField($fieldName)){
+                        $field = $entityConfiguration->getField($fieldName);
+                        if($field->isNativeType()) {
+                            $method = self::convertEntityNativeTypeToFormFieldMethod($field->getType());
+                            static::$method($builder, $fieldName);
+                        } else {
+                            static::addEntityFilter($builder, $fieldName, $field->getEntityType());
+                        }
                     } else {
-                        static::addEntityFilter($builder, $fieldName, $field->getEntityType());
+                        static::addTextFilter($builder, $fieldName);
                     }
-                } else {
-                    static::addTextFilter($builder, $fieldName);
                 }
             }
         }
