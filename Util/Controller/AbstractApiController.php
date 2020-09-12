@@ -5,7 +5,6 @@ namespace EasyApiBundle\Util\Controller;
 use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Form\Type\FilterType;
 use EasyApiBundle\Services\listFilter;
-use EasyApiBundle\Util\AbstractRepository;
 use EasyApiBundle\Util\Forms\FormSerializer;
 use EasyApiBundle\Util\Forms\SerializedForm;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -19,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use \Doctrine\ORM;
 
 abstract class AbstractApiController extends FOSRestController
 {
@@ -43,6 +43,11 @@ abstract class AbstractApiController extends FOSRestController
      * @var array
      */
     public const filterFields = [];
+
+    /**
+     * @var array
+     */
+    public const filterSortFields = [];
 
     /**
      * @deprecated
@@ -180,22 +185,26 @@ abstract class AbstractApiController extends FOSRestController
     }
 
     /**
-     * WIP
      * @param Request $request
      * @param string|null $entityFilterTypeClass
      * @param string|null $entityClass
      * @param array|null $fields
+     * @param array|null $sortFields
      * @param array|null $serializationGroups
      * @param FilterModel|null $entityFilterModel
      *
      * @return Response|null
+     *
+     * @throws ORM\NoResultException
+     * @throws ORM\NonUniqueResultException
      */
     protected function getEntityFilteredListAction(Request $request,
-                                                 string $entityFilterTypeClass = null,
-                                                 string $entityClass = null,
-                                                 array $fields = null,
-                                                 array $serializationGroups = null,
-                                                 FilterModel $entityFilterModel = null): Response
+                                                   string $entityFilterTypeClass = null,
+                                                   string $entityClass = null,
+                                                   array $fields = null,
+                                                   array $sortFields = null,
+                                                   array $serializationGroups = null,
+                                                   FilterModel $entityFilterModel = null): Response
     {
         $entityFilterTypeClass = $entityFilterTypeClass ?? static::entityFilterTypeClass;
         $entityFilterModelClass = static::entityFilterModelClass;
@@ -203,8 +212,11 @@ abstract class AbstractApiController extends FOSRestController
         $serializationGroups = $serializationGroups ?? static::serializationGroups;
         $entityClass = $entityClass ?? static::entityClass;
         $fields = $fields ?? static::filterFields;
+        $sortFields = $sortFields ?? static::filterSortFields;
 
-        $form = $this->createForm($entityFilterTypeClass, $entityFilterModel, ['method' => 'GET', 'entityClass' => $entityClass, 'fields' => $fields]);
+        $formOptions = ['method' => 'GET', 'entityClass' => $entityClass, 'fields' => $fields, 'sortFields' => $sortFields];
+
+        $form = $this->createForm($entityFilterTypeClass, $entityFilterModel, $formOptions);
         $form->submit($request->query->all());
 
         if ($form->isValid()) {

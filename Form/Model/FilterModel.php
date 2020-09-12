@@ -6,6 +6,21 @@ namespace EasyApiBundle\Form\Model;
 class FilterModel
 {
     /**
+     * @var array
+     */
+    private $fields = [];
+
+    /**
+     * @var array
+     */
+    private $sortFields = [];
+
+    /**
+     * @var string
+     */
+    private $entityClass;
+
+    /**
      * @var string
      */
     private $sort;
@@ -47,6 +62,54 @@ class FilterModel
     public function __set(string $property, $value): void
     {
         $this->$property = $value;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFields(): array
+    {
+        return $this->fields;
+    }
+
+    /**
+     * @param array $fields
+     */
+    public function setFields(array $fields): void
+    {
+        $this->fields = $fields;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSortFields(): array
+    {
+        return $this->sortFields;
+    }
+
+    /**
+     * @param array $sortFields
+     */
+    public function setSortFields(array $sortFields): void
+    {
+        $this->sortFields = $sortFields;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEntityClass(): string
+    {
+        return $this->entityClass;
+    }
+
+    /**
+     * @param string $entityClass
+     */
+    public function setEntityClass(string $entityClass): void
+    {
+        $this->entityClass = $entityClass;
     }
 
     /**
