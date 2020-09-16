@@ -107,7 +107,7 @@ class AbstractGenerator
      */
     protected function writeFile($directory, $filename, $fileContent, $dumpExistingFiles = false)
     {
-        $destinationFile = "{$directory}{$filename}";
+        $destinationFile = '/' === $directory[strlen($directory)-1] ? "{$directory}{$filename}" : "{$directory}/{$filename}";
 
         // create directory if necessary
         if (!is_dir($directory) && !mkdir($directory, 0755, true)) {
