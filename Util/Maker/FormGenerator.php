@@ -21,7 +21,7 @@ class FormGenerator extends AbstractGenerator
     public function generate(string $bundle, string $context, string $entityName, string $parent = null, bool $dumpExistingFiles = false)
     {
         $this->config = $this->loadEntityConfig($entityName, $bundle, $context);
-        $destinationDir = "src/{$this->config->getBundleName()}/Form/Type/".($this->config->getContextName() ? $this->config->getContextName().'/' : '');
+        $destinationDir = $this->getFormDirectoryPath();
         $filename = "{$this->config->getEntityName()}Type.php";
 
         // generate file
@@ -31,6 +31,16 @@ class FormGenerator extends AbstractGenerator
         );
 
         return "{$this->container->getParameter('kernel.project_dir')}/".$this->writeFile($destinationDir, $filename, $fileContent, $dumpExistingFiles);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getFormDirectoryPath()
+    {
+        $context = str_replace('\\', '/', $this->config->getContextName());
+
+        return 'src/'.$this->config->getBundleName()."/Form/Type/{$context}";
     }
 
     /**
@@ -90,7 +100,7 @@ class FormGenerator extends AbstractGenerator
 
                 $content['fields'][] = $fieldDescription;
 
-                if($field->isReferential()) {
+                if($field->isReferential() && !in_array('Doctrine\ORM\EntityRepository', $content['uses'])) {
                     $content['uses'][] = 'Doctrine\ORM\EntityRepository';
                 }
             }
