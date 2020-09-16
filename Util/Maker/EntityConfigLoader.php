@@ -528,7 +528,7 @@ class EntityConfigLoader
 
         $entityName = self::getShortEntityType($entityName);
         if('annotations' === $type) {
-            $dir = "src/{$bundle}/Entity/";
+            $dir = "src/{$bundle}/Entity";
             $fileNameExpr = "/{$entityName}.php$/";
         } else {
             $dir = "src/{$bundle}/Resources/config/doctrine/";
@@ -550,9 +550,9 @@ class EntityConfigLoader
 
             foreach ($files as $file) {
 
-                if (is_dir("{$dir}{$file}") && '.' !== $file && '..' !== $file) {
+                if (is_dir("{$dir}/{$file}") && '.' !== $file && '..' !== $file) {
 
-                    if($path = self::findFile("{$dir}{$file}", $fileNameExpr)) {
+                    if($path = self::findFile("{$dir}/{$file}", $fileNameExpr)) {
                         return $path;
                     };
                 }
