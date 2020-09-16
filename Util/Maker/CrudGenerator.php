@@ -197,8 +197,10 @@ class CrudGenerator extends AbstractGenerator
         }
 
         foreach ($this->config->getFields() as $field) {
-            if ($field->isReferential() && !in_array('"referential_short"', $groups)) {
-                $groups[] = '\'referential_short\'';
+            if ($field->isReferential()) {
+                if(!in_array('\'referential_short\'', $groups)) {
+                    $groups[] = '\'referential_short\'';
+                }
             } elseif (!$field->isNativeType() && ('manyToOne' === $field->getRelationType() || 'oneToOne' === $field->getRelationType())) {
                 $groups[] = '\''.CaseConverter::convertToPascalCase($field->getName()).'_id\'';
             }
