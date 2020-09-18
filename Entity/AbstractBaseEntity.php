@@ -4,6 +4,7 @@ namespace EasyApiBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\MappedSuperclass
@@ -15,6 +16,7 @@ Abstract class AbstractBaseEntity
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"abstract_base_entry_full"})
      */
     protected $id;
 
@@ -22,6 +24,7 @@ Abstract class AbstractBaseEntity
      * @var \DateTime
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
+     * @Groups({"abstract_base_entry_full"})
      */
     protected $createdAt;
 
@@ -29,6 +32,7 @@ Abstract class AbstractBaseEntity
      * @var \DateTime
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime")
+     * @Groups({"abstract_base_entry_full"})
      */
     protected $updatedAt;
 
@@ -79,6 +83,5 @@ Abstract class AbstractBaseEntity
     {
         $this->updatedAt = $updatedAt;
     }
-
 
 }
