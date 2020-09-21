@@ -25,6 +25,10 @@ abstract class AbstractApiTest extends WebTestCase
     public const USER_ADMIN_TEST_EMAIL = 'api-tests-admin@example.com';
     public const USER_ADMIN_TEST_PASSWORD = 'IloveToBreakYourHopes!';
 
+    public const USER_NORULES_TEST_USERNAME = '[API-TESTS-NO-RULES]';
+    public const USER_NORULES_TEST_EMAIL = 'api-tests-no-rules@example.com';
+    public const USER_NORULES_TEST_PASSWORD = 'u-norules-pwd';
+
     public const TOKEN_ROUTE_NAME = 'fos_user_security_check';
 
     public const DEBUG_LEVEL_SIMPLE = 1;
