@@ -316,11 +316,11 @@ trait ApiTestRequesterTrait
     protected static function getToken(): string
     {
         if (null === static::$token) {
-            $cachedToken = self::getCachedData('test.token.'.self::$user);
+            $cachedToken = static::getCachedData('test.token.'.static::$user);
             if (!$cachedToken->isHit() || self::isTokenExpired($cachedToken->get()) || !static::$useCache) {
-                static::$token = static::loginHttp(self::$user, self::$password, false);
+                static::$token = static::loginHttp(static::$user, static::$password, false);
                 $cachedToken->set(static::$token);
-                self::$cache->save($cachedToken);
+                static::$cache->save($cachedToken);
             } else {
                 static::$token = $cachedToken->get();
             }
