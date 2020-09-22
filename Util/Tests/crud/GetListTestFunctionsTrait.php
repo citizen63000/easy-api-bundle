@@ -4,6 +4,7 @@ namespace EasyApiBundle\Util\Tests\crud;
 
 use EasyApiBundle\Util\ApiProblem;
 use EasyApiBundle\Util\Tests\Format;
+use ReflectionException;
 use Symfony\Component\HttpFoundation\Response;
 
 trait GetListTestFunctionsTrait
@@ -13,36 +14,63 @@ trait GetListTestFunctionsTrait
     /**
      * GET - Nominal case.
      * @param string|null $filename
-     * @throws \ReflectionException
+     * @param array|null $params
+     * @throws ReflectionException
      */
-    public function doTestGetList(string $filename = null): void
+    protected function doTestGetList(string $filename = null, array $params = []): void
     {
-        $apiOutput = self::httpGet(['name' => static::getGetListRouteName(), 'params' => []]);
+        $apiOutput = self::httpGet(['name' => static::getGetListRouteName(), 'params' => $params]);
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
-        $result = $apiOutput->getData();
 
         if(null !== $filename) {
-            $dir = $this->getCurrentDir().'/Responses/GetList';
-            $filePath = "{$dir}/{$filename}";
-            if(!file_exists($filePath)) {
-                if(!is_dir($dir)) {
-                    mkdir($dir, 0777, true);
-                }
-                file_put_contents($filePath, json_encode($result));
-            }
-            $expectedResult = json_decode(file_get_contents($filePath), true);
+            $expectedResult = $this->getExpectedResponse($filename, 'GetList', $apiOutput->getData());
         } else {
             $expectedResult = self::createGETListResponseData();
         }
 
-        static::assertEquals($expectedResult, $result);
+        static::assertEquals($expectedResult, $apiOutput->getData());
+    }
+
+    /**
+     * @param string $filename
+     * @param int|null $page
+     * @param int|null $limit
+     * @param array $params
+     */
+    protected function doTestGetListPaginate(string $filename, int $page = null, int $limit = null, array $params = [])
+    {
+        try {
+            $pagination = [];
+            if(null !== $page) {
+                $pagination['page'] = $page;
+            }
+            if(null !== $limit) {
+                $pagination['limit'] = $limit;
+            }
+            $this->doTestGetList($filename, array_merge($pagination, $params));
+        } catch (ReflectionException $e) {
+            echo $e->getMessage();
+        }
+    }
+
+    /**
+     * @param string $filename
+     * @param int|null $page
+     * @param int|null $limit
+     * @param array $filters
+     * @param string|null $sort
+     * @param array $params
+     */
+    protected function doTestGetListFiltered(string $filename, int $page = null, int $limit = null, array $filters = [], string $sort = null, array $params = [])
+    {
+        $this->doTestGetListPaginate($filename, $page, $limit, array_merge($filters, ['sort' => $sort], $params));
     }
 
     /**
      * GET - Error case - not found - Without authentication.
      */
-    public function doTestGetListNotFound(): void
+    protected function doTestGetListNotFound(): void
     {
         $apiOutput = self::httpGet(['name' => static::getGetListRouteName(), 'params' => []]);
         static::assertApiProblemError($apiOutput, Response::HTTP_NOT_FOUND, [ApiProblem::ENTITY_NOT_FOUND]);
@@ -51,7 +79,7 @@ trait GetListTestFunctionsTrait
     /**
      * GET - Error case - 401 - Without authentication.
      */
-    public function doTestGetWithoutAuthentication(): void
+    protected function doTestGetWithoutAuthentication(): void
     {
         $apiOutput = self::httpGet(['name' => static::getGetListRouteName(), 'params' => []], false);
         static::assertApiProblemError($apiOutput, Response::HTTP_UNAUTHORIZED, [ApiProblem::JWT_NOT_FOUND]);
@@ -62,7 +90,7 @@ trait GetListTestFunctionsTrait
      * @param string|null $userLogin
      * @param string|null $userPassword
      */
-    public function doTestGetWithoutRight(string $userLogin = null, string $userPassword = null): void
+    protected function doTestGetWithoutRight(string $userLogin = null, string $userPassword = null): void
     {
         if(null === $userPassword && null!== $userLogin) {
             throwException(new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null'));
@@ -75,7 +103,7 @@ trait GetListTestFunctionsTrait
 
         $token = self::loginHttp($userLogin, $userPassword);
         $apiOutput = self::httpGet([
-            'name' => static::getGetRouteName(), 'params' => []],
+            'name' => static::getGetListRouteName(), 'params' => []],
             false,
             Format::JSON,
             ['Authorization' => self::getAuthorizationTokenPrefix()." {$token}"]

@@ -2,16 +2,62 @@
 
 namespace EasyApiBundle\Util\Tests\crud;
 
+use ReflectionException;
+
 trait crudFunctionsTestTrait
 {
     /**
      * @return false|string|string[]
-     * @throws \ReflectionException
      */
     protected function getCurrentDir()
     {
-        $rc = new \ReflectionClass($this);
-        return str_replace('/'.$rc->getShortName().'.php', '', $rc->getFilename());
+        try {
+            $rc = new \ReflectionClass($this);
+            return str_replace('/'.$rc->getShortName().'.php', '', $rc->getFilename());
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+        }
+    }
+
+    /**
+     * @param string $filename
+     * @param string $type Get|GetList|Create|Update
+     * @param array $result result in json
+     * @return array
+     */
+    protected function getExpectedResponse(string $filename, string $type, array $result): array
+    {
+        $dir = $this->getCurrentDir()."/Responses/{$type}";
+        $filePath = "{$dir}/{$filename}";
+
+        if(!file_exists($filePath)) {
+            if(!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+            file_put_contents($filePath, json_encode($result, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+        }
+
+        return json_decode(file_get_contents($filePath), true);
+    }
+
+    /**
+     * @param string $filename
+     * @param string $type Create|Update
+     * @return array
+     */
+    protected function getDataSent(string $filename, string $type): array
+    {
+        $dir = $this->getCurrentDir()."/DataSent/{$type}";
+        $filePath = "{$dir}/{$filename}";
+
+        if(!file_exists($filePath)) {
+            if(!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+            file_put_contents($filePath, '{}');
+        }
+
+        return json_decode(file_get_contents($filePath), true);
     }
 
     /**

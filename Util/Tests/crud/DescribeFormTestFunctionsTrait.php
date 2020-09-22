@@ -27,8 +27,6 @@ trait DescribeFormTestFunctionsTrait
      */
     protected function doGetTest(string $method, array $params = [], string $userLogin = null, string $userPassword = null)
     {
-        //$expectedResult = self::createDescribeFormPostResponseData();
-
         if(null === $userLogin) {
             $apiOutput = self::httpGet(['name' => static::getDescribeFormRouteName(), 'params' => ['method' => $method]]);
         } elseif(null !== $userLogin && null !== $userPassword) {
@@ -43,8 +41,10 @@ trait DescribeFormTestFunctionsTrait
             throwException(new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null'));
         }
 
+        $expectedResult = $this->getExpectedResponse(strtolower($method).'.json', 'DescribeForm', $apiOutput->getData());
+
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
-        //self::assertEquals($expectedResult, $apiOutput->getData());
+        self::assertEquals($expectedResult, $apiOutput->getData());
     }
 
     /**
