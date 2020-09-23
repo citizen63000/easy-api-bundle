@@ -4,6 +4,7 @@ namespace EasyApiBundle\Util\Tests\crud;
 
 use EasyApiBundle\Util\ApiProblem;
 use EasyApiBundle\Util\Tests\Format;
+use ReflectionException;
 use Symfony\Component\HttpFoundation\Response;
 
 trait GetTestFunctionsTrait
@@ -14,7 +15,7 @@ trait GetTestFunctionsTrait
      * GET - Nominal case.
      * @param int|null $id
      * @param string|null $filename
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function doTestGet(int $id = null, string $filename = null): void
     {
@@ -26,15 +27,7 @@ trait GetTestFunctionsTrait
         $result = $apiOutput->getData();
 
         if(null !== $filename) {
-            $dir = $this->getCurrentDir().'/Responses/Get';
-            $filePath = "{$dir}/{$filename}";
-            if(!file_exists($filePath)) {
-                if(!is_dir($dir)) {
-                    mkdir($dir, 0777, true);
-                }
-                file_put_contents($filePath, json_encode($result));
-            }
-            $expectedResult = json_decode(file_get_contents($filePath), true);
+            $expectedResult = $this->getExpectedResponse($filename, 'Get', $result);
         } else {
             $expectedResult = self::createGETResponseData();
         }
@@ -43,13 +36,13 @@ trait GetTestFunctionsTrait
     }
 
     /**
-     * GET - Error case - not found - Without authentication.
+     * GET - Error case - not found.
      * @param int $id
      */
     public function doTestGetNotFound(int $id = null): void
     {
         $apiOutput = self::httpGet(['name' => static::getGetRouteName(), 'params' => ['id' => $id ?? 99999999]]);
-        static::assertApiProblemError($apiOutput, Response::HTTP_NOT_FOUND, [ApiProblem::ENTITY_NOT_FOUND]);
+        static::assertApiProblemError($apiOutput, Response::HTTP_NOT_FOUND, [sprintf(ApiProblem::ENTITY_NOT_FOUND, 'entity')]);
     }
 
     /**

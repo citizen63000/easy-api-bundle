@@ -54,7 +54,7 @@ trait DeleteTestFunctionsTrait
     public function doTestDeleteNotFound(int $id): void
     {
         $apiOutput = self::httpDelete(['name' => static::getDeleteRouteName(), 'params' => ['id' => $id]]);
-        self::assertEquals(Response::HTTP_NOT_FOUND, $apiOutput->getStatusCode());
+        static::assertApiProblemError($apiOutput, Response::HTTP_NOT_FOUND, [sprintf(ApiProblem::ENTITY_NOT_FOUND, 'entity')]);
     }
 
     /**
