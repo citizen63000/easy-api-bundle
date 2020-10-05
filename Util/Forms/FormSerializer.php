@@ -2,6 +2,7 @@
 
 namespace EasyApiBundle\Util\Forms;
 
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Nelmio\ApiDocBundle\Model\Model;
 use EasyApiBundle\Form\Type\AbstractApiType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
@@ -16,19 +17,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 class FormSerializer
 {
     use FormFieldSerializerConfigurationSetterTrait;
-    /**
-     * @var FormFactory
-     */
+
+    /** @var FormFactory  */
     private $formFactory;
 
-    /**
-     * @var Router
-     */
+    /** @var Router  */
     private $router;
 
-    /**
-     * @var array
-     */
+    /** @var ManagerRegistry  */
+    private $doctrine;
+
+    /** @var array  */
     private $groupsConditions = [];
 
     /**
@@ -36,10 +35,19 @@ class FormSerializer
      * @param FormFactory $formFactory
      * @param Router $router
      */
-    public function __construct(FormFactory $formFactory, Router $router)
+    public function __construct(FormFactory $formFactory, Router $router, ManagerRegistry $doctrine)
     {
         $this->formFactory = $formFactory;
         $this->router = $router;
+        $this->doctrine = $doctrine;
+    }
+
+    /**
+     * @return ManagerRegistry
+     */
+    protected function getDoctrine()
+    {
+        return $this->doctrine;
     }
 
     /**
@@ -89,6 +97,22 @@ class FormSerializer
     }
 
     /**
+     * @return SerializedForm
+     */
+    protected static function getSerializedFormInstance()
+    {
+        return new SerializedForm();
+    }
+    
+    /**
+     * @return SerializedFormField
+     */
+    protected static function getSerializedFormFieldInstance()
+    {
+        return new SerializedFormField();
+    }
+
+    /**
      * Parse form.
      *
      * @param FormInterface $form
@@ -97,15 +121,15 @@ class FormSerializer
      *
      * @return SerializedForm
      */
-    private function parseForm(FormInterface $form, string $parentKey = null, string $parentType = null)
+    protected function parseForm(FormInterface $form, string $parentKey = null, string $parentType = null)
     {
-        $sForm = new SerializedForm();
+        $sForm = static::getSerializedFormInstance();
         $sForm->setName($form->getName());
         $sForm->setParentType($parentType);
 
         foreach ($form as $name => $child) {
             $config = $child->getConfig();
-            $sField = new SerializedFormField();
+            $sField = static::getSerializedFormFieldInstance();
             $sField->setName($name);
             $sField->setKey(null !== $parentKey ? "{$parentKey}.{$name}" : "{$form->getName()}.{$name}");
 
@@ -244,6 +268,8 @@ class FormSerializer
                 // fields types
                 $sField = $this->setFieldConfiguration($config, $blockPrefix, $sField);
 
+                break;
+
             } while ($builtinFormType = $builtinFormType->getParent());
         }
 
@@ -260,6 +286,57 @@ class FormSerializer
         }
 
         return $sField->getType() ? $sField : null;
+    }
+
+    /**
+     * @param SerializedFormField $sField
+     * @param FormConfigBuilderInterface $config
+     * @return string
+     */
+    private static function getPrimaryColumnName(SerializedFormField $sField, FormConfigBuilderInterface $config)
+    {
+        if ($sField->isReferential()) {
+            try {
+                $r = new \ReflectionClass($config->getOption('class'));
+                $primary = $r->hasProperty('id') ? 'id' : 'code';
+            } catch (\Exception $e) {
+                $primary = 'id';
+            }
+        } else {
+            $primary = 'id';
+        }
+
+        return $primary;
+    }
+
+    /**
+     * @param array $entities
+     * @param SerializedFormField $sField
+     * @param FormConfigBuilderInterface $config
+     * @return array
+     */
+    private function getChoicesOfEntityField(array $entities, SerializedFormField $sField, FormConfigBuilderInterface $config)
+    {
+        $choices = [];
+        $primary = self::getPrimaryColumnName($sField, $config);
+        $attr = $config->getOption('attr');
+
+        foreach ($entities as $key => $entity) {
+            if (null !== $attr && isset($attr['discriminator'])) {
+                $choices[$key] = [
+                    $primary => $entity->getId(),
+                    'displayName' => $entity->__toString(),
+                    'discriminator' => $this->getDiscriminator($sField, $entity, $attr['discriminator']),
+                ];
+            } else {
+                $choices[$key] = [
+                    $primary => $entity->getId(),
+                    'displayName' => $entity->__toString(),
+                ];
+            }
+        }
+
+        return $choices;
     }
 
     /**
