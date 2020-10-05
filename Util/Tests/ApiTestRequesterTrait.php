@@ -127,12 +127,26 @@ trait ApiTestRequesterTrait
         }
 
         $output = new ApiOutput($client->getResponse(), $formatOut, $profiler);
+        $link = '';
+        if (true === static::$debug && $token = $output->getHeaders()->get('x-debug-token')) {
+            $link = "\e[0m\n\t\t\tProfiler : \e[33m"
+                .self::$container->getParameter('router.request_context.scheme')
+                .'://'
+                .self::$container->getParameter('router.request_context.host')
+                .'/app_'
+                .self::$container->getParameter('kernel.environment')
+                .'.php'
+                .self::$router->generate('_profiler', ['token' => $token])
+                ."\e[0m"
+            ;
+        }
 
         self::logDebug(
             "\e[33m[API]\e[0m\t🌐 [\e[33m".strtoupper($method)."\e[0m]".(strlen($method) > 3 ? "\t" : "\t\t")."\e[34m{$url}\e[0m"
             .((null !== $content && self::DEBUG_LEVEL_ADVANCED === static::$debugLevel) ? "\n\t\t\tSubmitted data : \e[33m{$body}\e[0m" : '')
             ."\n\t\t\tStatus : \e[33m".$output->getResponse()->getStatusCode()
             ."\e[0m\n\t\t\tResponse : \e[33m".$output->getData(true)."\e[0m"
+            .$link
         );
 
         return $output;
