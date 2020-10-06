@@ -188,23 +188,6 @@ class TiCrudGenerator extends AbstractGenerator
     /**
      * @param array $fixtures
      * @param bool $dumpExistingFiles
-     *
-     * @return string
-     * @throws \Twig\Error\Error
-     */
-    protected function generateSql(array $fixtures, bool $dumpExistingFiles = false)
-    {
-        $fileContent = $this->getContainer()->get('templating')->render(
-            $this->getTemplatePath('crud_datas.sql.twig'),
-            $this->generateSqlContent($fixtures)
-        );
-
-        return $this->writeFile($this->generateSqlDirectory(), $this->config->getEntityName().'.sql', $fileContent, $dumpExistingFiles);
-    }
-
-    /**
-     * @param array $fixtures
-     * @param bool $dumpExistingFiles
      * @return bool
      * @throws \Twig\Error\Error
      */
@@ -328,6 +311,7 @@ class TiCrudGenerator extends AbstractGenerator
                 'entity_parent_use' => $entityParentUse,
                 'bundle_name' => $this->config->getBundleName(),
                 'context_name' => $this->config->getContextName(),
+                'route_name_prefix' => $this->getRouteNamePrefix().'_'.CaseConverter::convertToPascalCase($this->config->getEntityName()),
                 'route_name_get' => $this->getRouteNamePrefix().'_'.CaseConverter::convertToPascalCase($this->config->getEntityName()).'_get',
                 'route_name_list' => $this->getRouteNamePrefix().'_'.CaseConverter::convertToPascalCase($this->config->getEntityName()).'_list',
                 'route_name_post' => $this->getRouteNamePrefix().'_'.CaseConverter::convertToPascalCase($this->config->getEntityName()).'_create',
@@ -534,16 +518,6 @@ class TiCrudGenerator extends AbstractGenerator
     public function getEntityTestsDirectory()
     {
         return $this->getContextDirectoryPath().$this->getConfig()->getEntityName().'/';
-    }
-
-    /**
-     * @return string
-     */
-    public function generateSqlDirectory()
-    {
-        $sqlBundleDirectory = str_replace(['api', 'bundle'], ['', ''], strtolower($this->config->getBundleName()));
-
-        return "tests/sql/{$sqlBundleDirectory}/".strtolower($this->getConfig()->getContextNameForPath()).'/';
     }
 
     protected function generateDataSubDirectoryPath()
