@@ -80,7 +80,7 @@ trait crudFunctionsTestTrait
                 $defaultContent = static::generateDataSentDefault($type);
             }
 
-            file_put_contents($filePath, $defaultContent);
+            file_put_contents($filePath, json_encode($defaultContent, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_FORCE_OBJECT));
         }
 
         if($json = json_decode(file_get_contents($filePath), true)) {
@@ -92,20 +92,22 @@ trait crudFunctionsTestTrait
 
     /**
      * @param string $type
-     * @return mixed
+     * @return array
      */
-    protected static function generateDataSentDefault(string $type)
+    protected static function generateDataSentDefault(string $type): array
     {
         $router = static::$container->get('router');
 
         if($type === self::$createActionType) {
             $route = $router->getRouteCollection()->get(self::getCreateRouteName());
             $controllerAction = $route->getDefault('_controller');
-            $formClass = constant("{$controllerAction}::entityCreateTypeClass");
+            $controllerClassName = explode('::', $controllerAction)[0];
+            $formClass = constant("{$controllerClassName}::entityCreateTypeClass");
         } else {
             $route = $router->getRouteCollection()->get(self::getUpdateRouteName());
             $controllerAction = $route->getDefault('_controller');
-            $formClass = constant("{$controllerAction}::entityUpdateTypeClass");
+            $controllerClassName = explode('::', $controllerAction)[0];
+            $formClass = constant("{$controllerClassName}::entityUpdateTypeClass");
         }
 
         $describer = new FormSerializer(
@@ -151,10 +153,10 @@ trait crudFunctionsTestTrait
                     break;
             }
 
-            $fields[] = [$field->getName() => $defaultValue];
+            $fields[$field->getName()] = $defaultValue;
         }
 
-        return static::$container->get('serializer')->serialize($fields, 'json');
+        return $fields;
     }
 
     /**
