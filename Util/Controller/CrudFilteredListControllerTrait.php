@@ -10,6 +10,8 @@ trait CrudFilteredListControllerTrait
     /**
      * List entities.
      *
+     * @Symfony\Component\Routing\Annotation\Route(methods={"GET"}, name="_list")
+     *
      * @EasyApiBundle\Annotation\GetFormFilterParameter(
      *     type="static::entitySearchTypeClass",
      *     entityClass="static::entityClass",

@@ -71,7 +71,7 @@ abstract class AbstractApiTest extends WebTestCase
      *
      * @var bool
      */
-    protected static $executeSetupOnAllTest = true;
+    protected static $executeSetupOnAllTest = null;
 
     /**
      * Indicates if you want launch cleanup on all tests in your test class.
@@ -328,6 +328,16 @@ abstract class AbstractApiTest extends WebTestCase
         self::doSetup();
 
         self::$launchFirstSetup = false;
+    }
+
+    /**
+     * Initialize $executeSetupOnAllTest, override it to change it
+     */
+    protected static function initExecuteSetupOnAllTest()
+    {
+        if(null === static::$executeSetupOnAllTest) {
+            static::$executeSetupOnAllTest = true;
+        }
     }
 
     /**

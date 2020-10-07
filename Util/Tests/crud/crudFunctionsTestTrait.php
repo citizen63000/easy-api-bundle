@@ -2,10 +2,15 @@
 
 namespace EasyApiBundle\Util\Tests\crud;
 
+use EasyApiBundle\Util\Forms\FormSerializer;
+use EasyApiBundle\Util\Forms\SerializedFormField;
 use ReflectionException;
 
 trait crudFunctionsTestTrait
 {
+    protected static $createActionType = 'Create';
+    protected static $updateActionType = 'Update';
+
     /**
      * @return false|string|string[]
      */
@@ -61,7 +66,7 @@ trait crudFunctionsTestTrait
      * @return array
      * @throws \Exception
      */
-    protected function getDataSent(string $filename, string $type, string $defaultContent = '{}'): array
+    protected function getDataSent(string $filename, string $type, string $defaultContent = null): array
     {
         $dir = $this->getCurrentDir()."/DataSent/{$type}";
         $filePath = "{$dir}/{$filename}";
@@ -70,6 +75,11 @@ trait crudFunctionsTestTrait
             if(!is_dir($dir)) {
                 mkdir($dir, 0777, true);
             }
+
+            if(null === $defaultContent) {
+                $defaultContent = static::generateDataSentDefault($type);
+            }
+
             file_put_contents($filePath, $defaultContent);
         }
 
@@ -78,6 +88,73 @@ trait crudFunctionsTestTrait
         }
 
         throw new \Exception("Invalid json in file {$filename}");
+    }
+
+    /**
+     * @param string $type
+     * @return mixed
+     */
+    protected static function generateDataSentDefault(string $type)
+    {
+        $router = static::$container->get('router');
+
+        if($type === self::$createActionType) {
+            $route = $router->getRouteCollection()->get(self::getCreateRouteName());
+            $controllerAction = $route->getDefault('_controller');
+            $formClass = constant("{$controllerAction}::entityCreateTypeClass");
+        } else {
+            $route = $router->getRouteCollection()->get(self::getUpdateRouteName());
+            $controllerAction = $route->getDefault('_controller');
+            $formClass = constant("{$controllerAction}::entityUpdateTypeClass");
+        }
+
+        $describer = new FormSerializer(
+            static::$container->get('form.factory'),
+            static::$container->get('router'),
+            static::$container->get('doctrine')
+        );
+
+        $normalizedForm = $describer->normalize(static::$container->get('form.factory')->create($formClass));
+
+        $fields = [];
+        foreach ($normalizedForm->getFields() as $field) {
+
+            $defaultValue = '';
+
+            switch ($field->getType()) {
+                case 'string':
+                    if('date' === $field->getFormat()) {
+                        $defaultValue = (new \DateTime())->format('Y-m-d');
+                    } elseif('date-time' === $field->getFormat()) {
+                        $defaultValue = (new \DateTime())->format('Y-m-d h:i:s');
+                    } else {
+                        $defaultValue = 'string';
+                    }
+                    break;
+                case 'text':
+                    $defaultValue = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt';
+                    break;
+                case 'boolean':
+                    $defaultValue = 1;
+                    break;
+                case 'integer':
+                    $defaultValue = random_int(0, 5000);
+                    break;
+                case 'number':
+                    $defaultValue = random_int(0, 5000);
+                    break;
+                case 'array':
+                    $defaultValue = [];
+                    break;
+                case 'entity':
+                    $defaultValue = 1;
+                    break;
+            }
+
+            $fields[] = [$field->getName() => $defaultValue];
+        }
+
+        return static::$container->get('serializer')->serialize($fields, 'json');
     }
 
     /**

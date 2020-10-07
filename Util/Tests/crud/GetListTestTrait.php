@@ -9,6 +9,11 @@ trait GetListTestTrait
     protected static $paginationPage = 2;
     protected static $paginationLimit = 3;
 
+    protected static function initExecuteSetupOnAllTest()
+    {
+        static::$executeSetupOnAllTest = false;
+    }
+
     /**
      * GET - Nominal case.
      */

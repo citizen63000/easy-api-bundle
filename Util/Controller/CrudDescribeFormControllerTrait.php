@@ -3,14 +3,14 @@
 namespace EasyApiBundle\Util\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use EasyApiBundle\Util\Forms\SerializedForm;
+use Symfony\Component\HttpFoundation\Response;
 
 trait CrudDescribeFormControllerTrait
 {
     /**
      * Describe fields of form.
      *
-     * @Symfony\Component\Routing\Annotation\Route("/describeForm", methods={"GET"}, name="describe_form")
+     * @Symfony\Component\Routing\Annotation\Route("/describeForm", methods={"GET"}, name="_describe_form")
      *
      * @Swagger\Annotations\Response(
      *     response=200,
@@ -22,18 +22,12 @@ trait CrudDescribeFormControllerTrait
      * @Swagger\Annotations\Response(response="405", ref="#/definitions/405")
      * @Swagger\Annotations\Response(response="415", ref="#/definitions/415")
      *
-     * @FOS\RestBundle\Controller\Annotations\View(serializerGroups={ "public" })
-     *
      * @param Request $request
      *
-     * @return SerializedForm
+     * @return Response
      */
-    public function describeFormAction(Request $request): SerializedForm
+    public function describeFormAction(Request $request): Response
     {
-        $method = strtoupper($request->query->get('method', 'POST'));
-
-        $form = 'POST' === $method ? static::entityCreateTypeClass : static::entityUpdateTypeClass;
-
-        return $this->describeForm($form);
+        return $this->getDescribeFormAction($request);
     }
 }

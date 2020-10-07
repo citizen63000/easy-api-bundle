@@ -10,6 +10,8 @@ trait CrudUpdateControllerTrait
     /**
      * Update Entity.
      *
+     * @Symfony\Component\Routing\Annotation\Route("/{id}", methods={"PUT"}, requirements={"id"="\d+"}, name="_update")
+     *
      * @Swagger\Annotations\Parameter(
      *     name="data",
      *     in="body",

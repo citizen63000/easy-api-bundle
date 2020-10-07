@@ -10,6 +10,8 @@ trait CrudGetControllerTrait
     /**
      * Get entity.
      *
+     * @Symfony\Component\Routing\Annotation\Route("/{id}", methods={"GET"}, requirements={"id"="\d+"}, name="_get", )
+     *
      * @Swagger\Annotations\Response(
      *     response=200,
      *     description="Successful operation",

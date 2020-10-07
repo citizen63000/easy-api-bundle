@@ -6,6 +6,12 @@ trait DeleteTestTrait
 {
     use DeleteTestFunctionsTrait;
 
+    protected static function initExecuteSetupOnAllTest()
+    {
+        static::$executeSetupOnAllTest = false;
+    }
+
+
     /**
      * DELETE - Nominal case.
      */

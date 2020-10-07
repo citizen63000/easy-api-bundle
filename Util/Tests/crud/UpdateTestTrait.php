@@ -2,7 +2,6 @@
 
 namespace EasyApiBundle\Util\Tests\crud;
 
-
 trait UpdateTestTrait
 {
     use UpdateTestFunctionsTrait;

@@ -6,6 +6,12 @@ trait GetDescribeFormTestTrait
 {
     use DescribeFormTestFunctionsTrait;
 
+    protected static function initExecuteSetupOnAllTest()
+    {
+        static::$executeSetupOnAllTest = false;
+    }
+
+
     /**
      * Nominal case for post form.
      */

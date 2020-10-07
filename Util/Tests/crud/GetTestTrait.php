@@ -6,10 +6,10 @@ trait GetTestTrait
 {
     use GetTestFunctionsTrait;
 
-    /**
-     * @var bool
-     */
-    protected static $executeSetupOnAllTest = false;
+    protected static function initExecuteSetupOnAllTest()
+    {
+        static::$executeSetupOnAllTest = false;
+    }
 
     /**
      * GET - Nominal case.
