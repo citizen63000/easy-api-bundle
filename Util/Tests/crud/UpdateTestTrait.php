@@ -2,6 +2,12 @@
 
 namespace EasyApiBundle\Util\Tests\crud;
 
+/**
+ * testPutExistingEntity
+ * testPutUnexistingEntity
+ * testPutWithoutAuthentication
+ * testPutWithoutRight
+ */
 trait UpdateTestTrait
 {
     use UpdateTestFunctionsTrait;
@@ -11,7 +17,7 @@ trait UpdateTestTrait
      */
     public function testPutExistingEntity(): void
     {
-        $this->doTestUpdate(1, 'update.json');
+        $this->doTestUpdate(1, 'nominalCase.json');
     }
 
     /**
@@ -25,7 +31,7 @@ trait UpdateTestTrait
     /**
      * PUT - Error case - 401 - Without authentication.
      */
-    public function testPut401(): void
+    public function testPutWithoutAuthentication(): void
     {
         $this->doTestUpdateWithoutAuthentication(1);
     }

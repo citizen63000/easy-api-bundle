@@ -2,6 +2,12 @@
 
 namespace EasyApiBundle\Util\Tests\crud;
 
+/**
+ * testGet()
+ * testGetNotFound()
+ * testGetWithoutAuthentication()
+ * testGetWithoutRight()
+ */
 trait GetTestTrait
 {
     use GetTestFunctionsTrait;
