@@ -20,6 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
 class listFilter extends AbstractService
 {
 
+    public const classAlias = 'e';
+
     /**
      * @param FormInterface $filterForm
      * @param string $entityClass
@@ -34,7 +36,8 @@ class listFilter extends AbstractService
         /** @var FilterModel $model */
         $model = $filterForm->getData();
         $repo = $this->getRepository($entityClass);
-        $qb = $qb ?? $repo->createQueryBuilder('e');
+        $classAlias = self::classAlias;
+        $qb = $qb ?? $repo->createQueryBuilder($classAlias);
 
         // value filters
         foreach ($filterForm->all() as $field) {
@@ -44,8 +47,8 @@ class listFilter extends AbstractService
                 $fieldType = $fieldConfig->getType()->getInnerType();
 
                 if($fieldType instanceof EntityType) {
-                    $alias = "e_{$fieldName}";
-                    $qb->innerJoin("e.{$fieldName}", $alias);
+                    $alias = "{$classAlias}_{$fieldName}";
+                    $qb->innerJoin("{$classAlias}.{$fieldName}", $alias);
                     $qb->andWhere($qb->expr()->eq("{$alias}.id", ":{$alias}"));
                     $qb->setParameter(":{$alias}", $model->$fieldName);
                 } else {
@@ -53,10 +56,10 @@ class listFilter extends AbstractService
                         $realFieldName = substr($fieldName, 0, $pos);
                         $operator = substr($fieldName, $pos+1);
                         $exprOperator = $operator === 'min' ? 'gt' : 'lte';
-                        $qb->andWhere($qb->expr()->$exprOperator("e.{$realFieldName}", ":{$fieldName}"));
+                        $qb->andWhere($qb->expr()->$exprOperator("{$classAlias}.{$realFieldName}", ":{$fieldName}"));
                         $qb->setParameter(":{$fieldName}", $model->$fieldName);
                     } else { // value
-                        $qb->andWhere($qb->expr()->eq("e.{$fieldName}", ":{$fieldName}"));
+                        $qb->andWhere($qb->expr()->eq("{$classAlias}.{$fieldName}", ":{$fieldName}"));
                         $qb->setParameter(":{$fieldName}", $model->$fieldName);
                     }
                 }
@@ -68,11 +71,11 @@ class listFilter extends AbstractService
             $strOrders = explode(',', $model->getSort());
             foreach ($strOrders as $order) {
                 $parts = explode(':', $order);
-                $qb->addOrderBy("e.{$parts[0]}", $parts[1]);
+                $qb->addOrderBy("{$classAlias}.{$parts[0]}", $parts[1]);
             }
         }
 
-        return AbstractRepository::paginateResult($qb, 'e.id', $model->getPage(), $model->getLimit(), $count);
+        return AbstractRepository::paginateResult($qb, "{$classAlias}.id", $model->getPage(), $model->getLimit(), $count);
     }
 
 }

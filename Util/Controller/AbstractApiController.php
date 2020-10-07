@@ -19,6 +19,7 @@ use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use \Doctrine\ORM;
+use Doctrine\ORM\QueryBuilder;
 
 abstract class AbstractApiController extends FOSRestController
 {
@@ -223,12 +224,20 @@ abstract class AbstractApiController extends FOSRestController
 
             $filterService = $this->get(listFilter::class);
             $results = $filterService->filter($form, $entityClass, false);
-            $nbResults = (int) $filterService->filter($form, $entityClass, true);
+            $nbResults = (int) $filterService->filter($form, $entityClass, true, $this->getFilterQueryBuilder());
 
             return $this->createPaginateResponse($results, $nbResults, $serializationGroups);
         }
 
         $this->throwUnprocessableEntity($form);
+    }
+
+    /**
+     * @return QueryBuilder
+     */
+    protected function getFilterQueryBuilder()
+    {
+        return $this->getRepository(static::entityClass)->createQueryBuilder(listFilter::classAlias);
     }
 
     /**
@@ -287,6 +296,19 @@ abstract class AbstractApiController extends FOSRestController
         $this->removeAndFlush($entity);
 
         return static::renderResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    protected function getDescribeFormAction(Request $request)
+    {
+        $method = strtoupper($request->query->get('method', 'POST'));
+
+        $form = 'POST' === $method ? static::entityCreateTypeClass : static::entityUpdateTypeClass;
+
+        return $this->renderEntityResponse($this->describeForm($form));
     }
 
     /**
