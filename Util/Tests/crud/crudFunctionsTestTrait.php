@@ -43,7 +43,7 @@ trait crudFunctionsTestTrait
 
             // created_at / updated_at fields
             if($dateProtection) {
-                if('Create' === $type) {
+                if(self::$createActionType === $type) {
                     if(array_key_exists('createdAt', $result)) {
                         $result['createdAt'] = '\assertDateTime()';
                     }
@@ -53,7 +53,7 @@ trait crudFunctionsTestTrait
                 }
             }
 
-            file_put_contents($filePath, json_encode($result, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_FORCE_OBJECT));
+            file_put_contents($filePath, self::generateJson($result));
         }
 
         return json_decode(file_get_contents($filePath), true);
@@ -80,7 +80,7 @@ trait crudFunctionsTestTrait
                 $defaultContent = static::generateDataSentDefault($type);
             }
 
-            file_put_contents($filePath, json_encode($defaultContent, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_FORCE_OBJECT));
+            file_put_contents($filePath, self::generateJson($defaultContent));
         }
 
         if($json = json_decode(file_get_contents($filePath), true)) {
@@ -88,6 +88,17 @@ trait crudFunctionsTestTrait
         }
 
         throw new \Exception("Invalid json in file {$filename}");
+    }
+
+    /**
+     * @param $content
+     * @return false|string|string[]
+     */
+    protected static function generateJson($content)
+    {
+        $json = json_encode($content, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_FORCE_OBJECT);
+
+        return str_replace('{}', '[]', $json);
     }
 
     /**
