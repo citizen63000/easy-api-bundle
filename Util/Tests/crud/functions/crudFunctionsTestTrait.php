@@ -96,7 +96,7 @@ trait crudFunctionsTestTrait
      */
     protected static function generateJson($content)
     {
-        $json = json_encode($content, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_FORCE_OBJECT);
+        $json = json_encode($content, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_FORCE_OBJECT|JSON_PRETTY_PRINT);
 
         return str_replace('{}', '[]', $json);
     }
