@@ -42,7 +42,7 @@ trait ApiTestDataLoaderTrait
 
         self::cleanDb();
 
-        $files = array_merge(self::initFiles, static::$additionalInitFiles);
+        $files = array_merge(static::initFiles, static::$additionalInitFiles);
 
         foreach ($files as $filename) {
 

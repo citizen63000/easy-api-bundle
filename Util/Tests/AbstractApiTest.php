@@ -39,7 +39,7 @@ abstract class AbstractApiTest extends WebTestCase
 
     public const ARTIFACT_DIR = DIRECTORY_SEPARATOR.'tests'.DIRECTORY_SEPARATOR.'artifacts';
 
-    public const initFiles = ['init.yml'];
+    protected const initFiles = ['init.yml'];
 
     // endregion
 
