@@ -39,7 +39,7 @@ abstract class AbstractApiTest extends WebTestCase
 
     public const ARTIFACT_DIR = DIRECTORY_SEPARATOR.'tests'.DIRECTORY_SEPARATOR.'artifacts';
 
-    public const initFiles = ['reset-all.yml', 'init.yml'];
+    public const initFiles = ['init.yml'];
 
     // endregion
 
@@ -206,6 +206,7 @@ abstract class AbstractApiTest extends WebTestCase
         self::$application->setAutoExit(false);
         self::$projectDir = self::$container->getParameter('kernel.project_dir');
 
+        static::initExecuteSetupOnAllTest();
         self::initializeLoader();
         self::initializeRequester();
 

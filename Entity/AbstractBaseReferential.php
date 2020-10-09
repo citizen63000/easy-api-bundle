@@ -4,19 +4,39 @@ namespace EasyApiBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\MappedSuperclass;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /** @MappedSuperclass */
-abstract class AbstractBaseReferential extends AbstractBaseEntity
+abstract class AbstractBaseReferential
 {
+    /**
+     * @var int
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
+     * @Groups({"referential_full", "referential_short", "abstract_base_referential_full", "abstract_base_referential_short"})
+     */
+    protected $id;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=32)
+     * @Groups({"abstract_referential_full", "abstract_base_referential_full"})
+     * @Groups({"referential_full", "referential_short", "abstract_base_referential_full", "abstract_base_referential_short"})
+     */
+    protected $code;
+
     /**
      * @var string
      * @ORM\Column(type="string", length=255)
+     * @Groups({"referential_full", "referential_short", "abstract_base_referential_full", "abstract_base_referential_short"})
      */
     protected $name;
 
     /**
      * @var int
      * @ORM\Column(type="integer")
+     * @Groups({"referential_full", "abstract_base_referential_full"})
      */
     protected $rank;
 
@@ -26,6 +46,22 @@ abstract class AbstractBaseReferential extends AbstractBaseEntity
     public function __toString()
     {
         return $this->getName();
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function setId(int $id): void
+    {
+        $this->id = $id;
     }
 
     /**

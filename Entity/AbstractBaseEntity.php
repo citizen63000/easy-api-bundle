@@ -16,7 +16,7 @@ Abstract class AbstractBaseEntity
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"abstract_base_entry_full"})
+     * @Groups({"abstract_base_entity_full"})
      */
     protected $id;
 
@@ -24,7 +24,7 @@ Abstract class AbstractBaseEntity
      * @var \DateTime
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
-     * @Groups({"abstract_base_entry_full"})
+     * @Groups({"abstract_base_entity_full"})
      */
     protected $createdAt;
 
@@ -32,7 +32,7 @@ Abstract class AbstractBaseEntity
      * @var \DateTime
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime")
-     * @Groups({"abstract_base_entry_full"})
+     * @Groups({"abstract_base_entity_full"})
      */
     protected $updatedAt;
 
@@ -53,7 +53,7 @@ Abstract class AbstractBaseEntity
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getCreatedAt(): ?\DateTime
     {
@@ -61,7 +61,7 @@ Abstract class AbstractBaseEntity
     }
 
     /**
-     * @param \DateTime $createdAt
+     * @param \DateTime|null $createdAt
      */
     public function setCreatedAt(?\DateTime $createdAt): void
     {
@@ -69,7 +69,7 @@ Abstract class AbstractBaseEntity
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getUpdatedAt(): ?\DateTime
     {
@@ -77,7 +77,7 @@ Abstract class AbstractBaseEntity
     }
 
     /**
-     * @param \DateTime $updatedAt
+     * @param \DateTime|null $updatedAt
      */
     public function setUpdatedAt(?\DateTime $updatedAt): void
     {

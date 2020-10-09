@@ -1,6 +1,6 @@
 <?php
 
-namespace EasyApiBundle\Util\Tests\crud;
+namespace EasyApiBundle\Util\Tests\crud\functions;
 
 use EasyApiBundle\Util\ApiProblem;
 use EasyApiBundle\Util\Tests\Format;
@@ -15,7 +15,6 @@ trait GetTestFunctionsTrait
      * GET - Nominal case.
      * @param int|null $id
      * @param string|null $filename
-     * @throws ReflectionException
      */
     public function doTestGet(int $id = null, string $filename = null): void
     {

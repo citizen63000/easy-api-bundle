@@ -2,6 +2,8 @@
 
 namespace EasyApiBundle\Util\Tests\crud;
 
+use EasyApiBundle\Util\Tests\crud\functions\DeleteTestFunctionsTrait;
+
 trait DeleteTestTrait
 {
     use DeleteTestFunctionsTrait;

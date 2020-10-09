@@ -112,7 +112,9 @@ trait ApiTestRequesterTrait
             $client->enableProfiler();
         }
 
+        $requestBeginTime = microtime(true);
         $client->request($method, $url, [], $files, $server, $body);
+        $requestTotalTime = microtime(true) - $requestBeginTime;
 
         putenv('SHELL_VERBOSITY'); // is set to 3 when kernel debug
         unset($_ENV['SHELL_VERBOSITY'], $_SERVER['SHELL_VERBOSITY']);
@@ -127,9 +129,9 @@ trait ApiTestRequesterTrait
         }
 
         $output = new ApiOutput($client->getResponse(), $formatOut, $profiler);
-        $link = '';
+        $profilerLink = '';
         if (true === static::$debug && $token = $output->getHeaders()->get('x-debug-token')) {
-            $link = "\e[0m\n\t\t\tProfiler : \e[33m"
+            $profilerLink = "\e[0m\n\t\t\tProfiler : \e[33m"
                 .self::$container->getParameter('router.request_context.scheme')
                 .'://'
                 .self::$container->getParameter('router.request_context.host')
@@ -145,8 +147,7 @@ trait ApiTestRequesterTrait
             "\e[33m[API]\e[0m\t🌐 [\e[33m".strtoupper($method)."\e[0m]".(strlen($method) > 3 ? "\t" : "\t\t")."\e[34m{$url}\e[0m"
             .((null !== $content && self::DEBUG_LEVEL_ADVANCED === static::$debugLevel) ? "\n\t\t\tSubmitted data : \e[33m{$body}\e[0m" : '')
             ."\n\t\t\tStatus : \e[33m".$output->getResponse()->getStatusCode()
-            ."\e[0m\n\t\t\tResponse : \e[33m".$output->getData(true)."\e[0m"
-            .$link
+            ."\e[0m\n\t\t\tResponse : \e[33m".$output->getData(true)."\e[0m\n\t\t\tRequest time : {$requestTotalTime} seconds{$profilerLink}"
         );
 
         return $output;

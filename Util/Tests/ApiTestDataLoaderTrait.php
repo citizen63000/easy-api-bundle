@@ -109,11 +109,16 @@ trait ApiTestDataLoaderTrait
 
         if (!$cachedQuery->isHit() || !static::$useCache) {
 
-            $arraySchemas = [];
-            foreach (static::$schemas as $schema) {
-                $arraySchemas[] = '\''.$schema.'\'';
+            if(count(static::$schemas) > 0) {
+                $arraySchemas = [];
+                foreach (static::$schemas as $schema) {
+                    $arraySchemas[] = '\''.$schema.'\'';
+                }
+                $schemas = implode(',', $arraySchemas);
+            } else {
+                $schemas = '"'.self::$container->getParameter('database_tests_name').'"';
             }
-            $schemas = implode(',', $arraySchemas);
+
             $sql = "SELECT CONCAT('`', TABLE_SCHEMA, '`', '.', '`', TABLE_NAME, '`')
                     FROM information_schema.tables
                     WHERE TABLE_SCHEMA IN ({$schemas})

@@ -2,6 +2,8 @@
 
 namespace EasyApiBundle\Util\Tests\crud;
 
+use EasyApiBundle\Util\Tests\crud\functions\DescribeFormTestFunctionsTrait;
+
 trait GetDescribeFormTestTrait
 {
     use DescribeFormTestFunctionsTrait;

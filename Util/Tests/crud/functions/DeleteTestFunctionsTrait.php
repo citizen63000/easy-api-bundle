@@ -1,6 +1,6 @@
 <?php
 
-namespace EasyApiBundle\Util\Tests\crud;
+namespace EasyApiBundle\Util\Tests\crud\functions;
 
 use EasyApiBundle\Util\ApiProblem;
 use Symfony\Component\HttpFoundation\Response;

@@ -2,6 +2,8 @@
 
 namespace EasyApiBundle\Util\Tests\crud;
 
+use EasyApiBundle\Util\Tests\crud\functions\GetTestFunctionsTrait;
+
 /**
  * testGet()
  * testGetNotFound()
