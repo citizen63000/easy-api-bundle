@@ -112,7 +112,13 @@ trait AssertionsTrait
         }
     }
 
-    protected static function assertAssessableContent(array &$expected, array &$result)
+    /**
+     * Asserts that array $expected is the same as $result using assertions methods in expected result
+     *
+     * @param array $expected
+     * @param array $result
+     */
+    protected static function assertAssessableContent(array &$expected, array &$result): void
     {
         foreach ($expected as $key => $value) {
             if (array_key_exists($key, $result)) {
@@ -124,6 +130,8 @@ trait AssertionsTrait
                             unset($result[$key]);
                         }
                     }
+                } else {
+                    static::assertAssessableContent($expected[$key], $result[$key]);
                 }
             }
         }

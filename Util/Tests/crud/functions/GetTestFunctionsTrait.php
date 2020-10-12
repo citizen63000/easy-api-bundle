@@ -31,6 +31,7 @@ trait GetTestFunctionsTrait
             $expectedResult = self::createGETResponseData();
         }
 
+        static::assertAssessableContent($expectedResult, $result);
         static::assertEquals($expectedResult, $result);
     }
 
