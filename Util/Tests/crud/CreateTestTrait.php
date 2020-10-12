@@ -32,17 +32,20 @@ trait CreateTestTrait
     {
         $requiredFields = static::getRequiredFields();
 
-        foreach ($requiredFields as $requiredField) {
+        if(count($requiredFields) > 0) {
+            foreach ($requiredFields as $requiredField) {
 
-            $data = $this->getDataSent('createWithAllFields.json', 'Create');
-            unset($data[$requiredField]);
+                $data = $this->getDataSent('createWithAllFields.json', 'Create');
+                unset($data[$requiredField]);
 
-            $apiOutput = self::httpPost(['name' => static::getCreateRouteName()], $data);
+                $apiOutput = self::httpPost(['name' => static::getCreateRouteName()], $data);
 
-            $result = $apiOutput->getData();
-            static::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $apiOutput->getStatusCode());
-            static::assertEquals(['errors' => ["core.error.{{ error_context }}.{$requiredField}.required"]], $result);
-
+                $result = $apiOutput->getData();
+                static::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $apiOutput->getStatusCode());
+                static::assertEquals(['errors' => ['core.error.'.static::getDataClassShortName().".{$requiredField}.required"]], $result);
+            }
+        } else {
+            self::markTestSkipped('Cannot be tested : no required fields defined.');
         }
     }
 

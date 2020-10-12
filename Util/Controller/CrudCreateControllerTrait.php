@@ -11,7 +11,7 @@ trait CrudCreateControllerTrait
     /**
      * Create entity.
      *
-     * @Symfony\Component\Routing\Annotation\Route("/{id}", methods={"POST"}, name="_create")
+     * @Symfony\Component\Routing\Annotation\Route("/", methods={"POST"}, name="_create")
      *
      * @Swagger\Annotations\Parameter(
      *     name="data",

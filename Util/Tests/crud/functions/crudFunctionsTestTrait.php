@@ -217,4 +217,12 @@ trait crudFunctionsTestTrait
     {
         return static::baseRouteName.'_describe_form';
     }
+
+    /**
+     * @return string
+     */
+    protected static function getDataClassShortName()
+    {
+        return lcfirst(substr(static::entityClass, strrpos(static::entityClass, '\\') + 1));
+    }
 }

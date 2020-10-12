@@ -17,6 +17,7 @@ abstract class AbstractApiTest extends WebTestCase
 
     protected const baseRouteName = null;
     protected const entityClass = null;
+    protected const requiredFields = [];
 
     // region Constants
 
@@ -479,6 +480,14 @@ abstract class AbstractApiTest extends WebTestCase
     protected static function getArtifactFileContent(string $filename)
     {
         return file_get_contents(static::getArtifactsDir().DIRECTORY_SEPARATOR.$filename);
+    }
+
+    /**
+     * @return array
+     */
+    protected static function getRequiredFields(): array
+    {
+        return static::requiredFields;
     }
 
     /**
