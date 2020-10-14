@@ -130,7 +130,7 @@ trait AssertionsTrait
                             unset($result[$key]);
                         }
                     }
-                } else {
+                } elseif(is_array($result[$key])) {
                     static::assertAssessableContent($expected[$key], $result[$key]);
                 }
             }
