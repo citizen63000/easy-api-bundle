@@ -19,7 +19,7 @@ trait UpdateTestTrait
      */
     public function testPutExistingEntity(): void
     {
-        $this->doTestUpdate(1, 'nominalCase.json');
+        $this->doTestUpdate(static::defaultEntityId, 'nominalCase.json');
     }
 
     /**
@@ -35,7 +35,7 @@ trait UpdateTestTrait
      */
     public function testPutWithoutAuthentication(): void
     {
-        $this->doTestUpdateWithoutAuthentication(1);
+        $this->doTestUpdateWithoutAuthentication();
     }
 
     /**
@@ -43,6 +43,6 @@ trait UpdateTestTrait
      */
     public function testPutWithoutRight(): void
     {
-        $this->doTestUpdateWithoutRight(1);
+        $this->doTestUpdateWithoutRight();
     }
 }

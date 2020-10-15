@@ -18,7 +18,7 @@ trait GetTestFunctionsTrait
      */
     public function doTestGet(int $id = null, string $filename = null): void
     {
-        $id = $id ?? 1;
+        $id = $id ?? static::defaultEntityId;
 
         $apiOutput = self::httpGet(['name' => static::getGetRouteName(), 'params' => ['id' => $id]]);
 
@@ -51,7 +51,7 @@ trait GetTestFunctionsTrait
      */
     public function doTestGetWithoutAuthentication(int $id = null): void
     {
-        $apiOutput = self::httpGet(['name' => static::getGetRouteName(), 'params' => ['id' => $id ?? 1]], false);
+        $apiOutput = self::httpGet(['name' => static::getGetRouteName(), 'params' => ['id' => $id ?? static::defaultEntityId]], false);
         static::assertApiProblemError($apiOutput, Response::HTTP_UNAUTHORIZED, [ApiProblem::JWT_NOT_FOUND]);
     }
 
@@ -74,7 +74,7 @@ trait GetTestFunctionsTrait
 
         $token = self::loginHttp($userLogin, $userPassword);
         $apiOutput = self::httpGet([
-            'name' => static::getGetRouteName(), 'params' => ['id' => $id ?? 1]],
+            'name' => static::getGetRouteName(), 'params' => ['id' => $id ?? static::defaultEntityId]],
             false,
             Format::JSON,
             ['Authorization' => self::getAuthorizationTokenPrefix()." {$token}"]

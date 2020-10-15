@@ -18,7 +18,7 @@ trait UpdateTestFunctionsTrait
      */
     protected function doTestUpdate(?int $id, string $filename, array $params = []): void
     {
-        $id = $id ?? 1;
+        $id = $id ?? static::defaultEntityId;
         $params = array_merge(['id' => $id], $params);
 
         // Request
@@ -63,7 +63,7 @@ trait UpdateTestFunctionsTrait
      */
     protected function doTestUpdateWithoutAuthentication(int $id = null, $params = []): void
     {
-        $id = $id ?? 1;
+        $id = $id ?? static::defaultEntityId;
         $params = array_merge(['id' => $id], $params);
         $apiOutput = self::httpPut(['name' => static::getUpdateRouteName(), 'params' => $params], [], false);
         static::assertApiProblemError($apiOutput, Response::HTTP_UNAUTHORIZED, [ApiProblem::JWT_NOT_FOUND]);
@@ -78,7 +78,7 @@ trait UpdateTestFunctionsTrait
      */
     protected function doTestUpdateWithoutRight(int $id = null, array $params = [], string $userLogin = null, string $userPassword = null): void
     {
-        $id = $id ?? 1;
+        $id = $id ?? static::defaultEntityId;
         $params = array_merge(['id' => $id], $params);
 
         if (null === $userPassword && null !== $userLogin) {

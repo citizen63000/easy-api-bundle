@@ -25,7 +25,7 @@ trait DeleteTestFunctionsTrait
      */
     public function doTestDelete(int $id = null, array $additionalParameters = []): void
     {
-        $id = $id ?? 1;
+        $id = $id ?? static::defaultEntityId;
         $params = array_merge(['id' => $id], $additionalParameters);
 
         // count before delete
@@ -63,7 +63,7 @@ trait DeleteTestFunctionsTrait
      */
     public function doTestDeleteWithoutAuthentication(int $id = null): void
     {
-        $apiOutput = self::httpDelete(['name' => static::getDeleteRouteName(), 'params' => ['id' => $id ?? 1]], false);
+        $apiOutput = self::httpDelete(['name' => static::getDeleteRouteName(), 'params' => ['id' => $id ?? static::defaultEntityId]], false);
         static::assertApiProblemError($apiOutput, Response::HTTP_UNAUTHORIZED, [ApiProblem::JWT_NOT_FOUND]);
     }
 
@@ -86,7 +86,7 @@ trait DeleteTestFunctionsTrait
 
         $token = self::loginHttp($userLogin, $userPassword);
         $apiOutput = self::httpDelete([
-            'name' => static::getDeleteRouteName(), 'params' => ['id' => $id ?? 1]],
+            'name' => static::getDeleteRouteName(), 'params' => ['id' => $id ?? static::defaultEntityId]],
             false,
             ['Authorization' => self::getAuthorizationTokenPrefix()." {$token}"]
         );

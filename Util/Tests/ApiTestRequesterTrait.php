@@ -56,7 +56,6 @@ trait ApiTestRequesterTrait
      * @param string $formatOut Output data format <=> Accept header, see {@link Format} (Default : JSON)
      * @param array $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
      *                                       defined by formatIn and formatOut if necessary)
-     * @param bool $useHttpClient use httpClient instead of Symfony\Bundle\FrameworkBundle\Client
      *
      * @return ApiOutput
      *
@@ -68,13 +67,8 @@ trait ApiTestRequesterTrait
      */
     public static function executeRequest(string $method, $route, $content = null, bool $withToken = true,
                                           $formatIn = Format::JSON, $formatOut = Format::JSON,
-                                          array $extraHttpHeaders = [], bool $useHttpClient = false)
+                                          array $extraHttpHeaders = [])
     {
-        // legacy http client
-        if ($useHttpClient) {
-            return static::executeHttpRequest($method, $route, $content, $withToken, $formatIn, $formatOut, $extraHttpHeaders);
-        }
-
         //Headers initialization
         $server = [];
 
@@ -148,68 +142,6 @@ trait ApiTestRequesterTrait
             .((null !== $content && self::DEBUG_LEVEL_ADVANCED === static::$debugLevel) ? "\n\t\t\tSubmitted data : \e[33m{$body}\e[0m" : '')
             ."\n\t\t\tStatus : \e[33m".$output->getResponse()->getStatusCode()
             ."\e[0m\n\t\t\tResponse : \e[33m".$output->getData(true)."\e[0m\n\t\t\tRequest time : {$requestTotalTime} seconds{$profilerLink}"
-        );
-
-        return $output;
-    }
-
-    /**
-     * Executes a request with a method, an url, a token, a content body and a format.
-     *
-     * @param string       $method           HTTP method
-     * @param string|array $route            Route to call
-     * @param mixed        $content          Content body if needed
-     * @param bool         $withToken        Defines if a token is required or not (need to login first)
-     * @param string       $formatIn         Input data format <=> Content-type header, see {@link Format} (Default : JSON)
-     * @param string       $formatOut        Output data format <=> Accept header, see {@link Format} (Default : JSON)
-     * @param array        $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
-     *                                       defined by formatIn and formatOut if necessary)
-     *
-     * @return ApiOutput
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    public static function executeHttpRequest(string $method, $route, $content = null, bool $withToken = true,
-                                              $formatIn = Format::JSON, $formatOut = Format::JSON, array $extraHttpHeaders = [])
-    {
-        //Headers initialization
-        $httpHeaders = [];
-        if (null !== $formatIn && !($content instanceof FileBag)) {
-            $httpHeaders['Content-Type'] = $formatIn;
-        }
-        if (null !== $formatOut) {
-            $httpHeaders['Accept'] = $formatOut;
-        }
-        $httpHeaders = array_merge($httpHeaders, $extraHttpHeaders);
-
-        // Token
-        if (true === $withToken) {
-            $httpHeaders['Authorization'] = self::$jwtTokenAuthorizationHeaderPrefix.' '.static::getToken();
-        }
-
-        $options = [
-            'headers' => $httpHeaders,
-        ];
-
-        $options = array_merge(self::$defaultOptions, $options);
-
-        // Body
-        if ($content instanceof FileBag) {
-            $options['multipart'] = $content->getData();
-        }
-
-        if (null !== $content) {
-            $options['body'] = Format::writeData($content, $formatIn);
-        }
-
-        $url = is_string($route) && 0 === mb_strpos($route, 'http') ? $route : self::getUrlForHttpClient($route);
-        $output = ApiOutput::createFromResponseInterface(self::getHttpClient()->request($method, $url, $options), $formatOut);
-
-        self::logDebug(
-            "\e[33m[API]\e[0m\t🌐 [\e[33m".strtoupper($method)."\e[0m]".(strlen($method) > 3 ? "\t" : "\t\t")."\e[34m".$url."\e[0m"
-            .((null !== $content && self::DEBUG_LEVEL_ADVANCED === static::$debugLevel) ? "\n\t\t\tSubmitted data : \e[33m{$options['body']}\e[0m" : '')
-            ."\n\t\t\tStatus : \e[33m".$output->getResponse()->getStatusCode()
-            ."\e[0m\n\t\t\tResponse : \e[33m".$output->getData(true)."\e[0m"
         );
 
         return $output;

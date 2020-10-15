@@ -15,11 +15,12 @@ abstract class AbstractApiTest extends WebTestCase
 
     protected static $debug = false;
 
+    // region Constants
+
     protected const baseRouteName = null;
     protected const entityClass = null;
     protected const requiredFields = [];
-
-    // region Constants
+    protected const defaultEntityId = 1;
 
     public const USER_TEST_USERNAME = '[API-TESTS]';
     public const USER_TEST_EMAIL = 'api-tests@example.com';
