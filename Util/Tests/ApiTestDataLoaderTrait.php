@@ -91,7 +91,8 @@ trait ApiTestDataLoaderTrait
             $resetQuery .= "\nSET FOREIGN_KEY_CHECKS = 1;";
 
             if (true === static::$debug) {
-                self::logDebug("\e[32m[SQL]\e[0m ▶ \e[32mReset {$stmt->rowCount()} tables\e[0m", self::DEBUG_LEVEL_SIMPLE);
+                $strTables = implode(', ', $tables);
+                self::logDebug("\e[32m[SQL]\e[0m ▶ \e[32mReset {$stmt->rowCount()} tables: {$strTables}\e[0m", self::DEBUG_LEVEL_SIMPLE);
             }
 
             return self::executeSQLQuery($resetQuery);
@@ -112,7 +113,7 @@ trait ApiTestDataLoaderTrait
             if(count(static::$schemas) > 0) {
                 $arraySchemas = [];
                 foreach (static::$schemas as $schema) {
-                    $arraySchemas[] = '\''.$schema.'\'';
+                    $arraySchemas[] = "'{$schema}'";
                 }
                 $schemas = implode(',', $arraySchemas);
             } else {
@@ -180,9 +181,7 @@ trait ApiTestDataLoaderTrait
     {
         $filePath = self::getDataCsvFilePath($filename);
         $columns = self::getDataCsvFileColumns($filename);
-        $query = "\n LOAD DATA LOCAL INFILE '{$filePath}' INTO TABLE {$table} FIELDS TERMINATED BY ',' ENCLOSED BY '\"' IGNORE 1 LINES ({$columns});";
-
-        return $query;
+        return "\n LOAD DATA LOCAL INFILE '{$filePath}' INTO TABLE {$table} FIELDS TERMINATED BY ',' ENCLOSED BY '\"' IGNORE 1 LINES ({$columns});";
     }
 
     /**
@@ -191,8 +190,6 @@ trait ApiTestDataLoaderTrait
      * @param string $filename     SQL script filename
      * @param bool   $debugNewLine Adds a new line before debug log
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
     final protected static function executeSQLScript(string $filename, bool $debugNewLine = false)
     {
@@ -234,7 +231,7 @@ trait ApiTestDataLoaderTrait
                 );
                 $warnings = $em->getConnection()->executeQuery('SHOW WARNINGS')->fetchAll(\PDO::FETCH_ASSOC);
                 foreach ($warnings as $warning) {
-                    self::logError("\t\t🎌\t SQl Error: level: {$warning['Level']}, code: {$warning['Code']}, message: {$warning['Message']}");
+                    self::logError("\t\t🎌\t SQl Error: level: {$warning['Level']}, code: {$warning['Code']}, message: {$warning['Message']}, Query: {$query}");
                 }
             }
 

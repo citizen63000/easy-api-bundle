@@ -53,7 +53,7 @@ trait ApiTestRequesterTrait
      *
      * @return ApiOutput
      *
-     * @throws \Exception|\GuzzleHttp\Exception\GuzzleException
+     * @throws \Exception
      *
      * @see https://github.com/DarwinOnLine/symfony-flex-api/blob/master/symfony/tests/AbstractApiTest.php
      * @see https://github.com/DarwinOnLine/symfony-flex-api/blob/master/symfony/src/Utils/ApiOutput.php
@@ -172,7 +172,6 @@ trait ApiTestRequesterTrait
      *
      * @return string
      *
-     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Exception
      */
     protected static function loginHttp(string $username, string $password, bool $useCache = true)
@@ -213,11 +212,10 @@ trait ApiTestRequesterTrait
     /**
      * Get authentication token.
      *
+     * @return string
+     * @throws \Exception
      * @todo possible improvement : cache the generated datetime for the token and compare with this date
      *
-     * @return string
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     protected static function getToken(): string
     {
@@ -248,15 +246,14 @@ trait ApiTestRequesterTrait
     /**
      * Executes GET request for an URL with a token to get.
      *
-     * @param string|array $route            Route to perform the GET
-     * @param bool         $withToken        Defines if a token is required or not (need to login first)
-     * @param string       $formatOut        Output data format <=> Accept header (Default : JSON)
-     * @param array        $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
+     * @param string|array $route Route to perform the GET
+     * @param bool $withToken Defines if a token is required or not (need to login first)
+     * @param string $formatOut Output data format <=> Accept header (Default : JSON)
+     * @param array $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
      *                                       defined by formatIn and formatOut if necessary)
      *
      * @return ApiOutput
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Exception
      */
     public static function httpGet($route, bool $withToken = true,
                                    $formatOut = Format::JSON, array $extraHttpHeaders = [])
@@ -267,16 +264,15 @@ trait ApiTestRequesterTrait
     /**
      * Executes POST request for an URL with a token to get.
      *
-     * @param string|array $route            Route to perform the POST
-     * @param mixed        $content          Content to submit
-     * @param bool         $withToken        Defines if a token is required or not (need to login first)
-     * @param string       $formatIn         Input data format <=> Content-type header (Default : JSON)
-     * @param string       $formatOut        Output data format <=> Accept header (Default : JSON)
-     * @param array        $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
+     * @param string|array $route Route to perform the POST
+     * @param mixed $content Content to submit
+     * @param bool $withToken Defines if a token is required or not (need to login first)
+     * @param string $formatIn Input data format <=> Content-type header (Default : JSON)
+     * @param string $formatOut Output data format <=> Accept header (Default : JSON)
+     * @param array $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
      *                                       defined by formatIn and formatOut if necessary)
      * @return ApiOutput
-     *
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Exception
      */
     public static function httpPost($route, $content = [], bool $withToken = true,
                                     $formatIn = Format::JSON, $formatOut = Format::JSON, array $extraHttpHeaders = [])
@@ -287,17 +283,17 @@ trait ApiTestRequesterTrait
     /**
      * Executes PUT request for an URL with a token to get.
      *
-     * @param string|array $route            Route to perform the POST
-     * @param mixed        $content          Content to submit
-     * @param bool         $withToken        Defines if a token is required or not (need to login first)
-     * @param string       $formatIn         Input data format <=> Content-type header (Default : JSON)
-     * @param string       $formatOut        Output data format <=> Accept header (Default : JSON)
-     * @param array        $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
+     * @param string|array $route Route to perform the POST
+     * @param mixed $content Content to submit
+     * @param bool $withToken Defines if a token is required or not (need to login first)
+     * @param string $formatIn Input data format <=> Content-type header (Default : JSON)
+     * @param string $formatOut Output data format <=> Accept header (Default : JSON)
+     * @param array $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
      *                                       defined by formatIn and formatOut if necessary)
      *
      * @return ApiOutput
      *
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Exception
      */
     public static function httpPut($route, $content = [], bool $withToken = true,
                                    $formatIn = Format::JSON, $formatOut = Format::JSON, array $extraHttpHeaders = [])
@@ -308,13 +304,13 @@ trait ApiTestRequesterTrait
     /**
      * Executes DELETE request for an URL with a token to get.
      *
-     * @param string|array $route            Route to perform the DELETE
-     * @param bool         $withToken        Defines if a token is required or not (need to login first)
-     * @param array        $extraHttpHeaders
+     * @param string|array $route Route to perform the DELETE
+     * @param bool $withToken Defines if a token is required or not (need to login first)
+     * @param array $extraHttpHeaders
      *
      * @return ApiOutput
      *
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Exception
      */
     public static function httpDelete($route, bool $withToken = true, array $extraHttpHeaders = [])
     {

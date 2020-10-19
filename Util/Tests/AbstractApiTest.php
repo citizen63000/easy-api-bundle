@@ -238,7 +238,7 @@ abstract class AbstractApiTest extends WebTestCase
     }
 
     /**
-     * Show an error line.
+     * Show an error line and write it in log file
      *
      * @param $message
      */
@@ -248,7 +248,7 @@ abstract class AbstractApiTest extends WebTestCase
 
         try {
             $logger = self::$container->get('logger');
-            $logger->err($message);
+            $logger->err(str_replace("\t", '', $message));
         } catch (\Exception $exception) {
             fwrite(STDOUT, "\e[31m✘\e[91m {$exception->getMessage()}\e[0m\n");
         }
