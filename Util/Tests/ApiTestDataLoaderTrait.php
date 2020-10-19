@@ -235,9 +235,6 @@ trait ApiTestDataLoaderTrait
                 $warnings = $em->getConnection()->executeQuery('SHOW WARNINGS')->fetchAll(\PDO::FETCH_ASSOC);
                 if(count($warnings) > 0) {
                     foreach ($warnings as $warning) {
-//                        self::logDebug(
-//                            "\t\t🎌 \e[32mERROR! level: {$warning['Level']}, code: {$warning['Code']}, message: {$warning['Message']}", self::DEBUG_LEVEL_ADVANCED, $debugNewLine
-//                        );
                         self::logError("\t\t🎌\t SQl Error: level: {$warning['Level']}, code: {$warning['Code']}, message: {$warning['Message']}");
                     }
                 }
