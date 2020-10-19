@@ -233,10 +233,8 @@ trait ApiTestDataLoaderTrait
                     "\t\t🎌 \e[32m{$result}\e[0m affected rows in {$seconds} seconds", self::DEBUG_LEVEL_ADVANCED, $debugNewLine
                 );
                 $warnings = $em->getConnection()->executeQuery('SHOW WARNINGS')->fetchAll(\PDO::FETCH_ASSOC);
-                if(count($warnings) > 0) {
-                    foreach ($warnings as $warning) {
-                        self::logError("\t\t🎌\t SQl Error: level: {$warning['Level']}, code: {$warning['Code']}, message: {$warning['Message']}");
-                    }
+                foreach ($warnings as $warning) {
+                    self::logError("\t\t🎌\t SQl Error: level: {$warning['Level']}, code: {$warning['Code']}, message: {$warning['Message']}");
                 }
             }
 
