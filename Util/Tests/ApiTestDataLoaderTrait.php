@@ -161,9 +161,9 @@ trait ApiTestDataLoaderTrait
                 $extDataFile = $matches[1];
 
                 if('csv' === $extDataFile) {
-                    self::executeSQLQuery(self::generateLoadDataQuery($table, $file), false, false, $managerName);
+                    self::executeSQLQuery(self::generateLoadDataQuery($table, $file), false, static::$showQuery, $managerName);
                 } elseif ('sql' === $extDataFile) {
-                    self::executeSQLQuery(self::getSqlFileContent($file), false, false, $managerName);
+                    self::executeSQLQuery(self::getSqlFileContent($file), false, static::$showQuery, $managerName);
                 } else {
                     throw new \Exception("Unknow format for file '{$file}'");
                 }
@@ -217,7 +217,7 @@ trait ApiTestDataLoaderTrait
     {
         $em = null === $managerName ? self::$entityManager : self::$container->get('doctrine')->getManager($managerName);
 
-        if ($showQuery) {
+        if (static::$debug && $showQuery) {
             self::logDebug("\e[32m[SQL]\e[0m ▶ \e[32m{$query}\e[0m");
         }
 
@@ -227,9 +227,22 @@ trait ApiTestDataLoaderTrait
             $result = $em->getConnection()->exec($query);
             $seconds = microtime(true) - $start;
 
-            self::logDebug(
-                "\t\t🎌 \e[32m$result\e[0m affected rows in $seconds seconds", self::DEBUG_LEVEL_ADVANCED, $debugNewLine
-            );
+            // errors
+            if(static::$debug) {
+                self::logDebug(
+                    "\t\t🎌 \e[32m{$result}\e[0m affected rows in {$seconds} seconds", self::DEBUG_LEVEL_ADVANCED, $debugNewLine
+                );
+                $warnings = $em->getConnection()->executeQuery('SHOW WARNINGS')->fetchAll(\PDO::FETCH_ASSOC);
+                if(count($warnings) > 0) {
+                    foreach ($warnings as $warning) {
+//                        self::logDebug(
+//                            "\t\t🎌 \e[32mERROR! level: {$warning['Level']}, code: {$warning['Code']}, message: {$warning['Message']}", self::DEBUG_LEVEL_ADVANCED, $debugNewLine
+//                        );
+                        self::logError("\t\t🎌\t SQl Error: level: {$warning['Level']}, code: {$warning['Code']}, message: {$warning['Message']}");
+                    }
+                }
+            }
+
         } catch (\Exception $e) {
             self::logError($e->getMessage());
             // STOP

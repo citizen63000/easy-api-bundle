@@ -2,9 +2,12 @@
 
 namespace EasyApiBundle\Util\Tests;
 
-use GuzzleHttp\Client;
+use Doctrine\DBAL\DBALException;
+use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 abstract class AbstractApiTest extends WebTestCase
@@ -12,8 +15,6 @@ abstract class AbstractApiTest extends WebTestCase
     use ApiTestRequesterTrait;
     use ApiTestDataLoaderTrait;
     use AssertionsTrait;
-
-    protected static $debug = false;
 
     // region Constants
 
@@ -51,14 +52,16 @@ abstract class AbstractApiTest extends WebTestCase
 
     protected static $additionalInitFiles = [];
 
-    /**
-     * @var int
-     */
+    /** @var bool  */
+    protected static $debug = false;
+
+    /** @var int  */
     protected static $debugLevel = self::DEBUG_LEVEL_ADVANCED;
 
-    /**
-     * @var int
-     */
+    /** @var bool  */
+    protected static $showQuery = false;
+
+    /** @var int  */
     protected static $debugTop = 0;
 
     /**
@@ -132,12 +135,8 @@ abstract class AbstractApiTest extends WebTestCase
 
     // region Utils
 
-    /**
-     * @var array
-     */
-    protected static $defaultOptions = [
-        'exceptions' => false,
-    ];
+    /** @var array */
+    protected static $defaultOptions = ['exceptions' => false];
 
     /**
      * simulates a browser and makes requests to a Kernel object.
@@ -146,36 +145,21 @@ abstract class AbstractApiTest extends WebTestCase
      */
     protected static $client;
 
-    /**
-     * HTTP client to call API.
-     *
-     * @var Client
-     */
-    protected static $httpClient;
-
-    /**
-     * @var \Symfony\Component\DependencyInjection\Container
-     */
+    /** @var Container */
     protected static $container;
 
     /**
-     * @var \Doctrine\ORM\EntityManager
+     * @var EntityManager
      */
     protected static $entityManager;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\Routing\Router
-     */
+    /** @var Router */
     protected static $router;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\Console\Application
-     */
+    /** @var Application */
     protected static $application;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected static $projectDir;
 
     /**
@@ -261,6 +245,13 @@ abstract class AbstractApiTest extends WebTestCase
     final protected static function logError(string $message): void
     {
         fwrite(STDOUT, "\e[31m✘\e[91m {$message}\e[0m\n");
+
+        try {
+            $logger = self::$container->get('logger');
+            $logger->err($message);
+        } catch (\Exception $exception) {
+            fwrite(STDOUT, "\e[31m✘\e[91m {$exception->getMessage()}\e[0m\n");
+        }
     }
 
     /**
@@ -295,7 +286,7 @@ abstract class AbstractApiTest extends WebTestCase
      *
      * @return int
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     protected static function getLastEntityId(string $className): int
     {
@@ -311,7 +302,7 @@ abstract class AbstractApiTest extends WebTestCase
      *
      * @return int|null
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     protected static function getNextEntityId(string $className): ?int
     {

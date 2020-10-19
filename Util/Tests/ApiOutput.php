@@ -5,6 +5,7 @@ namespace EasyApiBundle\Util\Tests;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Psr\Http\Message\StreamInterface;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Profiler\Profile;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 
@@ -53,7 +54,7 @@ class ApiOutput
      *
      * @param Response $response
      * @param string $format
-     * @param Profiler|null $profiler
+     * @param Profile|null $profiler
      */
     public function __construct(Response $response, $format = null, ?Profile $profiler = null)
     {
@@ -68,18 +69,6 @@ class ApiOutput
                 $this->data = $e->getMessage();
             }
         }
-    }
-
-    /**
-     * @param ResponseInterface $response
-     * @param $format
-     * @return ApiOutput
-     */
-    public static function createFromResponseInterface(ResponseInterface $response, $format)
-    {
-        $newResponse = new Response($response->getBody()->getContents(), $response->getStatusCode(), $response->getHeaders());
-
-        return new ApiOutput($newResponse ,$format);
     }
 
     /**
@@ -148,7 +137,7 @@ class ApiOutput
 
     /**
      * Retrieves all message header values.
-     * @return null|\Symfony\Component\HttpFoundation\ResponseHeaderBag
+     * @return ResponseHeaderBag|null
      */
     public function getHeaders()
     {

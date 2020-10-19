@@ -3,28 +3,22 @@
 namespace EasyApiBundle\Util\Tests;
 
 use EasyApiBundle\Services\JWS\JWSProvider;
+use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\HttpFoundation\Response;
-use GuzzleHttp\Client;
 
 trait ApiTestRequesterTrait
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected static $jwtTokenAuthorizationHeaderPrefix;
 
-    /**
-     * @var JWSProvider
-     */
+    /** @var JWSProvider */
     protected static $jwsProvider;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected static $useProfiler = false;
 
     /**
@@ -59,8 +53,7 @@ trait ApiTestRequesterTrait
      *
      * @return ApiOutput
      *
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Exception
+     * @throws \Exception|\GuzzleHttp\Exception\GuzzleException
      *
      * @see https://github.com/DarwinOnLine/symfony-flex-api/blob/master/symfony/tests/AbstractApiTest.php
      * @see https://github.com/DarwinOnLine/symfony-flex-api/blob/master/symfony/src/Utils/ApiOutput.php
@@ -100,7 +93,7 @@ trait ApiTestRequesterTrait
         $url = \is_string($route) && 0 === mb_strpos($route, 'http') ? $route : self::getUrl($route);
 
         //@todo see how is possible to use
-        /** @var \Symfony\Bundle\FrameworkBundle\Client $client */
+        /** @var Client $client */
         $client = self::createClient(['debug' => static::$useProfiler]);
         if (static::$useProfiler) {
             $client->enableProfiler();
@@ -168,40 +161,6 @@ trait ApiTestRequesterTrait
         }
 
         return $url ?? self::$router->generate($routeName, $routeParams, $referenceType);
-    }
-
-    /**
-     * @return Client
-     */
-    protected static function getHttpClient()
-    {
-        if (null === self::$httpClient) {
-            self::$httpClient = new Client(['verify' => false]);
-        }
-
-        return self::$httpClient;
-    }
-
-    /**
-     * @param $route
-     *
-     * @return string
-     */
-    protected static function getUrlForHttpClient($route)
-    {
-        $oldBaseUrl = self::$router->getContext()->getBaseUrl();
-
-        if (in_array(strtolower(self::$env), ['dev', 'test'])) {
-            self::$router->getContext()->setBaseUrl('/app_'.strtolower(self::$env).'.php');
-        }
-
-        $url = self::getUrl($route, UrlGeneratorInterface::ABSOLUTE_URL);
-
-        if (in_array(strtolower(self::$env), ['dev', 'test'])) {
-            self::$router->getContext()->setBaseUrl($oldBaseUrl);
-        }
-
-        return $url;
     }
 
     /**
@@ -315,16 +274,14 @@ trait ApiTestRequesterTrait
      * @param string       $formatOut        Output data format <=> Accept header (Default : JSON)
      * @param array        $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
      *                                       defined by formatIn and formatOut if necessary)
-     * @param bool         $useHttpClient
-     *
      * @return ApiOutput
      *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public static function httpPost($route, $content = [], bool $withToken = true,
-                                    $formatIn = Format::JSON, $formatOut = Format::JSON, array $extraHttpHeaders = [], $useHttpClient = false)
+                                    $formatIn = Format::JSON, $formatOut = Format::JSON, array $extraHttpHeaders = [])
     {
-        return self::executeRequest('POST', $route, $content, $withToken, $formatIn, $formatOut, $extraHttpHeaders, $useHttpClient);
+        return self::executeRequest('POST', $route, $content, $withToken, $formatIn, $formatOut, $extraHttpHeaders);
     }
 
     /**

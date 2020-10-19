@@ -8,14 +8,11 @@ use EasyApiBundle\Form\Type\User\ResetPasswordType;
 use EasyApiBundle\Util\ApiProblem;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
-//use GuzzleHttp\Client;
-//use GuzzleHttp\RequestOptions;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use EasyApiBundle\Util\Controller\AbstractApiController;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use \DateTime;
 
 class UserManagementController extends AbstractApiController
