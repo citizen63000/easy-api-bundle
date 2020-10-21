@@ -202,8 +202,7 @@ class FormSerializer
         if (!$builtinFormType = self::getBuiltinFormType($type)) {
 
             $class = get_class($type->getInnerType());
-
-            $subForm = $this->formFactory->create($class, null, []);
+            $subForm = $this->formFactory->create($class, $config->getData(), $config->getOptions());
             $sField->setType('form');
             $sField->setWidget('form');
 
