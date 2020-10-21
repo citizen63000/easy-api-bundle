@@ -19,7 +19,7 @@ trait CrudFilteredListControllerTrait
      *     sortFields={"static::filterSortFields"}
      *  )
      * @Swagger\Annotations\Response(
-     *     response=201,
+     *     response=200,
      *     description="Successful operation",
      *     @Swagger\Annotations\Schema(
      *         type="array",
