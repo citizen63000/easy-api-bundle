@@ -76,7 +76,7 @@ class SerializedFormField
 
     /**
      * @var SerializedForm
-     * @Groups({"public"})
+     * @Groups({"private"})
      */
     protected $parentForm = null;
 
