@@ -1,9 +1,8 @@
 <?php
 
-
 namespace EasyApiBundle\Util\Maker;
 
-
+use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManager;
 
 class DatabaseConfigurationLoader
@@ -25,9 +24,9 @@ class DatabaseConfigurationLoader
 
     /**
      * @param string $tableName
-     * @param string $schema
+     * @param string|null $schema
      * @return array
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function load(string $tableName, string $schema = null): array
     {
@@ -41,9 +40,9 @@ class DatabaseConfigurationLoader
 
     /**
      * @param string $tableName
-     * @param string $schema
+     * @param string|null $schema
      * @return array
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     protected function loadColumns(string $tableName, string $schema = null): array
     {
@@ -54,9 +53,9 @@ class DatabaseConfigurationLoader
 
     /**
      * @param string $tableName
-     * @param string $schema
+     * @param string|null $schema
      * @return array
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     protected function loadIndexes(string $tableName, string $schema = null): array
     {
@@ -70,7 +69,7 @@ class DatabaseConfigurationLoader
      * @param string $tableName
      * @param string|null $schema
      * @return array
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     protected function loadRelations(string $tableName, string $schema = null): array
     {

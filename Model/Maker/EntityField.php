@@ -3,6 +3,7 @@
 
 namespace EasyApiBundle\Model\Maker;
 
+use Doctrine\Common\Inflector\Inflector;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -454,7 +455,7 @@ class EntityField
     public function getAdderName()
     {
         if ('array' === $this->getType() || '\Doctrine\Common\Collections\ArrayCollection' === $this->getType()) {
-            return 'add'.ucfirst(substr($this->getName(), 0, -1));
+            return 'add'.ucfirst(Inflector::singularize($this->getName()));
         }
     }
 
@@ -464,7 +465,7 @@ class EntityField
     public function getRemoverName()
     {
         if ('array' === $this->getType() || '\Doctrine\Common\Collections\ArrayCollection' === $this->getType()) {
-            return 'remove'.ucfirst(substr($this->getName(), 0, -1));
+            return 'remove'.ucfirst(Inflector::singularize($this->getName()));
         }
     }
 
@@ -635,7 +636,7 @@ class EntityField
             'datetime' => '\\DateTime',
             'text' => 'string',
             'boolean' => 'bool',
-            '\Doctrine\Common\Collections\ArrayCollection' => 'ArrayCollection',
+            '\Doctrine\Common\Collections\ArrayCollection' => 'Collection',
             'uuid' => 'UuidInterface',
         ];
 

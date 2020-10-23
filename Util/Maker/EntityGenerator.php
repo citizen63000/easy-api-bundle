@@ -96,9 +96,12 @@ class EntityGenerator extends AbstractGenerator
             // add use on file if it's not the same namespace
             if (!$field->isNativeType()) {
                 if ('\Doctrine\Common\Collections\ArrayCollection' === $field->getType()) {
-                    $content['__construct']['fields'][] = ['name' => $field->getName(), 'entityType' => 'ArrayCollection'];
+                    $content['__construct']['fields'][] = ['name' => $field->getName(), 'entityType' => 'Collection'];
                     if (!in_array('\Doctrine\Common\Collections\ArrayCollection', $content['uses'])) {
                         $content['uses'][] = '\Doctrine\Common\Collections\ArrayCollection';
+                    }
+                    if (!in_array('\Doctrine\Common\Collections\Collection', $content['uses'])) {
+                        $content['uses'][] = '\Doctrine\Common\Collections\Collection';
                     }
                 }
 

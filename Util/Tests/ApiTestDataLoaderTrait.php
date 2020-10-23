@@ -3,6 +3,7 @@
 namespace EasyApiBundle\Util\Tests;
 
 use Doctrine\DBAL\Statement;
+use Doctrine\ORM\OptimisticLockException;
 use Symfony\Component\Yaml\Parser as YmlParser;
 
 /**
@@ -33,8 +34,7 @@ trait ApiTestDataLoaderTrait
     /**
      * Load data fixtures.
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws OptimisticLockException|\Exception
      */
     protected static function loadData() :void
     {
@@ -189,7 +189,6 @@ trait ApiTestDataLoaderTrait
      *
      * @param string $filename     SQL script filename
      * @param bool   $debugNewLine Adds a new line before debug log
-     *
      */
     final protected static function executeSQLScript(string $filename, bool $debugNewLine = false)
     {

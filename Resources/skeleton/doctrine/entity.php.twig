@@ -35,7 +35,7 @@ class {{ classname }}{% if parent != '' %} extends {{ parent }} {% endif %}
         parent::__construct();
 {% endif %}
 {% for field in __construct.fields %}
-{% if field.entityType == 'ArrayCollection' %}
+{% if field.entityType == 'Collection' %}
         $this->{{ field.name }} = new ArrayCollection();
 {% endif %}
 {% if field.entityType == 'uuid' %}
@@ -47,7 +47,7 @@ class {{ classname }}{% if parent != '' %} extends {{ parent }} {% endif %}
 {% for field in fields %}
 
     /**
-    * @return {{ field.type }}
+    * @return {{ field.type }}|null
     */
     public function {{ field.getter }}(): ?{{ field.type }}
     {
@@ -82,7 +82,7 @@ class {{ classname }}{% if parent != '' %} extends {{ parent }} {% endif %}
     }
 {% else %}
     /**
-    * @param {{ field.type }} ${{ field.name }}
+    * @param {{ field.type }}|null ${{ field.name }}
     */
     public function {{ field.setter }}({{ field.type }} ${{ field.name }} = null): void
     {

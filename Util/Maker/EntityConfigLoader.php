@@ -1,9 +1,10 @@
 <?php
 
-
 namespace EasyApiBundle\Util\Maker;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Inflector\Inflector;
+use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManager;
 use EasyApiBundle\Model\Maker\EntityConfiguration;
 use EasyApiBundle\Model\Maker\EntityField;
@@ -31,7 +32,7 @@ class EntityConfigLoader
      * @param string|null $inheritanceType
      * @param string|null $context
      * @return EntityConfiguration
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public static function createEntityConfigFromDatabase(EntityManager $em, string $bundle ,string $entityName, string $tableName, string $schema = null, string $parentEntityName = null, string $inheritanceType = null, string $context =null)
     {
@@ -165,7 +166,7 @@ class EntityConfigLoader
         // ManyToMany
         if(preg_match("/{$config->getTableName()}/", $relation['TABLE_NAME']) && isset($relation['target'])) {
             $relationType = 'manyToMany';
-            $newField->setName(CaseConverter::convertSnakeCaseToCamelCase($relation['target']['REFERENCED_TABLE_NAME']).'s');
+            $newField->setName(Inflector::pluralize(CaseConverter::convertSnakeCaseToCamelCase($relation['target']['REFERENCED_TABLE_NAME'])));
             $newField->setReferencedColumnName($relation['REFERENCED_COLUMN_NAME']);
             $newField->setTableColumnName($relation['COLUMN_NAME']);
             $newField->setJoinTable($relation['TABLE_NAME']);
@@ -181,7 +182,8 @@ class EntityConfigLoader
 
         } else { // oneToMany
             $relationType = 'oneToMany';
-            $newField->setName(CaseConverter::convertSnakeCaseToCamelCase($relation['TABLE_NAME']).'s');
+//            $newField->setName(CaseConverter::convertSnakeCaseToCamelCase($relation['TABLE_NAME']).'s');
+            $newField->setName(Inflector::pluralize(CaseConverter::convertSnakeCaseToCamelCase($relation['TABLE_NAME'])));
             $entityName = CaseConverter::convertSnakeCaseToPascalCase($relation['TABLE_NAME']);
             $entityConfig = self::findAndCreateFromEntityName($entityName, $config->getBundleName());
             $newField->setEntityType($entityConfig ? $entityConfig->getFullName() : $entityName);
