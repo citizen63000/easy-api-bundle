@@ -281,12 +281,12 @@ trait ApiTestRequesterTrait
      */
     public static function httpGetWithLogin($route, $userLogin, $userPassword, $formatOut = Format::JSON, array $extraHttpHeaders = [])
     {
-        if (null === $userPassword && null !== $userLogin) {
-            throwException(new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null'));
+        if (null !== $userLogin && null === $userPassword) {
+            throw new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null');
         }
 
-        $userLogin = $userLogin ?? static::USER_TEST_USERNAME;
-        $userPassword = $userPassword ?? static::USER_TEST_PASSWORD;
+        $userLogin = $userLogin ?? static::$user;
+        $userPassword = $userPassword ?? static::$password;
         $token = self::loginHttp($userLogin, $userPassword);
 
         return static::httpGet($route, false, $formatOut, $extraHttpHeaders + ['Authorization' => static::getAuthorizationStringFromToken($token)]);
@@ -324,12 +324,12 @@ trait ApiTestRequesterTrait
      */
     public static function httpPostWithLogin($route, $userLogin, $userPassword, $content = [], array $extraHttpHeaders = [], $formatIn = Format::JSON, $formatOut = Format::JSON)
     {
-        if (null === $userPassword && null !== $userLogin) {
-            throwException(new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null'));
+        if (null !== $userLogin && null === $userPassword) {
+            throw new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null');
         }
 
-        $userLogin = $userLogin ?? static::USER_TEST_USERNAME;
-        $userPassword = $userPassword ?? static::USER_TEST_PASSWORD;
+        $userLogin = $userLogin ?? static::$user;
+        $userPassword = $userPassword ?? static::$password;
         $token = self::loginHttp($userLogin, $userPassword);
 
         return static::httpPost($route, $content, false, $formatIn, $formatOut, $extraHttpHeaders + ['Authorization' => static::getAuthorizationStringFromToken($token)]);
@@ -369,12 +369,12 @@ trait ApiTestRequesterTrait
      */
     public static function httpPutWithLogin($route, $userLogin, $userPassword, $content = [], array $extraHttpHeaders = [], $formatIn = Format::JSON, $formatOut = Format::JSON)
     {
-        if (null === $userPassword && null !== $userLogin) {
-            throwException(new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null'));
+        if (null !== $userLogin && null === $userPassword) {
+            throw new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null');
         }
 
-        $userLogin = $userLogin ?? static::USER_TEST_USERNAME;
-        $userPassword = $userPassword ?? static::USER_TEST_PASSWORD;
+        $userLogin = $userLogin ?? static::$user;
+        $userPassword = $userPassword ?? static::$password;
         $token = self::loginHttp($userLogin, $userPassword);
 
         return static::httpPut($route, $content, false, $formatIn, $formatOut, $extraHttpHeaders + ['Authorization' => static::getAuthorizationStringFromToken($token)]);
@@ -410,8 +410,8 @@ trait ApiTestRequesterTrait
             throwException(new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null'));
         }
 
-        $userLogin = $userLogin ?? static::USER_TEST_USERNAME;
-        $userPassword = $userPassword ?? static::USER_TEST_PASSWORD;
+        $userLogin = $userLogin ?? static::$user;
+        $userPassword = $userPassword ?? static::$password;
         $token = self::loginHttp($userLogin, $userPassword);
 
         return static::httpDelete($route,  false, $extraHttpHeaders + ['Authorization' => static::getAuthorizationStringFromToken($token)]);

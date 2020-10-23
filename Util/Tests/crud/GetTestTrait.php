@@ -24,7 +24,7 @@ trait GetTestTrait
      */
     public function testGet(): void
     {
-        $this->doTestGet(static::defaultEntityId, 'nominalCase.json');
+        $this->doTestGet(static::defaultEntityId);
     }
 
     /**

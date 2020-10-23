@@ -25,7 +25,7 @@ trait UpdateTestFunctionsTrait
         $data = $this->getDataSent($filename, 'Update');
 
         // Request
-        $apiOutput = self::httpPutWithLogin(['name' => static::getUpdateRouteName(), 'params' => $params], $data, $userLogin, $userPassword);
+        $apiOutput = self::httpPutWithLogin(['name' => static::getUpdateRouteName(), 'params' => $params], $userLogin, $userPassword, $data);
 
         // Assert result
         static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
@@ -53,7 +53,7 @@ trait UpdateTestFunctionsTrait
     public function doTestUpdateNotFound(int $id = null, array $params = [], string $userLogin = null, string $userPassword = null): void
     {
         $params = array_merge(['id' => $id ?? 99999999], $params);
-        $apiOutput = self::httpPutWithLogin(['name' => static::getUpdateRouteName(), 'params' => $params], [], $userLogin, $userPassword);
+        $apiOutput = self::httpPutWithLogin(['name' => static::getUpdateRouteName(), 'params' => $params], $userLogin, $userPassword, []);
         static::assertApiProblemError($apiOutput, Response::HTTP_NOT_FOUND, [sprintf(ApiProblem::ENTITY_NOT_FOUND, 'entity')]);
     }
 
@@ -85,7 +85,7 @@ trait UpdateTestFunctionsTrait
             $userPassword = static::USER_NORULES_TEST_PASSWORD;
         }
 
-        $apiOutput = self::httpPutWithLogin(['name' => static::getUpdateRouteName(), 'params' => $params], [], $userLogin, $userPassword);
+        $apiOutput = self::httpPutWithLogin(['name' => static::getUpdateRouteName(), 'params' => $params], $userLogin, $userPassword, []);
 
         static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
     }

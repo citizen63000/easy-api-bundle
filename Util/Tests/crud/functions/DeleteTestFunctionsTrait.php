@@ -84,7 +84,7 @@ trait DeleteTestFunctionsTrait
             $userPassword = static::USER_NORULES_TEST_PASSWORD;
         }
 
-        $apiOutput = self::httpDelete(['name' => static::getDeleteRouteName(), 'params' => ['id' => $id ?? static::defaultEntityId]], $userLogin, $userPassword);
+        $apiOutput = self::httpDeleteWithLogin(['name' => static::getDeleteRouteName(), 'params' => ['id' => $id ?? static::defaultEntityId]], $userLogin, $userPassword);
 
         static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
     }

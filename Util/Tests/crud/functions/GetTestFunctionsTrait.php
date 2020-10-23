@@ -36,8 +36,8 @@ trait GetTestFunctionsTrait
      */
     public function doTestGetNotFound(int $id = null, string $userLogin = null, string $userPassword = null): void
     {
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $id ?? 99999999]]);
-        static::assertApiProblemError($apiOutput, Response::HTTP_NOT_FOUND, [sprintf(ApiProblem::ENTITY_NOT_FOUND, 'entity')], $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $id ?? 99999999]], $userLogin, $userPassword);
+        static::assertApiProblemError($apiOutput, Response::HTTP_NOT_FOUND, [sprintf(ApiProblem::ENTITY_NOT_FOUND, 'entity')]);
     }
 
     /**
