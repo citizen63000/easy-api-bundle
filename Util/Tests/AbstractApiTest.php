@@ -4,6 +4,9 @@ namespace EasyApiBundle\Util\Tests;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -141,7 +144,7 @@ abstract class AbstractApiTest extends WebTestCase
     /**
      * simulates a browser and makes requests to a Kernel object.
      *
-     * @var \Symfony\Bundle\FrameworkBundle\Client
+     * @var Client
      */
     protected static $client;
 
@@ -263,7 +266,7 @@ abstract class AbstractApiTest extends WebTestCase
      *
      * @return int
      *
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException|NoResultException
      */
     final protected static function countEntities(string $entityName, $condition = null, $parameters = []): int
     {

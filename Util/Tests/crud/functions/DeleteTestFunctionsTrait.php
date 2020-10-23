@@ -20,29 +20,31 @@ trait DeleteTestFunctionsTrait
 
     /**
      * DELETE - Nominal case.
-     * @param int $id
+     * @param int|null $id
      * @param array $additionalParameters
+     * @param string|null $userLogin
+     * @param string|null $userPassword
      */
-    public function doTestDelete(int $id = null, array $additionalParameters = []): void
+    public function doTestDelete(int $id = null, array $additionalParameters = [], string $userLogin = null, string $userPassword = null): void
     {
         $id = $id ?? static::defaultEntityId;
         $params = array_merge(['id' => $id], $additionalParameters);
 
         // count before delete
-        $apiOutput = self::httpGet(['name' => static::getGetListRouteName()]);
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetListRouteName()], $userLogin, $userPassword);
         static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
         $nbResults = $apiOutput->getHeaderLine('X-Total-Results');
 
         // delete entity
-        $apiOutput = self::httpDelete(['name' => static::getDeleteRouteName(), 'params' => $params]);
+        $apiOutput = self::httpDeleteWithLogin(['name' => static::getDeleteRouteName(), 'params' => $params], $userLogin, $userPassword);
         static::assertEquals(Response::HTTP_NO_CONTENT, $apiOutput->getStatusCode());
 
         // try to get after delete
-        $apiOutput = self::httpGet(['name' => static::getGetRouteName(), 'params' => ['id' => $id]]);
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $id]], $userLogin, $userPassword);
         static::assertEquals(Response::HTTP_NOT_FOUND, $apiOutput->getStatusCode());
 
         // count after delete
-        $apiOutput = self::httpGet(['name' => static::getGetListRouteName()]);
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetListRouteName()], $userLogin, $userPassword);
         static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
         static::assertEquals($nbResults-1, $apiOutput->getHeaderLine('X-Total-Results'));
     }
@@ -50,16 +52,18 @@ trait DeleteTestFunctionsTrait
     /**
      * DELETE - Unexisting entity.
      * @param int $id
+     * @param string|null $userLogin
+     * @param string|null $userPassword
      */
-    public function doTestDeleteNotFound(int $id): void
+    public function doTestDeleteNotFound(int $id, string $userLogin = null, string $userPassword = null): void
     {
-        $apiOutput = self::httpDelete(['name' => static::getDeleteRouteName(), 'params' => ['id' => $id]]);
+        $apiOutput = self::httpDeleteWithLogin(['name' => static::getDeleteRouteName(), 'params' => ['id' => $id]], $userLogin, $userPassword);
         static::assertApiProblemError($apiOutput, Response::HTTP_NOT_FOUND, [sprintf(ApiProblem::ENTITY_NOT_FOUND, 'entity')]);
     }
 
     /**
      * DELETE - Error case - 401 - Without authentication.
-     * @param int $id
+     * @param int|null $id
      */
     public function doTestDeleteWithoutAuthentication(int $id = null): void
     {
@@ -69,27 +73,18 @@ trait DeleteTestFunctionsTrait
 
     /**
      * DELETE - Error case - 403 - Missing right.
-     * @param int $id
+     * @param int|null $id
      * @param string|null $userLogin
      * @param string|null $userPassword
      */
     public function doTestDeleteWithoutRight(int $id = null, string $userLogin = null, string $userPassword = null): void
     {
-        if(null === $userPassword && null!== $userLogin) {
-            throwException(new \Exception('$userPassword parameter cannot be null if $userLogin paramters is not null'));
-        }
-
         if(null === $userLogin && null === $userPassword) {
             $userLogin = static::USER_NORULES_TEST_USERNAME;
             $userPassword = static::USER_NORULES_TEST_PASSWORD;
         }
 
-        $token = self::loginHttp($userLogin, $userPassword);
-        $apiOutput = self::httpDelete([
-            'name' => static::getDeleteRouteName(), 'params' => ['id' => $id ?? static::defaultEntityId]],
-            false,
-            ['Authorization' => self::getAuthorizationTokenPrefix()." {$token}"]
-        );
+        $apiOutput = self::httpDeleteWithLogin(['name' => static::getDeleteRouteName(), 'params' => ['id' => $id ?? static::defaultEntityId]], $userLogin, $userPassword);
 
         static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
     }

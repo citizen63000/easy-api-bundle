@@ -3,7 +3,6 @@
 namespace EasyApiBundle\Util\Tests\crud\functions;
 
 use EasyApiBundle\Util\ApiProblem;
-use EasyApiBundle\Util\Tests\Format;
 use Symfony\Component\HttpFoundation\Response;
 
 trait GetListTestFunctionsTrait
@@ -14,18 +13,16 @@ trait GetListTestFunctionsTrait
      * GET - Nominal case.
      * @param string|null $filename
      * @param array|null $params
+     * @param string|null $userLogin
+     * @param string|null $userPassword
      */
-    protected function doTestGetList(string $filename = null, array $params = []): void
+    protected function doTestGetList(string $filename = null, array $params = [], string $userLogin = null, string $userPassword = null): void
     {
-        $apiOutput = self::httpGet(['name' => static::getGetListRouteName(), 'params' => $params]);
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetListRouteName(), 'params' => $params], $userLogin, $userPassword);
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
 
-        if(null !== $filename) {
-            $expectedResult = $this->getExpectedResponse($filename, 'GetList', $apiOutput->getData());
-        } else {
-            $expectedResult = self::createGETListResponseData();
-        }
+        $expectedResult = $this->getExpectedResponse($filename, 'GetList', $apiOutput->getData());
 
         static::assertEquals($expectedResult, $apiOutput->getData());
     }
@@ -36,7 +33,7 @@ trait GetListTestFunctionsTrait
      * @param int|null $limit
      * @param array $params
      */
-    protected function doTestGetListPaginate(string $filename, int $page = null, int $limit = null, array $params = [])
+    protected function doTestGetListPaginate(string $filename, int $page = null, int $limit = null, array $params = [], string $userLogin = null, string $userPassword = null)
     {
         try {
             $pagination = [];
@@ -46,7 +43,7 @@ trait GetListTestFunctionsTrait
             if(null !== $limit) {
                 $pagination['limit'] = $limit;
             }
-            $this->doTestGetList($filename, array_merge($pagination, $params));
+            $this->doTestGetList($filename, array_merge($pagination, $params), $userLogin, $userPassword);
         } catch (ReflectionException $e) {
             echo $e->getMessage();
         }
@@ -59,19 +56,12 @@ trait GetListTestFunctionsTrait
      * @param array $filters
      * @param string|null $sort
      * @param array $params
+     * @param string|null $userLogin
+     * @param string|null $userPassword
      */
-    protected function doTestGetListFiltered(string $filename, int $page = null, int $limit = null, array $filters = [], string $sort = null, array $params = [])
+    protected function doTestGetListFiltered(string $filename, int $page = null, int $limit = null, array $filters = [], string $sort = null, array $params = [], string $userLogin = null, string $userPassword = null)
     {
-        $this->doTestGetListPaginate($filename, $page, $limit, array_merge($filters, ['sort' => $sort], $params));
-    }
-
-    /**
-     * GET - Error case - not found - Without authentication.
-     */
-    protected function doTestGetListNotFound(): void
-    {
-        $apiOutput = self::httpGet(['name' => static::getGetListRouteName(), 'params' => []]);
-        static::assertApiProblemError($apiOutput, Response::HTTP_NOT_FOUND, [ApiProblem::ENTITY_NOT_FOUND]);
+        $this->doTestGetListPaginate($filename, $page, $limit, array_merge($filters, ['sort' => $sort], $params), $userLogin, $userPassword);
     }
 
     /**
@@ -90,22 +80,12 @@ trait GetListTestFunctionsTrait
      */
     protected function doTestGetWithoutRight(string $userLogin = null, string $userPassword = null): void
     {
-        if(null === $userPassword && null!== $userLogin) {
-            throwException(new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null'));
-        }
-
         if(null === $userLogin && null === $userPassword) {
             $userLogin = static::USER_NORULES_TEST_USERNAME;
             $userPassword = static::USER_NORULES_TEST_PASSWORD;
         }
 
-        $token = self::loginHttp($userLogin, $userPassword);
-        $apiOutput = self::httpGet([
-            'name' => static::getGetListRouteName(), 'params' => []],
-            false,
-            Format::JSON,
-            ['Authorization' => self::getAuthorizationTokenPrefix()." {$token}"]
-        );
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetListRouteName(), 'params' => []], $userLogin, $userPassword);
 
         static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
     }

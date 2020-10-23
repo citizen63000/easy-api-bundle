@@ -3,7 +3,6 @@
 namespace EasyApiBundle\Util\Tests\crud\functions;
 
 use EasyApiBundle\Util\ApiProblem;
-use EasyApiBundle\Util\Tests\Format;
 use Symfony\Component\HttpFoundation\Response;
 
 trait DescribeFormTestFunctionsTrait
@@ -27,19 +26,7 @@ trait DescribeFormTestFunctionsTrait
      */
     protected function doGetTest(string $method, array $params = [], string $userLogin = null, string $userPassword = null)
     {
-        if(null === $userLogin) {
-            $apiOutput = self::httpGet(['name' => static::getDescribeFormRouteName(), 'params' => ['method' => $method]]);
-        } elseif(null !== $userLogin && null !== $userPassword) {
-            $token = self::loginHttp($userLogin, $userPassword);
-            $apiOutput = self::httpGet(
-                ['name' => static::getDescribeFormRouteName(), 'params' => $params],
-                false,
-                Format::JSON,
-                ['Authorization' => self::getAuthorizationTokenPrefix()." {$token}"]
-            );
-        } else {
-            throwException(new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null'));
-        }
+        $apiOutput = self::httpGetWithLogin(['name' => static::getDescribeFormRouteName(), 'params' => ['method' => $method]], $userLogin, $userPassword);
 
         $expectedResult = $this->getExpectedResponse(strtolower($method).'.json', 'DescribeForm', $apiOutput->getData());
 
@@ -81,24 +68,18 @@ trait DescribeFormTestFunctionsTrait
 
     /**
      * GET - Error case - 403 - Missing ADMIN role.
-     * @param string $userLogin
-     * @param string $userPassword
+     * @param string|null $userLogin
+     * @param string|null $userPassword
      * @param array $params
      */
     public function doTestGetDescribeFormWithoutRight(string $userLogin = null, string $userPassword = null, array $params = []): void
     {
-        if(null === $userPassword && null!== $userLogin) {
-            throwException(new \Exception('$userPassword parameter cannot be null if $userLogin paramters is not null'));
-        }
-
         if(null === $userLogin && null === $userPassword) {
             $userLogin = static::USER_NORULES_TEST_USERNAME;
             $userPassword = static::USER_NORULES_TEST_PASSWORD;
         }
 
-        $token = self::loginHttp($userLogin, $userPassword);
-        $apiOutput = self::httpGet([
-            'name' => static::getDescribeFormRouteName(), 'params' => $params], false, Format::JSON, ['Authorization' => self::getAuthorizationTokenPrefix()." {$token}"]);
+        $apiOutput = self::httpGetWithLogin(['name' => static::getDescribeFormRouteName(), 'params' => $params], $userLogin, $userPassword);
 
         static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
     }

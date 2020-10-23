@@ -40,6 +40,15 @@ trait ApiTestRequesterTrait
     }
 
     /**
+     * @param string $token
+     * @return string
+     */
+    protected static function getAuthorizationStringFromToken(string $token)
+    {
+        return self::getAuthorizationTokenPrefix() . " {$token}";
+    }
+
+    /**
      * Executes a request with a method, an url, a token, a content body and a format.
      *
      * @param string $method HTTP method
@@ -85,7 +94,7 @@ trait ApiTestRequesterTrait
 
         // Token
         if (true === $withToken) {
-            $server['HTTP_AUTHORIZATION'] = self::$jwtTokenAuthorizationHeaderPrefix.' '.static::getToken();
+            $server['HTTP_AUTHORIZATION'] = static::getAuthorizationStringFromToken(static::getToken());
         }
 
         $body = null !== $content && !($content instanceof FileBag) ? Format::writeData($content, $formatIn) : null;
@@ -262,6 +271,28 @@ trait ApiTestRequesterTrait
     }
 
     /**
+     * @param $route
+     * @param $userLogin
+     * @param $userPassword
+     * @param string $formatOut
+     * @param array $extraHttpHeaders
+     * @return ApiOutput
+     * @throws \Exception
+     */
+    public static function httpGetWithLogin($route, $userLogin, $userPassword, $formatOut = Format::JSON, array $extraHttpHeaders = [])
+    {
+        if (null !== $userLogin && null === $userPassword) {
+            throw new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null');
+        }
+
+        $userLogin = $userLogin ?? static::$user;
+        $userPassword = $userPassword ?? static::$password;
+        $token = self::loginHttp($userLogin, $userPassword);
+
+        return static::httpGet($route, false, $formatOut, $extraHttpHeaders + ['Authorization' => static::getAuthorizationStringFromToken($token)]);
+    }
+
+    /**
      * Executes POST request for an URL with a token to get.
      *
      * @param string|array $route Route to perform the POST
@@ -278,6 +309,30 @@ trait ApiTestRequesterTrait
                                     $formatIn = Format::JSON, $formatOut = Format::JSON, array $extraHttpHeaders = [])
     {
         return self::executeRequest('POST', $route, $content, $withToken, $formatIn, $formatOut, $extraHttpHeaders);
+    }
+
+    /**
+     * @param $route
+     * @param $userLogin
+     * @param $userPassword
+     * @param array $content
+     * @param array $extraHttpHeaders
+     * @param string $formatIn
+     * @param string $formatOut
+     * @return ApiOutput
+     * @throws \Exception
+     */
+    public static function httpPostWithLogin($route, $userLogin, $userPassword, $content = [], array $extraHttpHeaders = [], $formatIn = Format::JSON, $formatOut = Format::JSON)
+    {
+        if (null !== $userLogin && null === $userPassword) {
+            throw new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null');
+        }
+
+        $userLogin = $userLogin ?? static::$user;
+        $userPassword = $userPassword ?? static::$password;
+        $token = self::loginHttp($userLogin, $userPassword);
+
+        return static::httpPost($route, $content, false, $formatIn, $formatOut, $extraHttpHeaders + ['Authorization' => static::getAuthorizationStringFromToken($token)]);
     }
 
     /**
@@ -302,6 +357,30 @@ trait ApiTestRequesterTrait
     }
 
     /**
+     * @param $route
+     * @param $userLogin
+     * @param $userPassword
+     * @param array $content
+     * @param array $extraHttpHeaders
+     * @param string $formatIn
+     * @param string $formatOut
+     * @return ApiOutput
+     * @throws \Exception
+     */
+    public static function httpPutWithLogin($route, $userLogin, $userPassword, $content = [], array $extraHttpHeaders = [], $formatIn = Format::JSON, $formatOut = Format::JSON)
+    {
+        if (null !== $userLogin && null === $userPassword) {
+            throw new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null');
+        }
+
+        $userLogin = $userLogin ?? static::$user;
+        $userPassword = $userPassword ?? static::$password;
+        $token = self::loginHttp($userLogin, $userPassword);
+
+        return static::httpPut($route, $content, false, $formatIn, $formatOut, $extraHttpHeaders + ['Authorization' => static::getAuthorizationStringFromToken($token)]);
+    }
+
+    /**
      * Executes DELETE request for an URL with a token to get.
      *
      * @param string|array $route Route to perform the DELETE
@@ -315,6 +394,27 @@ trait ApiTestRequesterTrait
     public static function httpDelete($route, bool $withToken = true, array $extraHttpHeaders = [])
     {
         return self::executeRequest('DELETE', $route, null, $withToken, Format::JSON, Format::JSON, $extraHttpHeaders);
+    }
+
+    /**
+     * @param $route
+     * @param $userLogin
+     * @param $userPassword
+     * @param array $extraHttpHeaders
+     * @return ApiOutput
+     * @throws \Exception
+     */
+    public static function httpDeleteWithLogin($route, $userLogin, $userPassword, array $extraHttpHeaders = [])
+    {
+        if (null === $userPassword && null !== $userLogin) {
+            throwException(new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null'));
+        }
+
+        $userLogin = $userLogin ?? static::$user;
+        $userPassword = $userPassword ?? static::$password;
+        $token = self::loginHttp($userLogin, $userPassword);
+
+        return static::httpDelete($route,  false, $extraHttpHeaders + ['Authorization' => static::getAuthorizationStringFromToken($token)]);
     }
 
     /**

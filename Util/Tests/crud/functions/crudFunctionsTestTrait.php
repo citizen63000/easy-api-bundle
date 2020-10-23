@@ -3,8 +3,6 @@
 namespace EasyApiBundle\Util\Tests\crud\functions;
 
 use EasyApiBundle\Util\Forms\FormSerializer;
-use EasyApiBundle\Util\Forms\SerializedFormField;
-use ReflectionException;
 
 trait crudFunctionsTestTrait
 {
@@ -62,7 +60,7 @@ trait crudFunctionsTestTrait
     /**
      * @param string $filename
      * @param string $type Create|Update
-     * @param string $defaultContent
+     * @param string|null $defaultContent
      * @return array
      * @throws \Exception
      */
