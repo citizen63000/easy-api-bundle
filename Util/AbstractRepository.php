@@ -1,13 +1,16 @@
 <?php
 
-
 namespace EasyApiBundle\Util;
 
+use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use EasyApiBundle\Exception\ApiProblemException;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use EasyApiBundle\Form\Model\FilterModel;
-use EasyApiBundle\Form\Model\Search\SearchModel;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -51,7 +54,7 @@ abstract class AbstractRepository extends EntityRepository
     /**
      * @param string $repository
      *
-     * @return \Doctrine\Common\Persistence\ObjectRepository
+     * @return ObjectRepository
      */
     protected function getRepository(string $repository)
     {
@@ -61,12 +64,11 @@ abstract class AbstractRepository extends EntityRepository
     /**
      * Validates pagination params.
      *
-     * @param int $page Page, should be null OR > 0
-     * @param int $resultsPerPage Number of results per page, should be null OR > 0, default is 10 if page given
+     * @param int|null $page Page, should be null OR > 0
+     * @param int|null $resultsPerPage Number of results per page, should be null OR > 0, default is 10 if page given
      *
      * @return array with start and end offsets
      *
-     * @throws ApiProblemException
      */
     protected static function validatePagination(int $page = null, int $resultsPerPage = null)
     {
@@ -130,7 +132,7 @@ abstract class AbstractRepository extends EntityRepository
      * @param false $count
      * @param QueryBuilder $qb
      * @return mixed
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException|NoResultException
      */
     public function filter(FilterModel $search, $count = false, QueryBuilder $qb)
     {
@@ -142,14 +144,14 @@ abstract class AbstractRepository extends EntityRepository
     /**
      * @param QueryBuilder $qb
      * @param string $alias
-     * @param int $page
-     * @param int $limit
+     * @param int|null $page
+     * @param int|null $limit
      * @param bool $count
      *
      * @return mixed
      *
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
     public static function paginateResult(QueryBuilder $qb, string $alias, int $page = null, int $limit = null, bool $count = false)
     {
@@ -175,8 +177,8 @@ abstract class AbstractRepository extends EntityRepository
      *
      * @return mixed
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     protected function persistAndFlush(&$entity)
     {

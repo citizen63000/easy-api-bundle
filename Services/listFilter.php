@@ -6,10 +6,12 @@ use Doctrine\ORM\QueryBuilder;
 use EasyApiBundle\Exception\ApiProblemException;
 use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Form\Type\AbstractFilterType;
+use EasyApiBundle\Model\FilterResult;
 use EasyApiBundle\Util\AbstractRepository;
 use EasyApiBundle\Util\AbstractService;
 use EasyApiBundle\Util\ApiProblem;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use \Symfony\Component\Form\FormInterface;
 use \Doctrine\ORM;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,25 +21,24 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class listFilter extends AbstractService
 {
-
     public const classAlias = 'e';
 
     /**
      * @param FormInterface $filterForm
      * @param string $entityClass
-     * @param false $count
      * @param QueryBuilder|null $qb
      * @return mixed
      * @throws ORM\NoResultException
      * @throws ORM\NonUniqueResultException
      */
-    public function filter(FormInterface $filterForm, string $entityClass, $count = false, QueryBuilder $qb = null)
+    public function filter(FormInterface $filterForm, string $entityClass, QueryBuilder $qb = null)
     {
         /** @var FilterModel $model */
         $model = $filterForm->getData();
         $repo = $this->getRepository($entityClass);
         $classAlias = self::classAlias;
         $qb = $qb ?? $repo->createQueryBuilder($classAlias);
+        $filterResult = new FilterResult();
 
         // value filters
         foreach ($filterForm->all() as $field) {
@@ -45,7 +46,6 @@ class listFilter extends AbstractService
             if(null !== $model->$fieldName && !in_array($fieldName, AbstractFilterType::excluded)) {
                 $fieldConfig = $field->getConfig();
                 $fieldType = $fieldConfig->getType()->getInnerType();
-
                 if($fieldType instanceof EntityType) {
                     $alias = "{$classAlias}_{$fieldName}";
                     $qb->innerJoin("{$classAlias}.{$fieldName}", $alias);
@@ -59,8 +59,13 @@ class listFilter extends AbstractService
                         $qb->andWhere($qb->expr()->$exprOperator("{$classAlias}.{$realFieldName}", ":{$fieldName}"));
                         $qb->setParameter(":{$fieldName}", $model->$fieldName);
                     } else { // value
-                        $qb->andWhere($qb->expr()->eq("{$classAlias}.{$fieldName}", ":{$fieldName}"));
-                        $qb->setParameter(":{$fieldName}", $model->$fieldName);
+                        if($fieldType instanceof TextType) {
+                            $qb->andWhere($qb->expr()->like("{$classAlias}.{$fieldName}", ":{$fieldName}"));
+                            $qb->setParameter(":{$fieldName}", "%{$model->$fieldName}%");
+                        } else  {
+                            $qb->andWhere($qb->expr()->eq("{$classAlias}.{$fieldName}", ":{$fieldName}"));
+                            $qb->setParameter(":{$fieldName}", $model->$fieldName);
+                        }
                     }
                 }
             }
@@ -75,7 +80,10 @@ class listFilter extends AbstractService
             }
         }
 
-        return AbstractRepository::paginateResult($qb, "{$classAlias}.id", $model->getPage(), $model->getLimit(), $count);
+        $filterResult->setResults(AbstractRepository::paginateResult($qb, "{$classAlias}.id", $model->getPage(), $model->getLimit()));
+        $filterResult->setNbResults((int) AbstractRepository::paginateResult($qb, "{$classAlias}.id", $model->getPage(), $model->getLimit(), true));
+
+        return $filterResult;
     }
 
 }
