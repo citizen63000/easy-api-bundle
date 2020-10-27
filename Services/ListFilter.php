@@ -73,7 +73,7 @@ class ListFilter extends AbstractService
                 $parts = explode(':', $order);
                 $qb->addOrderBy("{$classAlias}.{$parts[0]}", $parts[1]);
             }
-        } else {
+        } elseif(null !== $model->getDefaultSort()) {
             foreach ($model->getDefaultSort() as $field => $direction) {
                 $qb->addOrderBy("{$classAlias}.{$field}", $direction);
             }

@@ -57,7 +57,7 @@ class FilterModel
     /**
      * @return array
      */
-    public function getDefaultSort(): array
+    public function getDefaultSort(): ?array
     {
         return $this->defaultSort;
     }
@@ -65,7 +65,7 @@ class FilterModel
     /**
      * @param array $defaultSort
      */
-    public function setDefaultSort(array $defaultSort): void
+    public function setDefaultSort(array $defaultSort = null): void
     {
         $this->defaultSort = $defaultSort;
     }

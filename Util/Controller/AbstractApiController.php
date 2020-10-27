@@ -235,7 +235,7 @@ abstract class AbstractApiController extends FOSRestController
 
         $form = 'POST' === $method ? static::entityCreateTypeClass : static::entityUpdateTypeClass;
 
-        return $this->renderEntityResponse($this->describeForm($form));
+        return $this->renderEntityResponse($this->describeForm($form), ['public']);
     }
 
     /**
