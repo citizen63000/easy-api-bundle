@@ -3,41 +3,36 @@
 namespace EasyApiBundle\Services;
 
 use Doctrine\ORM\QueryBuilder;
-use EasyApiBundle\Exception\ApiProblemException;
 use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Form\Type\AbstractFilterType;
 use EasyApiBundle\Model\FilterResult;
 use EasyApiBundle\Util\AbstractRepository;
 use EasyApiBundle\Util\AbstractService;
-use EasyApiBundle\Util\ApiProblem;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use \Symfony\Component\Form\FormInterface;
 use \Doctrine\ORM;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Service qui fabrique la requête à partir d'une classe et d'un model (dans le form),
  */
-class listFilter extends AbstractService
+class ListFilter extends AbstractService
 {
     public const classAlias = 'e';
 
     /**
      * @param FormInterface $filterForm
      * @param string $entityClass
-     * @param QueryBuilder|null $qb
      * @return mixed
      * @throws ORM\NoResultException
      * @throws ORM\NonUniqueResultException
      */
-    public function filter(FormInterface $filterForm, string $entityClass, QueryBuilder $qb = null)
+    public final function filter(FormInterface $filterForm, string $entityClass)
     {
         /** @var FilterModel $model */
         $model = $filterForm->getData();
-        $repo = $this->getRepository($entityClass);
         $classAlias = self::classAlias;
-        $qb = $qb ?? $repo->createQueryBuilder($classAlias);
+        $qb = $this->getFilterQueryBuilder($entityClass, $model);
         $filterResult = new FilterResult();
 
         // value filters
@@ -78,12 +73,26 @@ class listFilter extends AbstractService
                 $parts = explode(':', $order);
                 $qb->addOrderBy("{$classAlias}.{$parts[0]}", $parts[1]);
             }
+        } else {
+            foreach ($model->getDefaultSort() as $field => $direction) {
+                $qb->addOrderBy("{$classAlias}.{$field}", $direction);
+            }
         }
 
         $filterResult->setResults(AbstractRepository::paginateResult($qb, "{$classAlias}.id", $model->getPage(), $model->getLimit()));
         $filterResult->setNbResults((int) AbstractRepository::paginateResult($qb, "{$classAlias}.id", $model->getPage(), $model->getLimit(), true));
 
         return $filterResult;
+    }
+
+    /**
+     * @param string $entityClass
+     * @param FilterModel $model
+     * @return QueryBuilder
+     */
+    protected function getFilterQueryBuilder(string $entityClass, FilterModel $model): QueryBuilder
+    {
+        return $this->getRepository($entityClass)->createQueryBuilder(listFilter::classAlias);
     }
 
 }

@@ -4,13 +4,12 @@ namespace EasyApiBundle\Util\Controller;
 
 use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Form\Type\FilterType;
-use EasyApiBundle\Services\listFilter;
+use EasyApiBundle\Services\ListFilter;
 use EasyApiBundle\Util\Forms\FormSerializer;
 use EasyApiBundle\Util\Forms\SerializedForm;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\UserBundle\Model\User;
 use EasyApiBundle\Exception\ApiProblemException;
-use EasyApiBundle\Form\Model\Search\SearchModel;
 use EasyApiBundle\Util\ApiProblem;
 use EasyApiBundle\Util\CoreUtilsTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -18,64 +17,40 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use \Doctrine\ORM;
-use Doctrine\ORM\QueryBuilder;
 
 abstract class AbstractApiController extends FOSRestController
 {
     use CoreUtilsTrait;
 
-    /**
-     * @var string
-     */
+    /** @var null */
     public const entityClass = null;
 
-    /**
-     * @var string
-     */
+    /** @var null */
     public const entityCreateTypeClass = null;
 
-    /**
-     * @var string
-     */
+    /** @var null */
     public const entityUpdateTypeClass = null;
 
-    /**
-     * @var array
-     */
+    /** @var array */
+    public const serializationGroups = [];
+
+    /** @var array  */
     public const filterFields = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     public const filterSortFields = [];
 
-    /**
-     * @deprecated
-     * @var string
-     */
-    public const entitySearchModelClass = FilterModel::class;
-
-    /**
-     * @deprecated
-     * @var string
-     */
-    public const entitySearchTypeClass = FilterType::class;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     public const entityFilterModelClass = FilterModel::class;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public const entityFilterTypeClass = FilterType::class;
 
-    /**
-     * @var array
-     */
-    public const serializationGroups = [];
+    /** @var string */
+    public const filterService = ListFilter::class;
+
+    /** @var null */
+    public const defaultFilterSort = null;
 
     /**
      * @return ContainerInterface
@@ -150,42 +125,6 @@ abstract class AbstractApiController extends FOSRestController
     }
 
     /**
-     * @deprecated
-     * @param Request $request
-     * @param string|null $entitySearchTypeClass
-     * @param string|null $entityClass
-     * @param array|null $serializationGroups
-     * @param SearchModel|null $model
-     * @param string $methodName
-     *
-     * @return Response|null
-     */
-    protected function getEntityListSearchAction(Request $request,
-                                                 string $entitySearchTypeClass = null,
-                                                 string $entityClass = null,
-                                                 array $serializationGroups = null,
-                                                 SearchModel $model = null,
-                                                 string $methodName = 'search'): Response
-    {
-        $entitySearchTypeClass = $entitySearchTypeClass ?? static::entitySearchTypeClass;
-        $serializationGroups = $serializationGroups ?? static::serializationGroups;
-        $entityClass = $entityClass ?? static::entityClass;
-
-        $form = $this->createForm($entitySearchTypeClass, $model, ['method' => 'GET']);
-        $form->submit($request->query->all());
-
-        if ($form->isValid()) {
-            $repo = $this->getDoctrine()->getRepository($entityClass);
-            $results = $repo->$methodName($form->getData());
-            $nbResults = (int) $repo->$methodName($form->getData(), true);
-
-            return $this->createPaginateResponse($results, $nbResults, $serializationGroups);
-        }
-
-        $this->throwUnprocessableEntity($form);
-    }
-
-    /**
      * @param Request $request
      * @param string|null $entityFilterTypeClass
      * @param string|null $entityClass
@@ -195,9 +134,6 @@ abstract class AbstractApiController extends FOSRestController
      * @param FilterModel|null $entityFilterModel
      *
      * @return Response|null
-     *
-     * @throws ORM\NoResultException
-     * @throws ORM\NonUniqueResultException
      */
     protected function getEntityFilteredListAction(Request $request,
                                                    string $entityFilterTypeClass = null,
@@ -210,6 +146,7 @@ abstract class AbstractApiController extends FOSRestController
         $entityFilterTypeClass = $entityFilterTypeClass ?? static::entityFilterTypeClass;
         $entityFilterModelClass = static::entityFilterModelClass;
         $entityFilterModel = $entityFilterModel ?? new $entityFilterModelClass;
+        $entityFilterModel->setDefaultSort(static::defaultFilterSort);
         $serializationGroups = $serializationGroups ?? static::serializationGroups;
         $entityClass = $entityClass ?? static::entityClass;
         $fields = $fields ?? static::filterFields;
@@ -222,22 +159,12 @@ abstract class AbstractApiController extends FOSRestController
 
         if ($form->isValid()) {
 
-            $filterService = $this->get(listFilter::class);
-            $qb = $this->getFilterQueryBuilder();
-            $result = $filterService->filter($form, $entityClass, $qb);
+            $result = $this->get(static::filterService)->filter($form, $entityClass);
 
             return $this->createPaginateResponse($result->getResults(), $result->getNbResults(), $serializationGroups);
         }
 
         $this->throwUnprocessableEntity($form);
-    }
-
-    /**
-     * @return QueryBuilder
-     */
-    protected function getFilterQueryBuilder()
-    {
-        return $this->getRepository(static::entityClass)->createQueryBuilder(listFilter::classAlias);
     }
 
     /**

@@ -2,6 +2,9 @@
 
 namespace EasyApiBundle\Form\Model\Search;
 
+/**
+ * @deprecated
+ */
 class SearchModel
 {
     /**
@@ -44,7 +47,7 @@ class SearchModel
     }
 
     /**
-     * @param ?int $page
+     * @param int|null $page
      */
     public function setPage(int $page = null): void
     {
@@ -62,7 +65,7 @@ class SearchModel
     }
 
     /**
-     * @param ?int $limit
+     * @param int|null $limit
      */
     public function setLimit(int $limit = null): void
     {

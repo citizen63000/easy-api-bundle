@@ -1,38 +1,28 @@
 <?php
 
-
 namespace EasyApiBundle\Form\Model;
 
 class FilterModel
 {
-    /**
-     * @var array
-     */
+    /** @var array */
+    private $defaultSort = [];
+
+    /** @var array */
     private $fields = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $sortFields = [];
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $entityClass;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $sort;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $page = 1;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $limit;
 
     /**
@@ -62,6 +52,22 @@ class FilterModel
     public function __set(string $property, $value): void
     {
         $this->$property = $value;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefaultSort(): array
+    {
+        return $this->defaultSort;
+    }
+
+    /**
+     * @param array $defaultSort
+     */
+    public function setDefaultSort(array $defaultSort): void
+    {
+        $this->defaultSort = $defaultSort;
     }
 
     /**
@@ -137,7 +143,7 @@ class FilterModel
     }
 
     /**
-     * @param ?int $page
+     * @param int|null $page
      */
     public function setPage(int $page = null): void
     {
@@ -155,7 +161,7 @@ class FilterModel
     }
 
     /**
-     * @param ?int $limit
+     * @param int|null $limit
      */
     public function setLimit(int $limit = null): void
     {

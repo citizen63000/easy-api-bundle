@@ -12,7 +12,7 @@ services:
     tags:
       - 'nelmio_api_doc.route_describer'
 
-  EasyApiBundle\Services\listFilter:
+  EasyApiBundle\Services\ListFilter:
     autowire: true
     autoconfigure: true
     arguments: ['@service_container', '@security.token_storage']

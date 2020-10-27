@@ -1,6 +1,5 @@
 <?php
 
-
 namespace EasyApiBundle\Util;
 
 use Symfony\Component\DependencyInjection\Container;
