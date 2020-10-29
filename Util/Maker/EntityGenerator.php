@@ -106,7 +106,7 @@ class EntityGenerator extends AbstractGenerator
                     }
                 }
 
-                if (!in_array($field->getEntityType(), $content['uses']) && $field->getEntityNamespace() !== $content['namespace']) {
+                if (!in_array($field->getEntityType(), $content['uses']) && !empty($field->getEntityNamespace()) && $field->getEntityNamespace() !== $content['namespace']) {
                     $content['uses'][] = $field->getEntityType();
                 }
             } elseif ('uuid' === $field->getType()) {
