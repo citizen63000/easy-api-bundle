@@ -1,6 +1,5 @@
 <?php
 
-
 namespace EasyApiBundle\Model\Maker;
 
 use Doctrine\Common\Inflector\Inflector;
@@ -10,6 +9,11 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 
 class EntityField
 {
+    /**
+     * @var EntityConfiguration
+     */
+    protected $entity;
+
     /**
      * @var string
      */
@@ -113,6 +117,22 @@ class EntityField
      * @var mixed
      */
     protected $randomValue;
+
+    /**
+     * @return EntityConfiguration
+     */
+    public function getEntity(): EntityConfiguration
+    {
+        return $this->entity;
+    }
+
+    /**
+     * @param EntityConfiguration $entity
+     */
+    public function setEntity(EntityConfiguration $entity): void
+    {
+        $this->entity = $entity;
+    }
 
     /**
      * @return string

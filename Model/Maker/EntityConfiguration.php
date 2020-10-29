@@ -94,6 +94,7 @@ class EntityConfiguration
      */
     public function addField(EntityField $field)
     {
+        $field->setEntity($this);
         $this->fields[] = $field;
     }
 
@@ -106,7 +107,7 @@ class EntityConfiguration
     }
 
     /**
-     * @param string $schema
+     * @param string|null $schema
      */
     public function setSchema(?string $schema): void
     {
@@ -239,7 +240,7 @@ class EntityConfiguration
     }
 
     /**
-     * @param EntityConfiguration $parentEntity
+     * @param EntityConfiguration|null $parentEntity
      */
     public function setParentEntity(EntityConfiguration $parentEntity = null)
     {

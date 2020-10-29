@@ -3,12 +3,12 @@
 namespace EasyApiBundle\Util\Maker;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Inflector\Inflector;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManager;
 use EasyApiBundle\Model\Maker\EntityConfiguration;
 use EasyApiBundle\Model\Maker\EntityField;
 use EasyApiBundle\Util\StringUtils\CaseConverter;
+use EasyApiBundle\Util\StringUtils\Inflector;
 
 class EntityConfigLoader
 {
@@ -182,7 +182,6 @@ class EntityConfigLoader
 
         } else { // oneToMany
             $relationType = 'oneToMany';
-//            $newField->setName(CaseConverter::convertSnakeCaseToCamelCase($relation['TABLE_NAME']).'s');
             $newField->setName(Inflector::pluralize(CaseConverter::convertSnakeCaseToCamelCase($relation['TABLE_NAME'])));
             $entityName = CaseConverter::convertSnakeCaseToPascalCase($relation['TABLE_NAME']);
             $entityConfig = self::findAndCreateFromEntityName($entityName, $config->getBundleName());

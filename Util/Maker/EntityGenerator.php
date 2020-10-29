@@ -5,6 +5,7 @@ namespace EasyApiBundle\Util\Maker;
 use EasyApiBundle\Model\Maker\EntityConfiguration;
 use EasyApiBundle\Model\Maker\EntityField;
 use EasyApiBundle\Util\StringUtils\CaseConverter;
+use EasyApiBundle\Util\StringUtils\Inflector;
 
 class EntityGenerator extends AbstractGenerator
 {
@@ -145,7 +146,7 @@ class EntityGenerator extends AbstractGenerator
         } else {
             switch ($field->getRelationType()) {
                 case 'manyToOne':
-                    $inversedBy = lcfirst($this->config->getEntityName());
+                    $inversedBy = Inflector::pluralize(lcfirst($this->config->getEntityName()));
                     $annotations[] = "{$ormPrefix}\ManyToOne(targetEntity=\"{$field->getEntityType()}\", inversedBy=\"{$inversedBy}\")";
                     $joinColumn = "{$ormPrefix}\JoinColumn(name=\"{$field->getTableColumnName()}\", referencedColumnName=\"{$field->getReferencedColumnName()}\")";
                     $annotations[] = "{$ormPrefix}\JoinColumns({$joinColumn})";
@@ -160,9 +161,9 @@ class EntityGenerator extends AbstractGenerator
                     $annotations[] = "{$ormPrefix}\OneToMany(targetEntity=\"{$field->getEntityType()}\", mappedBy=\"{$mapped}\", cascade={}, orphanRemoval=true)";
                     break;
                 case 'manyToMany':
-                    $inversedBy = lcfirst($this->config->getEntityName()).'s';
-                    $annotations[] = '@TODO replace inversedBy by mappedBy if this entity is the owner of the relation, modify targetEntity instead';
-                    $annotations[] = "{$ormPrefix}\ManyToMany(targetEntity=\"{$field->getEntityType()}\", inversedBy=\"{$inversedBy}\", cascade={})";
+                    $inversedBy = Inflector::pluralize(lcfirst($this->config->getEntityName()));
+                    $relationParam = strpos($field->getJoinTable(), $field->getEntity()->getTableName()) == 0 ? 'mappedBy' : 'inversedBy';
+                    $annotations[] = "{$ormPrefix}\ManyToMany(targetEntity=\"{$field->getEntityType()}\", {$relationParam}=\"{$inversedBy}\", cascade={})";
                     $annotations[] = "{$ormPrefix}\JoinTable(schema=\"{$field->getJoinTableSchema()}\", name=\"{$field->getJoinTable()}\",";
                     $annotations[] = "\tjoinColumns={";
                     $annotations[] = "\t\t{$ormPrefix}\JoinColumn(name=\"{$field->getTableColumnName()}\", referencedColumnName=\"{$field->getReferencedColumnName()}\")";
