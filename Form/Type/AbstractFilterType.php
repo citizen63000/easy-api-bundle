@@ -231,7 +231,7 @@ abstract class AbstractFilterType extends AbstractApiType
      */
     protected function addBoolFilter(FormBuilderInterface $builder, string $name)
     {
-        $builder->add($name, IntegerType::class, ['required' => false,]);
+        $builder->add($name, IntegerType::class, ['required' => false, 'constraints' => [new Assert\Choice([0,1])]]);
 
         return $builder;
     }
