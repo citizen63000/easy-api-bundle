@@ -31,9 +31,9 @@ class ListFilter extends AbstractService
     {
         /** @var FilterModel $model */
         $model = $filterForm->getData();
-        $classAlias = self::classAlias;
         $qb = $this->getFilterQueryBuilder($entityClass, $model);
         $filterResult = new FilterResult();
+        $classAlias = self::classAlias;
 
         // value filters
         foreach ($filterForm->all() as $field) {
@@ -41,29 +41,46 @@ class ListFilter extends AbstractService
             if(null !== $model->$fieldName && !in_array($fieldName, AbstractFilterType::excluded)) {
                 $fieldConfig = $field->getConfig();
                 $fieldType = $fieldConfig->getType()->getInnerType();
+
+                // linked entity var
+                if($pos = strpos($fieldName, '_')) {
+                    $parts = explode('_', $fieldName);
+                    $nbParts = count($parts)-1;
+                    for($i=0; $i < $nbParts ; ++$i) {
+                        $alias = "{$classAlias}_{$fieldName}";
+                        $qb->innerJoin("{$classAlias}.{$parts[$i]}", $alias);
+                        $classAlias = $alias;
+                    }
+                    $entityFieldName = $parts[$nbParts];
+                } else {
+                    $entityFieldName = $fieldName;
+                }
+
+                // field itself
                 if($fieldType instanceof EntityType) {
-                    $alias = "{$classAlias}_{$fieldName}";
-                    $qb->innerJoin("{$classAlias}.{$fieldName}", $alias);
+                    $alias = "{$classAlias}_{$entityFieldName}";
+                    $qb->innerJoin("{$classAlias}.{$entityFieldName}", $alias);
                     $qb->andWhere($qb->expr()->eq("{$alias}.id", ":{$alias}"));
                     $qb->setParameter(":{$alias}", $model->$fieldName);
                 } else {
-                    if($pos = strpos($fieldName, '_')) { // interval like fieldName_min or fieldName_max
-                        $realFieldName = substr($fieldName, 0, $pos);
-                        $operator = substr($fieldName, $pos+1);
+                    if($pos = strpos($entityFieldName, '__')) { // interval like fieldName_min or fieldName_max
+                        $realFieldName = substr($entityFieldName, 0, $pos);
+                        $operator = substr($entityFieldName, $pos+1);
                         $exprOperator = $operator === 'min' ? 'gt' : 'lte';
-                        $qb->andWhere($qb->expr()->$exprOperator("{$classAlias}.{$realFieldName}", ":{$fieldName}"));
-                        $qb->setParameter(":{$fieldName}", $model->$fieldName);
+                        $qb->andWhere($qb->expr()->$exprOperator("{$classAlias}.{$realFieldName}", ":{$entityFieldName}"));
+                        $qb->setParameter(":{$entityFieldName}", $model->$fieldName);
                     } else { // value
                         if($fieldType instanceof TextType) {
-                            $qb->andWhere($qb->expr()->like("{$classAlias}.{$fieldName}", ":{$fieldName}"));
-                            $qb->setParameter(":{$fieldName}", "%{$model->$fieldName}%");
+                            $qb->andWhere($qb->expr()->like("{$classAlias}.{$entityFieldName}", ":{$entityFieldName}"));
+                            $qb->setParameter(":{$entityFieldName}", "%{$model->$fieldName}%");
                         } else  {
-                            $qb->andWhere($qb->expr()->eq("{$classAlias}.{$fieldName}", ":{$fieldName}"));
-                            $qb->setParameter(":{$fieldName}", $model->$fieldName);
+                            $qb->andWhere($qb->expr()->eq("{$classAlias}.{$entityFieldName}", ":{$entityFieldName}"));
+                            $qb->setParameter(":{$entityFieldName}", $model->$fieldName);
                         }
                     }
                 }
             }
+            $classAlias = self::classAlias;
         }
 
         // sort (field1:asc|desc, field2:asc|desc)

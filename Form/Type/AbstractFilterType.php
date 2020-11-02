@@ -128,7 +128,7 @@ abstract class AbstractFilterType extends AbstractApiType
             $entityConfiguration = EntityConfigLoader::createEntityConfigFromEntityFullName($options['entityClass']);
             foreach ($options['fields'] as $fieldName) {
                 if(!in_array($fieldName, self::excluded)) {
-                    if($entityConfiguration->hasField($fieldName, null, null, true)){
+                    if($entityConfiguration->hasField($fieldName)){
                         $this->addFilterField($builder, $entityConfiguration->getField($fieldName), $fieldName);
                     // linked entity
                     } elseif(strpos($fieldName, '.')) {
@@ -137,7 +137,7 @@ abstract class AbstractFilterType extends AbstractApiType
                         $nbNodes = count($nodes);
                         for ($i = 1; $i < $nbNodes; ++$i) {
                             $entityConfiguration = EntityConfigLoader::createEntityConfigFromEntityFullName($field->getEntityType());
-                            if($entityConfiguration->hasField($nodes[$i], null, null, false)){
+                            if($entityConfiguration->hasField($nodes[$i])){
                                 $field = $entityConfiguration->getField($nodes[$i]);
                             } else {
                                 throw new EntityNotFoundException("Field {$nodes[$i]} not found on {$entityConfiguration} entity");
@@ -177,6 +177,8 @@ abstract class AbstractFilterType extends AbstractApiType
         switch (strtolower($type)) {
             case 'integer':
                 return 'addIntegerFilter';
+            case 'bool':
+                return 'addBoolFilter';
             case 'float':
                 return 'addNumberFilter';
             case 'date':
@@ -216,8 +218,20 @@ abstract class AbstractFilterType extends AbstractApiType
     protected function addIntegerFilter(FormBuilderInterface $builder, string $name)
     {
         $builder->add($name, IntegerType::class, ['required' => false,]);
-        $builder->add("{$name}_min", IntegerType::class, ['required' => false,]);
-        $builder->add("{$name}_max", IntegerType::class, ['required' => false,]);
+        $builder->add("{$name}__min", IntegerType::class, ['required' => false,]);
+        $builder->add("{$name}__max", IntegerType::class, ['required' => false,]);
+
+        return $builder;
+    }
+
+    /**
+     * @param FormBuilderInterface $builder
+     * @param string $name
+     * @return FormBuilderInterface
+     */
+    protected function addBoolFilter(FormBuilderInterface $builder, string $name)
+    {
+        $builder->add($name, IntegerType::class, ['required' => false,]);
 
         return $builder;
     }
@@ -230,8 +244,8 @@ abstract class AbstractFilterType extends AbstractApiType
     protected function addNumberFilter(FormBuilderInterface $builder, string $name)
     {
         $builder->add($name, NumberType::class, ['required' => false,]);
-        $builder->add("{$name}_min", NumberType::class, ['required' => false,]);
-        $builder->add("{$name}_max", NumberType::class, ['required' => false,]);
+        $builder->add("{$name}__min", NumberType::class, ['required' => false,]);
+        $builder->add("{$name}__max", NumberType::class, ['required' => false,]);
 
         return $builder;
     }
@@ -244,8 +258,8 @@ abstract class AbstractFilterType extends AbstractApiType
     protected function addDateFilter(FormBuilderInterface $builder, string $name)
     {
         $builder->add($name, DateType::class, ['required' => false,]);
-        $builder->add("{$name}_min", DateType::class, ['required' => false,]);
-        $builder->add("{$name}_max", DateType::class, ['required' => false,]);
+        $builder->add("{$name}__min", DateType::class, ['required' => false,]);
+        $builder->add("{$name}__max", DateType::class, ['required' => false,]);
 
         return $builder;
     }
@@ -258,8 +272,8 @@ abstract class AbstractFilterType extends AbstractApiType
     protected function addDateTimeFilter(FormBuilderInterface $builder, string $name)
     {
         $builder->add($name, DateTimeType::class, ['required' => false,]);
-        $builder->add("{$name}_min", DateTimeType::class, ['required' => false,]);
-        $builder->add("{$name}_max", DateTimeType::class, ['required' => false,]);
+        $builder->add("{$name}__min", DateTimeType::class, ['required' => false,]);
+        $builder->add("{$name}__max", DateTimeType::class, ['required' => false,]);
 
         return $builder;
     }
