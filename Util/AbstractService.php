@@ -2,6 +2,7 @@
 
 namespace EasyApiBundle\Util;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -12,7 +13,7 @@ abstract class AbstractService
     use CoreUtilsTrait;
 
     /**
-     * @var Container
+     * @var ContainerInterface
      */
     protected $container;
 
@@ -24,10 +25,10 @@ abstract class AbstractService
     /**
      * DocumentGenerator constructor.
      *
-     * @param Container     $container
+     * @param ContainerInterface     $container
      * @param TokenStorageInterface $tokenStorage
      */
-    public function __construct(Container $container, TokenStorageInterface $tokenStorage = null)
+    public function __construct(ContainerInterface $container, TokenStorageInterface $tokenStorage = null)
     {
         $this->container = $container;
         $this->user = ($tokenStorage && $token = $tokenStorage->getToken()) ? $token->getUser() : null;
