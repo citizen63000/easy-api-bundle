@@ -119,6 +119,14 @@ class EntityField
     protected $randomValue;
 
     /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string) $this->getName();
+    }
+
+    /**
      * @return EntityConfiguration
      */
     public function getEntity(): EntityConfiguration

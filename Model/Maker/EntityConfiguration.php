@@ -76,6 +76,14 @@ class EntityConfiguration
     /**
      * @return string
      */
+    public function __toString()
+    {
+        return (string) $this->getEntityName();
+    }
+
+    /**
+     * @return string
+     */
     public function getEntityType(): ?string
     {
         return $this->entityType;

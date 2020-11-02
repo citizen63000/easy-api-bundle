@@ -20,7 +20,7 @@ class EntityConfigLoader
     /**
      * @var array
      */
-    protected static $possibleNativeTypes = ['float', 'string', 'integer', 'DateTime[<>-a-zA-Z]*'];
+    protected static $possibleNativeTypes = ['float', 'string', 'integer', 'int', 'bool', 'DateTime[<>-a-zA-Z]*'];
 
     /**
      * @param EntityManager $em
@@ -299,10 +299,14 @@ class EntityConfigLoader
      * @return EntityConfiguration
      * @throws \ReflectionException
      */
-    public function createEntityConfigFromEntityFullName(string $fullName)
+    public static function createEntityConfigFromEntityFullName(string $fullName)
     {
         $conf = new EntityConfiguration();
-        $r = new \ReflectionClass($fullName);
+        try {
+            $r = new \ReflectionClass($fullName);
+        } catch (\Exception $e) {
+            echo 'Impossible de charger la classe'.$fullName;die;
+        }
 
         // class annotations
         $reader = new AnnotationReader();
@@ -400,7 +404,23 @@ class EntityConfigLoader
                 }
             }
 
+            if(null === $field->getType()) {
+                $rp = new \ReflectionProperty($fullName, $var->getName());
+                if (preg_match('/@var[ \\\]+([a-zA-Z]+)/', $rp->getDocComment(), $matches)) {
+                    foreach (self::$possibleNativeTypes as $nativeType) {
+                        if (preg_match("/{$nativeType}/", $matches[1])) {
+                            $field->setType($matches[1]);
+                        }
+                    }
+                }
+            }
+
             $conf->addField($field);
+        }
+
+        if($parentClass = $r->getParentClass()) {
+            $parentConfig = self::createEntityConfigFromEntityFullName($parentClass->getName());
+            $conf->setParentEntity($parentConfig);
         }
 
 //        $conf->setEntityFileClassPath($filepath);

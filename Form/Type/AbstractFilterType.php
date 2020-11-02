@@ -2,7 +2,9 @@
 
 namespace EasyApiBundle\Form\Type;
 
+use Doctrine\ORM\EntityNotFoundException;
 use EasyApiBundle\Form\Model\FilterModel;
+use EasyApiBundle\Model\Maker\EntityField;
 use EasyApiBundle\Util\ApiProblem;
 use EasyApiBundle\Util\Maker\EntityConfigLoader;
 use EasyApiBundle\Validator\Filter\SortConstraint;
@@ -118,7 +120,7 @@ abstract class AbstractFilterType extends AbstractApiType
     /**
      * @param FormBuilderInterface $builder
      * @param array $options
-     * @throws \ReflectionException
+     * @throws \ReflectionException|EntityNotFoundException
      */
     protected function addFilterFields(FormBuilderInterface $builder, array $options): void
     {
@@ -126,19 +128,43 @@ abstract class AbstractFilterType extends AbstractApiType
             $entityConfiguration = EntityConfigLoader::createEntityConfigFromEntityFullName($options['entityClass']);
             foreach ($options['fields'] as $fieldName) {
                 if(!in_array($fieldName, self::excluded)) {
-                    if($entityConfiguration->hasField($fieldName)){
-                        $field = $entityConfiguration->getField($fieldName);
-                        if($field->isNativeType()) {
-                            $method = self::convertEntityNativeTypeToFormFieldMethod($field->getType());
-                            static::$method($builder, $fieldName);
-                        } else {
-                            static::addEntityFilter($builder, $fieldName, $field->getEntityType());
+                    if($entityConfiguration->hasField($fieldName, null, null, true)){
+                        $this->addFilterField($builder, $entityConfiguration->getField($fieldName), $fieldName);
+                    // linked entity
+                    } elseif(strpos($fieldName, '.')) {
+                        $nodes = explode('.', $fieldName);
+                        $field = $entityConfiguration->getField($nodes[0]);
+                        $nbNodes = count($nodes);
+                        for ($i = 1; $i < $nbNodes; ++$i) {
+                            $entityConfiguration = EntityConfigLoader::createEntityConfigFromEntityFullName($field->getEntityType());
+                            if($entityConfiguration->hasField($nodes[$i], null, null, false)){
+                                $field = $entityConfiguration->getField($nodes[$i]);
+                            } else {
+                                throw new EntityNotFoundException("Field {$nodes[$i]} not found on {$entityConfiguration} entity");
+                            }
                         }
+                        $fieldName = implode('_', $nodes);
+                        $this->addFilterField($builder, $field, $fieldName);
                     } else {
-                        static::addTextFilter($builder, $fieldName);
+                        $this->addTextFilter($builder, $fieldName);
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * @param FormBuilderInterface $builder
+     * @param EntityField $field
+     * @param string $fieldName
+     */
+    protected function addFilterField(FormBuilderInterface $builder, EntityField $field, string $fieldName)
+    {
+        if($field->isNativeType()) {
+            $method = self::convertEntityNativeTypeToFormFieldMethod($field->getType());
+            $this->$method($builder, $fieldName);
+        } else {
+            $this->addEntityFilter($builder, $fieldName, $field->getEntityType());
         }
     }
 
@@ -148,7 +174,7 @@ abstract class AbstractFilterType extends AbstractApiType
      */
     protected static function convertEntityNativeTypeToFormFieldMethod($type)
     {
-        switch ($type) {
+        switch (strtolower($type)) {
             case 'integer':
                 return 'addIntegerFilter';
             case 'float':
@@ -167,7 +193,7 @@ abstract class AbstractFilterType extends AbstractApiType
      * @param string $name
      * @return FormBuilderInterface
      */
-    protected static function addTextFilter(FormBuilderInterface $builder, string $name)
+    protected function addTextFilter(FormBuilderInterface $builder, string $name)
     {
         $builder ->add($name, TextType::class,
             [
@@ -187,7 +213,7 @@ abstract class AbstractFilterType extends AbstractApiType
      * @param string $name
      * @return FormBuilderInterface
      */
-    protected static function addIntegerFilter(FormBuilderInterface $builder, string $name)
+    protected function addIntegerFilter(FormBuilderInterface $builder, string $name)
     {
         $builder->add($name, IntegerType::class, ['required' => false,]);
         $builder->add("{$name}_min", IntegerType::class, ['required' => false,]);
@@ -201,7 +227,7 @@ abstract class AbstractFilterType extends AbstractApiType
      * @param string $name
      * @return FormBuilderInterface
      */
-    protected static function addNumberFilter(FormBuilderInterface $builder, string $name)
+    protected function addNumberFilter(FormBuilderInterface $builder, string $name)
     {
         $builder->add($name, NumberType::class, ['required' => false,]);
         $builder->add("{$name}_min", NumberType::class, ['required' => false,]);
@@ -215,7 +241,7 @@ abstract class AbstractFilterType extends AbstractApiType
      * @param string $name
      * @return FormBuilderInterface
      */
-    protected static function addDateFilter(FormBuilderInterface $builder, string $name)
+    protected function addDateFilter(FormBuilderInterface $builder, string $name)
     {
         $builder->add($name, DateType::class, ['required' => false,]);
         $builder->add("{$name}_min", DateType::class, ['required' => false,]);
@@ -229,7 +255,7 @@ abstract class AbstractFilterType extends AbstractApiType
      * @param string $name
      * @return FormBuilderInterface
      */
-    protected static function addDateTimeFilter(FormBuilderInterface $builder, string $name)
+    protected function addDateTimeFilter(FormBuilderInterface $builder, string $name)
     {
         $builder->add($name, DateTimeType::class, ['required' => false,]);
         $builder->add("{$name}_min", DateTimeType::class, ['required' => false,]);
@@ -244,7 +270,7 @@ abstract class AbstractFilterType extends AbstractApiType
      * @param $fieldEntityClass
      * @return FormBuilderInterface
      */
-    protected static function addEntityFilter(FormBuilderInterface $builder, string $name, $fieldEntityClass)
+    protected function addEntityFilter(FormBuilderInterface $builder, string $name, $fieldEntityClass)
     {
         $builder ->add($name, EntityType::class,
             [
