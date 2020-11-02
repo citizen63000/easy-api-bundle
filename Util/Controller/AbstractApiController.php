@@ -70,7 +70,10 @@ abstract class AbstractApiController extends FOSRestController
 
     /**
      * @param Request $request
+     *
      * @return null|object
+     *
+     * @throws NotFoundHttpException
      */
     protected function getEntityOfRequest(Request $request)
     {
@@ -172,6 +175,7 @@ abstract class AbstractApiController extends FOSRestController
      * @param null $entity
      * @param string|null $entityTypeClass
      * @param array|null $serializationGroups
+     *
      * @return Response
      */
     protected function createEntityAction(Request $request, $entity = null, string $entityTypeClass = null, array $serializationGroups = null): Response
@@ -195,6 +199,7 @@ abstract class AbstractApiController extends FOSRestController
      * @param $entity
      * @param string|null $entityTypeClass
      * @param array|null $serializationGroups
+     *
      * @return Response
      */
     protected function updateEntityAction(Request $request, $entity, string $entityTypeClass = null, array $serializationGroups = null): Response
@@ -227,6 +232,7 @@ abstract class AbstractApiController extends FOSRestController
 
     /**
      * @param Request $request
+     *
      * @return mixed
      */
     protected function getDescribeFormAction(Request $request)
@@ -281,6 +287,8 @@ abstract class AbstractApiController extends FOSRestController
 
     /**
      * @param Form $form
+     *
+     * @throws ApiProblemException
      */
     protected function throwUnprocessableEntity(Form $form)
     {

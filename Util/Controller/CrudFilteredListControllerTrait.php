@@ -13,7 +13,7 @@ trait CrudFilteredListControllerTrait
      * @Symfony\Component\Routing\Annotation\Route(methods={"GET"}, name="_list")
      *
      * @EasyApiBundle\Annotation\GetFormFilterParameter(
-     *     type="static::entitySearchTypeClass",
+     *     type="static::entityFilterTypeClass",
      *     entityClass="static::entityClass",
      *     fields={"static::filterFields"},
      *     sortFields={"static::filterSortFields"}

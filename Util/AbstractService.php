@@ -2,8 +2,11 @@
 
 namespace EasyApiBundle\Util;
 
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,8 +28,8 @@ abstract class AbstractService
     /**
      * DocumentGenerator constructor.
      *
-     * @param ContainerInterface     $container
-     * @param TokenStorageInterface $tokenStorage
+     * @param ContainerInterface $container
+     * @param TokenStorageInterface|null $tokenStorage
      */
     public function __construct(ContainerInterface $container, TokenStorageInterface $tokenStorage = null)
     {
@@ -40,7 +43,8 @@ abstract class AbstractService
      *
      * @return object
      *
-     * @throws \Exception
+     * @throws ServiceCircularReferenceException When a circular reference is detected
+     * @throws ServiceNotFoundException          When the service is not defined
      */
     protected function get($id, $invalidBehavior = Container::EXCEPTION_ON_INVALID_REFERENCE)
     {
@@ -58,17 +62,12 @@ abstract class AbstractService
     /**
      * Shortcut to return the Doctrine Registry service.
      *
-     * @return Registry
+     * @return ManagerRegistry
      *
-     * @throws \LogicException If DoctrineBundle is not available
      * @throws \Exception
      */
     protected function getDoctrine()
     {
-        if (!$this->container->has('doctrine')) {
-            throw new \LogicException('The DoctrineBundle is not registered in your application. Try running "composer require symfony/orm-pack".');
-        }
-
         return $this->container->get('doctrine');
     }
 
@@ -93,15 +92,11 @@ abstract class AbstractService
     /**
      * Renders a view.
      *
-     * @param string   $view       The view name
-     * @param array    $parameters An array of parameters to pass to the view
-     * @param Response $response   A response instance
+     * @param string $view The view name
+     * @param array $parameters An array of parameters to pass to the view
+     * @param Response|null $response A response instance
      *
      * @return Response A Response instance
-     *
-     * @final since version 3.4
-     *
-     * @throws \Exception
      */
     protected function render(string $view, array $parameters = [], Response $response = null)
     {
@@ -125,15 +120,14 @@ abstract class AbstractService
     /**
      * Creates and returns a Form instance from the type of the form.
      *
-     * @param string $type    The fully qualified class name of the form type
-     * @param mixed  $data    The initial data for the form
-     * @param array  $options Options for the form
+     * @param string $type The fully qualified class name of the form type
+     * @param mixed $data The initial data for the form
+     * @param array $options Options for the form
      *
      * @return FormInterface
      */
-    protected function createForm($type, $data = null, array $options = [])
+    protected function createForm(string $type, $data = null, array $options = [])
     {
         return $this->container->get('form.factory')->create($type, $data, $options);
     }
-
 }

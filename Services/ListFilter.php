@@ -92,7 +92,7 @@ class ListFilter extends AbstractService
      */
     protected function getFilterQueryBuilder(string $entityClass, FilterModel $model): QueryBuilder
     {
-        return $this->getRepository($entityClass)->createQueryBuilder(listFilter::classAlias);
+        return $this->getRepository($entityClass)->createQueryBuilder(ListFilter::classAlias);
     }
 
 }
