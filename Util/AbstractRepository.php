@@ -138,7 +138,7 @@ abstract class AbstractRepository extends EntityRepository
     {
         $qb = $qb ?? $this->createQueryBuilder('q');
 
-        return static::paginateResult($qb, 'q.id', $search->getPage(), $search->getLimit(), $count);
+        return static::paginateResult($qb, $search->getPage(), $search->getLimit(), $count);
     }
 
     /**
@@ -153,10 +153,10 @@ abstract class AbstractRepository extends EntityRepository
      * @throws NoResultException
      * @throws NonUniqueResultException
      */
-    public static function paginateResult(QueryBuilder $qb, string $alias, int $page = null, int $limit = null, bool $count = false)
+    public static function paginateResult(QueryBuilder $qb, int $page = null, int $limit = null, bool $count = false)
     {
         if ($count) {
-            $qb->select($qb->expr()->count($alias));
+            $qb->select($qb->expr()->count(1));
             $qb->setFirstResult(0);
             $qb->setMaxResults(1);
 

@@ -96,8 +96,8 @@ class ListFilter extends AbstractService
             }
         }
 
-        $filterResult->setResults(AbstractRepository::paginateResult($qb, "{$classAlias}.id", $model->getPage(), $model->getLimit()));
-        $filterResult->setNbResults((int) AbstractRepository::paginateResult($qb, "{$classAlias}.id", $model->getPage(), $model->getLimit(), true));
+        $filterResult->setResults(AbstractRepository::paginateResult($qb, $model->getPage(), $model->getLimit()));
+        $filterResult->setNbResults((int) AbstractRepository::paginateResult($qb, $model->getPage(), $model->getLimit(), true));
 
         return $filterResult;
     }
