@@ -124,8 +124,7 @@ trait ApiTestDataLoaderTrait
                     FROM information_schema.tables
                     WHERE TABLE_SCHEMA IN ({$schemas})
                     AND TABLE_TYPE = 'BASE TABLE'
-                    AND TABLE_NAME NOT LIKE 'ref_%'
-                    AND TABLE_NAME NOT LIKE 'v_%'
+                    AND TABLE_NAME NOT LIKE 'ref\_%'
                     ";
             $stmt = self::$entityManager->getConnection()->executeQuery($sql);
             $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
