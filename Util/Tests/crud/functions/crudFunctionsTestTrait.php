@@ -6,6 +6,8 @@ use EasyApiBundle\Util\Forms\FormSerializer;
 
 trait crudFunctionsTestTrait
 {
+    protected static $getActionType = 'Get';
+    protected static $getListActionType = 'GetList';
     protected static $createActionType = 'Create';
     protected static $updateActionType = 'Update';
 

@@ -22,7 +22,7 @@ trait GetListTestFunctionsTrait
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
 
-        $expectedResult = $this->getExpectedResponse($filename, 'GetList', $apiOutput->getData());
+        $expectedResult = $this->getExpectedResponse($filename, self::$getListActionType, $apiOutput->getData());
 
         static::assertEquals($expectedResult, $apiOutput->getData());
     }

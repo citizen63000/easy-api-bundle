@@ -143,7 +143,6 @@ abstract class AbstractRepository extends EntityRepository
 
     /**
      * @param QueryBuilder $qb
-     * @param string $alias
      * @param int|null $page
      * @param int|null $limit
      * @param bool $count
