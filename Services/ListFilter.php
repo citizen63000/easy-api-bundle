@@ -27,7 +27,7 @@ class ListFilter extends AbstractService
      * @throws ORM\NoResultException
      * @throws ORM\NonUniqueResultException
      */
-    public final function filter(FormInterface $filterForm, string $entityClass)
+    final public function filter(FormInterface $filterForm, string $entityClass)
     {
         /** @var FilterModel $model */
         $model = $filterForm->getData();
@@ -38,7 +38,9 @@ class ListFilter extends AbstractService
         // value filters
         foreach ($filterForm->all() as $field) {
             $fieldName = $field->getName();
-            if(null !== $model->$fieldName && !in_array($fieldName, AbstractFilterType::excluded)) {
+            if (method_exists($this, $method = "apply{$fieldName}")) {
+                $this->$method($qb, $model->$fieldName);
+            } elseif(null !== $model->$fieldName && !in_array($fieldName, AbstractFilterType::excluded)) {
                 $fieldConfig = $field->getConfig();
                 $fieldType = $fieldConfig->getType()->getInnerType();
 
