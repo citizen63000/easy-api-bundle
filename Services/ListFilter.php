@@ -18,7 +18,11 @@ use \Doctrine\ORM;
  */
 class ListFilter extends AbstractService
 {
+    /** @var string class alias used in query */
     public const classAlias = 'e';
+
+    /** @var array ignored model fields */
+    protected static $ignoredFields = [];
 
     /**
      * @param FormInterface $filterForm
@@ -34,13 +38,14 @@ class ListFilter extends AbstractService
         $qb = $this->getFilterQueryBuilder($entityClass, $model);
         $filterResult = new FilterResult();
         $classAlias = self::classAlias;
+        $excluded = array_merge(AbstractFilterType::excluded, static::$ignoredFields);
 
         // value filters
         foreach ($filterForm->all() as $field) {
             $fieldName = $field->getName();
             if (method_exists($this, $method = "apply{$fieldName}")) {
                 $this->$method($qb, $model->$fieldName);
-            } elseif(null !== $model->$fieldName && !in_array($fieldName, AbstractFilterType::excluded)) {
+            } elseif(null !== $model->$fieldName && !in_array($fieldName, $excluded)) {
                 $fieldConfig = $field->getConfig();
                 $fieldType = $fieldConfig->getType()->getInnerType();
 
@@ -113,5 +118,4 @@ class ListFilter extends AbstractService
     {
         return $this->getRepository($entityClass)->createQueryBuilder(ListFilter::classAlias);
     }
-
 }
