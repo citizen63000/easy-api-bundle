@@ -45,7 +45,7 @@ trait CreateTestTrait
                 static::assertEquals(['errors' => ['core.error.'.static::getDataClassShortName().".{$requiredField}.required"]], $result);
             }
         } else {
-            self::markTestSkipped('Cannot be tested : no required fields defined.');
+            self::markTestSkipped('Cannot be tested : no required fields defined, please set static var requiredFields with required fields if necessary.');
         }
     }
 
