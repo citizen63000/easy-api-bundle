@@ -1,5 +1,10 @@
 services:
 
+  EasyApiBundle\Services\MediaUploader\MediaUploaderDirectoryNamer:
+    autowire: true
+    autoconfigure: true
+    public: true
+
   EasyApiBundle\Services\ApiDoc\GetFormParameterRouteDescriber:
     autowire: true
     autoconfigure: true

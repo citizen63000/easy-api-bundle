@@ -1,6 +1,6 @@
 <?php
 
-namespace EasyApiBundle\Services\DirectoryNamer;
+namespace EasyApiBundle\Services\MediaUploader;
 
 use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use Psr\Container\ContainerInterface;
