@@ -32,7 +32,7 @@ abstract class AbstractApiType extends AbstractType
     /**
      * @var
      */
-    protected static $validationGroups;
+    protected $validationGroups;
 
     /**
      * @return array
@@ -85,13 +85,13 @@ abstract class AbstractApiType extends AbstractType
      *
      * @return array
      */
-    protected static function getValidationGroups($pEntity)
+    protected function getValidationGroups($pEntity)
     {
-        if (null !== self::$validationGroups) {
-            return self::$validationGroups;
+        if (null !== $this->validationGroups) {
+            return $this->validationGroups;
         }
 
-        self::$validationGroups = ['Default'];
+        $this->validationGroups = ['Default'];
         foreach (static::$groupsConditions as $group => $conditions) {
             foreach ($conditions as $condition => $values) {
                 $expr = explode(' ', $condition);
@@ -114,16 +114,16 @@ abstract class AbstractApiType extends AbstractType
                 }
 
                 if ('in' === $constraint && in_array($value, $values, true)) {
-                    self::$validationGroups[] = $group;
+                    $this->validationGroups[] = $group;
                     break;
                 } elseif ('notin' === $constraint && !in_array($value, $values, true)) {
-                    self::$validationGroups[] = $group;
+                    $this->validationGroups[] = $group;
                     break;
                 }
             }
         }
 
-        return self::$validationGroups;
+        return $this->validationGroups;
     }
 
     /**
@@ -138,7 +138,7 @@ abstract class AbstractApiType extends AbstractType
             'extra_fields_message' => ApiProblem::FORM_EXTRA_FIELDS_ERROR,
             'data_class' => static::$dataClass,
             'validation_groups' => function (FormInterface $form) {
-                return static::getValidationGroups($form->getData());
+                return $this->getValidationGroups($form->getData());
             },
         ]);
     }
