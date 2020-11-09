@@ -77,7 +77,7 @@ abstract class AbstractApiController extends FOSRestController
      */
     protected function getEntityOfRequest(Request $request)
     {
-        $entity = $this->getRepository(static::entityClass)->find($request->get('id'));
+        $entity = $this->getRepository(static::entityClass)->findOneBy($request->attributes->get('_route_params'));
 
         if(null === $entity) {
             throw new NotFoundHttpException(sprintf(ApiProblem::ENTITY_NOT_FOUND, 'entity'));
