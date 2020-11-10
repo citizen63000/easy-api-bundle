@@ -212,6 +212,8 @@ class FormSerializer
             $sField->setForm($sForm);
         // not a form
         } else {
+
+            // Properties
             $sField->setLabel(self::getFieldLabel($config, $sField));
             $sField->setPlaceholder(self::getFieldPlaceholder($config, $sField));
             $sField->setConditionedFields(self::getChildrenFieldsConditions($form, $sField));
@@ -221,52 +223,44 @@ class FormSerializer
                 $sField->setGroup("form.{$config->getOption('attr')['group']}.group");
             }
 
-            // Properties
+            // attr
+            if (null !== $config->getOption('attr')) {
+                $sField->setAttr($config->getOption('attr'));
+            }
+
+            // Default value
+            if (null !== $config->getOption('attr') && isset($config->getOption('attr')['defaultValue'])) {
+                $sField->setDefaultValue($config->getOption('attr')['defaultValue']);
+            }
+
+            // Discriminator field value
+            if (null !== $config->getOption('attr') && isset($config->getOption('attr')['discriminator'])) {
+                $sField->setDiscriminator($config->getOption('attr')['discriminator']);
+            }
+
+            // Dynamic choices field value
+            if (null !== $config->getOption('attr') && isset($config->getOption('attr')['dynamicChoices'])) {
+                $dynamicChoices = $config->getOption('attr')['dynamicChoices'];
+                $dynamicChoicesRoute = $dynamicChoices['route'];
+
+                if (null !== $this->router->generate($dynamicChoicesRoute)) {
+                    $dynamicChoices['route'] = $this->router->generate($dynamicChoicesRoute);
+                    $sField->setDynamicChoices($dynamicChoices);
+                }
+            }
+
+            // Format field value ("percent" or "currency")
+            if (null !== $config->getOption('attr') && isset($config->getOption('attr')['format'])) {
+                $format = $config->getOption('attr')['format'];
+                if ('percent' === $format || 'currency' === $format) {
+                    $sField->setFormat($format);
+                }
+            }
+
+            // fields types
             do {
-                $blockPrefix = $builtinFormType->getBlockPrefix();
 
-                // attr
-                if (null !== $config->getOption('attr')) {
-                    $sField->setAttr($config->getOption('attr'));
-                }
-
-                // Default value
-                if (null !== $config->getOption('attr') && isset($config->getOption('attr')['defaultValue'])) {
-                    $sField->setDefaultValue($config->getOption('attr')['defaultValue']);
-                }
-
-                // Placeholder field value
-                if (null !== $config->getOption('attr') && isset($config->getOption('attr')['placeholder'])) {
-                    $sField->setPlaceholder($config->getOption('attr')['placeholder']);
-                }
-
-                // Discriminator field value
-                if (null !== $config->getOption('attr') && isset($config->getOption('attr')['discriminator'])) {
-                    $sField->setDiscriminator($config->getOption('attr')['discriminator']);
-                }
-
-                // Dynamic choices field value
-                if (null !== $config->getOption('attr') && isset($config->getOption('attr')['dynamicChoices'])) {
-                    $dynamicChoices = $config->getOption('attr')['dynamicChoices'];
-                    $dynamicChoicesRoute = $dynamicChoices['route'];
-
-                    if (null !== $this->router->generate($dynamicChoicesRoute)) {
-                        $dynamicChoices['route'] = $this->router->generate($dynamicChoicesRoute);
-                        $sField->setDynamicChoices($dynamicChoices);
-                    }
-                }
-
-                // Format field value ("percent" or "currency")
-                if (null !== $config->getOption('attr') && isset($config->getOption('attr')['format'])) {
-                    $format = $config->getOption('attr')['format'];
-                    if ('percent' === $format || 'currency' === $format) {
-                        $sField->setFormat($format);
-                    }
-                }
-
-                // fields types
-                $sField = $this->setFieldConfiguration($config, $blockPrefix, $sField);
-
+                $sField = $this->setFieldConfiguration($config, $builtinFormType->getBlockPrefix(), $sField);
                 break;
 
             } while ($builtinFormType = $builtinFormType->getParent());
