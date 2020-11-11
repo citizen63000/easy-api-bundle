@@ -13,9 +13,10 @@ use {{ use }};
 class {{ entity_name }}Controller extends {{ parent }}
 {
     public const entityClass = {{ entity_name }}::class;
+    public const serializationGroups = [{{ serialization_groups|raw }}];
     public const entityCreateTypeClass = {{ entity_name }}Type::class;
     public const entityUpdateTypeClass = {{ entity_name }}Type::class;
-    public const serializationGroups = [{{ serialization_groups|raw }}];
+    public const listSerializationGroups = [{{ serialization_groups|raw }}];
     public const filterFields = [{{ nativeFieldsNames|raw }}];
     public const filterSortFields = [{{ nativeFieldsNames|raw }}];
 

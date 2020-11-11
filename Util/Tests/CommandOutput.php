@@ -1,8 +1,6 @@
 <?php
 
-
 namespace EasyApiBundle\Util\Tests;
-
 
 class CommandOutput
 {

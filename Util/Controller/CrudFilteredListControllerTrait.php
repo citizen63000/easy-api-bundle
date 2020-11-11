@@ -26,7 +26,7 @@ trait CrudFilteredListControllerTrait
      *         @Swagger\Annotations\Items(
      *              ref=@Nelmio\ApiDocBundle\Annotation\Model(
      *                  type="static::entityClass",
-     *                  groups={"static::serializationGroups"}
+     *                  groups={"static::listSerializationGroups"}
      *              )
      *          )
      *     )

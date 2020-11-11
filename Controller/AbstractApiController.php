@@ -1,6 +1,6 @@
 <?php
 
-namespace EasyApiBundle\Util\Controller;
+namespace EasyApiBundle\Controller;
 
 use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Form\Type\FilterType;
@@ -18,6 +18,11 @@ use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+/**
+ * Class AbstractApiController
+ * @package EasyApiBundle\Controller
+ * @method User|null getUser() Gets the current User.
+ */
 abstract class AbstractApiController extends FOSRestController
 {
     use CoreUtilsTrait;
@@ -33,6 +38,9 @@ abstract class AbstractApiController extends FOSRestController
 
     /** @var array */
     public const serializationGroups = [];
+
+    /** @var array */
+    public const listSerializationGroups = [];
 
     /** @var array  */
     public const filterFields = [];
@@ -58,14 +66,6 @@ abstract class AbstractApiController extends FOSRestController
     protected function getContainer(): ContainerInterface
     {
         return $this->container;
-    }
-
-    /**
-     * @return User
-     */
-    protected function getUser() :?User
-    {
-        return parent::getUser();
     }
 
     /**
@@ -105,11 +105,9 @@ abstract class AbstractApiController extends FOSRestController
      */
     protected function getEntityListAction(string $entityClass = null, array $serializationGroups = null): Response
     {
-        $entityClass = $entityClass ?? static::entityClass;
+        $entities = $this->getRepository($entityClass ?? static::entityClass)->findAll();
 
-        $entities = $this->getDoctrine()->getRepository($entityClass)->findAll();
-
-        return static::renderEntityResponse($entities, $serializationGroups ?? static::serializationGroups);
+        return static::renderEntityResponse($entities, $serializationGroups ?? static::listSerializationGroups);
     }
 
     /**
@@ -120,11 +118,9 @@ abstract class AbstractApiController extends FOSRestController
      */
     protected function getEntityListOrderedAction(string $entityClass = null, array $serializationGroups = null): Response
     {
-        $entityClass = $entityClass ?? static::entityClass;
+        $entities = $this->getRepository($entityClass ?? static::entityClass)->findBy([], ['rank' => 'ASC']);
 
-        $entities = $this->getDoctrine()->getRepository($entityClass)->findBy([], ['rank' => 'ASC']);
-
-        return static::renderEntityResponse($entities, $serializationGroups ?? static::serializationGroups);
+        return static::renderEntityResponse($entities, $serializationGroups ?? static::listSerializationGroups);
     }
 
     /**
@@ -146,17 +142,19 @@ abstract class AbstractApiController extends FOSRestController
                                                    array $serializationGroups = null,
                                                    FilterModel $entityFilterModel = null): Response
     {
+        // type & model
         $entityFilterTypeClass = $entityFilterTypeClass ?? static::entityFilterTypeClass;
         $entityFilterModelClass = static::entityFilterModelClass;
-        $entityFilterModel = $entityFilterModel ?? new $entityFilterModelClass;
+        $entityFilterModel = $entityFilterModel ??  new $entityFilterModelClass;
         $entityFilterModel->setDefaultSort(static::defaultFilterSort);
-        $serializationGroups = $serializationGroups ?? static::serializationGroups;
+        // entity
         $entityClass = $entityClass ?? static::entityClass;
+        $serializationGroups = $serializationGroups ?? static::listSerializationGroups;
+        // filters
         $fields = $fields ?? static::filterFields;
         $sortFields = $sortFields ?? static::filterSortFields;
-
+        //form
         $formOptions = ['method' => 'GET', 'entityClass' => $entityClass, 'fields' => $fields, 'sortFields' => $sortFields];
-
         $form = $this->createForm($entityFilterTypeClass, $entityFilterModel, $formOptions);
         $form->submit($request->query->all());
 
