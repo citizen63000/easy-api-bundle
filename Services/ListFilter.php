@@ -12,17 +12,15 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use \Symfony\Component\Form\FormInterface;
 use \Doctrine\ORM;
+use Symfony\Component\Form\FormTypeInterface;
 
 /**
- * Service qui fabrique la requête à partir d'une classe et d'un model (dans le form),
+ * Service qui fabrique la requête à partir d'une classe et d'un model (dans le form).
  */
 class ListFilter extends AbstractService
 {
     /** @var string class alias used in query */
     public const classAlias = 'e';
-
-    /** @var array ignored model fields */
-    protected static $ignoredFields = [];
 
     /**
      * @param FormInterface $filterForm
@@ -37,60 +35,147 @@ class ListFilter extends AbstractService
         $model = $filterForm->getData();
         $qb = $this->getFilterQueryBuilder($entityClass, $model);
         $filterResult = new FilterResult();
-        $classAlias = self::classAlias;
-        $excluded = array_merge(AbstractFilterType::excluded, static::$ignoredFields);
 
         // value filters
         foreach ($filterForm->all() as $field) {
             $fieldName = $field->getName();
-            if (method_exists($this, $method = "apply{$fieldName}")) {
-                $this->$method($qb, $model->$fieldName);
-            } elseif(null !== $model->$fieldName && !in_array($fieldName, $excluded)) {
-                $fieldConfig = $field->getConfig();
-                $fieldType = $fieldConfig->getType()->getInnerType();
-
-                // linked entity var
-                if($pos = strpos($fieldName, '_')) {
-                    $parts = explode('_', $fieldName);
-                    $nbParts = count($parts)-1;
-                    for($i=0; $i < $nbParts ; ++$i) {
-                        $alias = "{$classAlias}_{$fieldName}";
-                        $qb->innerJoin("{$classAlias}.{$parts[$i]}", $alias);
-                        $classAlias = $alias;
-                    }
-                    $entityFieldName = $parts[$nbParts];
+            if(null !== $model->$fieldName && !in_array($fieldName, AbstractFilterType::excluded)) {
+                if (method_exists($this, $method = "apply{$fieldName}")) {
+                    $this->$method($qb, $model->$fieldName);
                 } else {
-                    $entityFieldName = $fieldName;
-                }
+                    $fieldConfig = $field->getConfig();
+                    $fieldType = $fieldConfig->getType()->getInnerType();
 
-                // field itself
-                if($fieldType instanceof EntityType) {
-                    $alias = "{$classAlias}_{$entityFieldName}";
-                    $qb->innerJoin("{$classAlias}.{$entityFieldName}", $alias);
-                    $qb->andWhere($qb->expr()->eq("{$alias}.id", ":{$alias}"));
-                    $qb->setParameter(":{$alias}", $model->$fieldName);
-                } else {
-                    if($pos = strpos($entityFieldName, '__')) { // interval like fieldName_min or fieldName_max
-                        $realFieldName = substr($entityFieldName, 0, $pos);
-                        $operator = substr($entityFieldName, $pos+1);
-                        $exprOperator = $operator === 'min' ? 'gt' : 'lte';
-                        $qb->andWhere($qb->expr()->$exprOperator("{$classAlias}.{$realFieldName}", ":{$entityFieldName}"));
-                        $qb->setParameter(":{$entityFieldName}", $model->$fieldName);
-                    } else { // value
-                        if($fieldType instanceof TextType) {
-                            $qb->andWhere($qb->expr()->like("{$classAlias}.{$entityFieldName}", ":{$entityFieldName}"));
-                            $qb->setParameter(":{$entityFieldName}", "%{$model->$fieldName}%");
-                        } else  {
-                            $qb->andWhere($qb->expr()->eq("{$classAlias}.{$entityFieldName}", ":{$entityFieldName}"));
-                            $qb->setParameter(":{$entityFieldName}", $model->$fieldName);
-                        }
+                    // linked entity var
+                    if($pos = strpos($fieldName, '_')) {
+                        $this->linkedEntityFilter($qb, $fieldType, $fieldName, $model);
+                    } else {
+                        // field itself
+                        $this->fieldFilter($qb, $fieldType, self::classAlias, $fieldName, $fieldName, $model);
                     }
                 }
             }
-            $classAlias = self::classAlias;
         }
 
-        // sort (field1:asc|desc, field2:asc|desc)
+        $this->sort($qb, $model);
+
+        $filterResult->setResults(AbstractRepository::paginateResult($qb, $model->getPage(), $model->getLimit()));
+        $filterResult->setNbResults((int) AbstractRepository::paginateResult($qb, $model->getPage(), $model->getLimit(), true));
+
+        return $filterResult;
+    }
+
+    /**
+     * @param QueryBuilder $qb
+     * @param FormTypeInterface $fieldType
+     * @param string $fieldName
+     * @param FilterModel $model
+     */
+    protected function linkedEntityFilter(QueryBuilder $qb, FormTypeInterface $fieldType, string $fieldName, FilterModel $model)
+    {
+        $classAlias = self::classAlias;
+        $parts = explode('_', $fieldName);
+        $nbParts = count($parts)-1;
+        for($i=0; $i < $nbParts ; ++$i) {
+            $alias = "{$classAlias}_{$fieldName}";
+            $qb->innerJoin("{$classAlias}.{$parts[$i]}", $alias);
+            $classAlias = $alias;
+        }
+        $this->fieldFilter($qb, $fieldType, $classAlias, $fieldName, $parts[$nbParts], $model);
+    }
+
+    /**
+     * @param QueryBuilder $qb
+     * @param FormTypeInterface $fieldType
+     * @param string $classAlias
+     * @param string $fieldName
+     * @param string $entityFieldName
+     * @param FilterModel $model
+     */
+    protected function fieldFilter(QueryBuilder $qb, FormTypeInterface $fieldType, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model)
+    {
+        if($fieldType instanceof EntityType) {
+            $this->entityTypeFilter($qb, $classAlias, $fieldName, $entityFieldName, $model);
+        } else {
+            if($pos = strpos($entityFieldName, '__')) { // interval like fieldName_min or fieldName_max
+                $this->intervalFilter($qb, $classAlias, $fieldName, $entityFieldName, $model, $pos);
+            } else { // value
+                if($fieldType instanceof TextType) {
+                    $this->textFilter($qb, $classAlias, $fieldName, $entityFieldName, $model);
+                } else  {
+                    $this->defaultFilter($qb, $classAlias, $fieldName, $entityFieldName, $model);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param QueryBuilder $qb
+     * @param string $classAlias
+     * @param string $fieldName
+     * @param string $entityFieldName
+     * @param FilterModel $model
+     */
+    protected function entityTypeFilter(QueryBuilder $qb, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model)
+    {
+        $alias = "{$classAlias}_{$entityFieldName}";
+        $qb->innerJoin("{$classAlias}.{$entityFieldName}", $alias);
+        $qb->andWhere($qb->expr()->eq("{$alias}.id", ":{$alias}"));
+        $qb->setParameter(":{$alias}", $model->$fieldName);
+    }
+
+    /**
+     * Interval like fieldName_min or fieldName_max.
+     * @param QueryBuilder $qb
+     * @param string $classAlias
+     * @param string $fieldName
+     * @param string $entityFieldName
+     * @param FilterModel $model
+     * @param int $operatorPosition
+     */
+    protected function intervalFilter(QueryBuilder $qb, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model, int $operatorPosition)
+    {
+        $realFieldName = substr($entityFieldName, 0, $operatorPosition);
+        $operator = substr($entityFieldName, $operatorPosition+1);
+        $exprOperator = $operator === 'min' ? 'gt' : 'lte';
+        $qb->andWhere($qb->expr()->$exprOperator("{$classAlias}.{$realFieldName}", ":{$entityFieldName}"));
+        $qb->setParameter(":{$entityFieldName}", $model->$fieldName);
+    }
+
+    /**
+     * @param QueryBuilder $qb
+     * @param string $classAlias
+     * @param string $fieldName
+     * @param string $entityFieldName
+     * @param FilterModel $model
+     */
+    protected function textFilter(QueryBuilder $qb, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model)
+    {
+        $qb->andWhere($qb->expr()->like("{$classAlias}.{$entityFieldName}", ":{$entityFieldName}"));
+        $qb->setParameter(":{$entityFieldName}", "%{$model->$fieldName}%");
+    }
+
+    /**
+     * @param QueryBuilder $qb
+     * @param string $classAlias
+     * @param string $fieldName
+     * @param string $entityFieldName
+     * @param FilterModel $model
+     */
+    protected function defaultFilter(QueryBuilder $qb, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model)
+    {
+        $qb->andWhere($qb->expr()->eq("{$classAlias}.{$entityFieldName}", ":{$entityFieldName}"));
+        $qb->setParameter(":{$entityFieldName}", $model->$fieldName);
+    }
+
+    /**
+     * (field1:asc|desc, field2:asc|desc)
+     * @param QueryBuilder $qb
+     * @param FilterModel $model
+     */
+    protected function sort(QueryBuilder $qb, FilterModel $model)
+    {
+        $classAlias = self::classAlias;
         if(!empty($model->getSort())) {
             $strOrders = explode(',', $model->getSort());
             foreach ($strOrders as $order) {
@@ -102,11 +187,6 @@ class ListFilter extends AbstractService
                 $qb->addOrderBy("{$classAlias}.{$field}", $direction);
             }
         }
-
-        $filterResult->setResults(AbstractRepository::paginateResult($qb, $model->getPage(), $model->getLimit()));
-        $filterResult->setNbResults((int) AbstractRepository::paginateResult($qb, $model->getPage(), $model->getLimit(), true));
-
-        return $filterResult;
     }
 
     /**
@@ -116,6 +196,6 @@ class ListFilter extends AbstractService
      */
     protected function getFilterQueryBuilder(string $entityClass, FilterModel $model): QueryBuilder
     {
-        return $this->getRepository($entityClass)->createQueryBuilder(ListFilter::classAlias);
+        return $this->getRepository($entityClass)->createQueryBuilder(static::classAlias);
     }
 }
