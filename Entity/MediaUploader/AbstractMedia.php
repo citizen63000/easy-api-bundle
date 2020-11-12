@@ -10,14 +10,7 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Table(name="media")
- * @ORM\InheritanceType("SINGLE_TABLE")
- * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
- * @ORM\DiscriminatorMap({
- *     "PrivateMedia" = "APICoreBundle\Entity\MediaUploader\PrivateMedia",
- *     "PublicMedia" = "APICoreBundle\Entity\MediaUploader\PublicMedia"
- * })
- * @ORM\Entity
+ * @ORM\MappedSuperclass
  */
 abstract class AbstractMedia extends AbstractBaseEntity
 {
