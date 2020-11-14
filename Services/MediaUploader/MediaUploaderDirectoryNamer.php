@@ -49,12 +49,12 @@ class MediaUploaderDirectoryNamer implements DirectoryNamerInterface
     }
 
     /**
-     * @param $path
+     * @param string|null $path
      * @param AbstractMedia $media
      * @return string
      */
-    private function evalPath($path, AbstractMedia $media)
+    private function evalPath(?string $path, AbstractMedia $media): string
     {
-        return str_replace(['%container_id%', '%object_id%'], [$media->getContainerEntity()->getUuid(), $media->getUuid()], $path);
+        return null != $path ? str_replace(['%container_id%', '%object_id%'], [$media->getContainerEntity()->getUuid(), $media->getUuid()], $path): '';
     }
 }

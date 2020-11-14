@@ -4,6 +4,7 @@ namespace EasyApiBundle\Entity\MediaUploader;
 
 use Doctrine\ORM\Mapping as ORM;
 use EasyApiBundle\Entity\AbstractBaseEntity;
+use EasyApiBundle\Services\MediaUploader\MediaUploaderDirectoryNamer;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\File\File;
@@ -14,6 +15,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 abstract class AbstractMedia extends AbstractBaseEntity
 {
+    protected const directoryNamer = MediaUploaderDirectoryNamer::class;
+
     /**
      * @ORM\Column(name="uuid", type="uuid", length=255, nullable=false)
      *
@@ -49,11 +52,6 @@ abstract class AbstractMedia extends AbstractBaseEntity
      * @var AbstractBaseEntity
      */
     private $containerEntity;
-
-    /**
-     * @var string
-     */
-    private $directoryNamer;
 
     /**
      * AbstractMedia constructor.
@@ -165,15 +163,7 @@ abstract class AbstractMedia extends AbstractBaseEntity
      */
     public function getDirectoryNamer(): ?string
     {
-        return $this->directoryNamer;
-    }
-
-    /**
-     * @param string $directoryNamer
-     */
-    public function setDirectoryNamer(?string $directoryNamer): void
-    {
-        $this->directoryNamer = $directoryNamer;
+        return static::directoryNamer;
     }
 
     /**
