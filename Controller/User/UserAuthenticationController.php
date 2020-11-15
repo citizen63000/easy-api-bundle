@@ -8,7 +8,7 @@ use EasyApiBundle\Exception\ApiProblemException;
 use EasyApiBundle\Util\ApiProblem;
 use FOS\RestBundle\View\View;
 use Gesdinet\JWTRefreshTokenBundle\Entity\RefreshToken;
-use EasyApiBundle\Util\Controller\AbstractApiController;
+use EasyApiBundle\Controller\AbstractApiController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;

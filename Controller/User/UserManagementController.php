@@ -9,7 +9,7 @@ use EasyApiBundle\Util\ApiProblem;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use EasyApiBundle\Util\Controller\AbstractApiController;
+use EasyApiBundle\Controller\AbstractApiController;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
