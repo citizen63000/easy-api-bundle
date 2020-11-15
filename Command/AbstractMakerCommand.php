@@ -72,7 +72,7 @@ abstract class AbstractMakerCommand extends AbstractCommand
     {
         $output->writeln("\n------------- Generate CRUD -------------");
         $generator = new CrudGenerator($this->getContainer());
-        $filesPath = $generator->generate($bundle, $context, $entityName, $parent, $dumpExistingFiles);
+        $filesPath = $generator->generate($bundle, $context, $entityName, $dumpExistingFiles);
         foreach ($filesPath as $type => $file) {
             $type = ucfirst($type);
             $output->writeln("file://{$file} created.");

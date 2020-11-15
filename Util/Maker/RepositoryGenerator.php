@@ -1,6 +1,5 @@
 <?php
 
-
 namespace EasyApiBundle\Util\Maker;
 
 use EasyApiBundle\Model\Maker\EntityConfiguration;
@@ -25,10 +24,10 @@ class RepositoryGenerator extends AbstractGenerator
     }
 
     /**
-     * @param $bundle string
-     * @param $context string
-     * @param $entityName string
-     * @param $dumpExistingFiles boolean
+     * @param string $bundle
+     * @param string $entityName
+     * @param string|null $context
+     * @param bool $dumpExistingFiles
      *
      * @return array paths to the generated files
      */
@@ -57,6 +56,7 @@ class RepositoryGenerator extends AbstractGenerator
     /**+
      * @param string $type
      * @param bool $dumpExistingFiles
+     * @return string
      */
     protected function updateEntity(string $type, bool $dumpExistingFiles = false)
     {
@@ -88,23 +88,4 @@ class RepositoryGenerator extends AbstractGenerator
 
         return $this->container->getParameter('kernel.project_dir').'/'.$file;
     }
-
-//    protected function updateYamlConfig($dumpExistingFiles)
-//    {
-//        // Modify the doctrine config to activate it
-//        $files[] = $ymlFilePath = static::generateYamlFilePath($bundle, $context, $entityName);
-//        $repositoryPath = "$bundle\\\\Repository\\\\$context\\\\$entityName".'Repository';
-//        $ymlContent = file_get_contents($ymlFilePath);
-//
-//        // move file
-//        if ($dumpExistingFiles && file_exists($ymlFilePath)) {
-//            rename($ymlFilePath, "{$ymlFilePath}.old");
-//        }
-//
-//        if (!preg_match('/repositoryClass: [a-zA-Z0-9_\\\\]+/', $ymlContent)) {
-//            file_put_contents($ymlFilePath, preg_replace('/table: ([a-zA-Z0-9_]+)/', "table: $1\n    repositoryClass: $repositoryPath", $ymlContent));
-//        } else {
-//            file_put_contents($ymlFilePath, preg_replace('/repositoryClass: ([a-zA-Z0-9_\\\\]+)/', "repositoryClass: $repositoryPath", $ymlContent));
-//        }
-//    }
 }

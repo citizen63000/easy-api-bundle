@@ -1,10 +1,9 @@
 <?php
 
-
 namespace EasyApiBundle\Util\Maker;
 
-
 use EasyApiBundle\Util\StringUtils\CaseConverter;
+use Twig\Error\Error;
 
 class CrudGenerator extends AbstractGenerator
 {
@@ -14,17 +13,16 @@ class CrudGenerator extends AbstractGenerator
     protected static $templatesDirectory = 'Doctrine/';
 
     /**
-     * @param $bundle string
-     * @param $context string
-     * @param $entityName string
-     * @param $parentEntityName string
-     * @param $dumpExistingFiles boolean
+     * @param string $bundle
+     * @param string|null $context
+     * @param string $entityName
+     * @param bool $dumpExistingFiles
      *
      * @return array paths to the generated files
      *
-     * @throws \Twig\Error\Error
+     * @throws Error
      */
-    public function generate($bundle, $context, $entityName, $parentEntityName, $dumpExistingFiles = false)
+    public function generate(string $bundle, ?string $context, string $entityName, bool $dumpExistingFiles = false)
     {
         $this->config = $this->loadEntityConfig($entityName, $bundle, $context);
         $paths = [];
@@ -37,53 +35,28 @@ class CrudGenerator extends AbstractGenerator
     /**
      * Generate Controller file.
      *
-     * @param $dumpExistingFiles boolean
+     * @param bool $dumpExistingFiles
      *
      * @return string
-     *
-     * @throws \Twig\Error\Error
      */
-    protected function generateController($dumpExistingFiles)
+    protected function generateController(bool $dumpExistingFiles)
     {
         $fileContent = $this->getContainer()->get('templating')->render(
             $this->getTemplatePath('doctrine/crud_controller.php.twig'),
             $this->generateContent()
         );
 
-        return "{$this->container->getParameter('kernel.project_dir')}/".$this->writeFile($this->getControllerDirectoryPath(), $this->config->getEntityName().'Controller.php', $fileContent, $dumpExistingFiles);
-    }
-
-    /**
-     * Generate routing file.
-     *
-     * @param $dumpExistingFiles boolean
-     *
-     * @return string
-     *
-     * @throws \Twig\Error\Error
-     */
-    protected function generateRouting($dumpExistingFiles)
-    {
-        // Generate general routing file
-        $this->generateBundleRoutingFile($dumpExistingFiles);
-
-        // Generate specific routing file
-        $fileContent = $this->getContainer()->get('templating')->render(
-            $this->getTemplatePath('doctrine/crud_routing.yml.twig'),
-            $this->generateContent()
-        );
-
-        return "{$this->container->getParameter('kernel.project_dir')}/".$this->writeFile($this->getRoutingDirectoryPath(), $this->config->getEntityName().'.yml', $fileContent, $dumpExistingFiles);
+        return $this->writeFile($this->getControllerDirectoryPath(), $this->config->getEntityName().'Controller.php', $fileContent, $dumpExistingFiles, true);
     }
 
     /**
      * Generate the general routing file of the bundle to link the specific routing file.
      *
-     * @param $dumpExistingFiles
+     * @param bool $dumpExistingFiles
      *
      * @return bool|int
      */
-    protected function generateBundleRoutingFile($dumpExistingFiles)
+    protected function generateRouting(bool $dumpExistingFiles)
     {
         $bundleName = $this->config->getBundleName();
         $routingFilePath = "src/{$bundleName}/Resources/config/";
@@ -103,7 +76,7 @@ class CrudGenerator extends AbstractGenerator
             echo $e->getMessage();
         }
 
-        return $this->writeFile($routingFilePath, 'routing.yml', $content, $dumpExistingFiles);
+        return $this->writeFile($routingFilePath, 'routing.yml', $content, $dumpExistingFiles, true);
     }
 
     /**
@@ -157,12 +130,13 @@ class CrudGenerator extends AbstractGenerator
             "{$bundle}\\Form\Type\\".(!empty($context) ? "{$context}\\" : '')."{$this->config->getEntityName()}Type",
         ];
 
-        $content = [
+        return [
             'namespace' => "{$bundle}\\Controller".(!empty($context) ? "\\{$context}" : ''),
             'parent' => EntityConfigLoader::getShortEntityType($this->container->getParameter('easy_api.inheritance.controller')),
             'entity_name' => $this->config->getEntityName(),
-            'bundle_name' => $this->config->getBundleName(),
-            'routing_url' => "{$this->config->getBundleName()}/Resources/config/routing/".(!empty($context) ? "{$transformedContext}/" : '')."{$this->config->getEntityName()}.yml",
+            'bundle_name' => $bundle,
+            'routing_url' => "{$bundle}/Resources/config/routing/".(!empty($context) ? "{$transformedContext}/" : '')."{$this->config->getEntityName()}.yml",
+            'controller_url' => "{$bundle}/Controller/".(!empty($context) ? "{$transformedContext}/" : '').$this->config->getEntityName().'Controller.php',
             'context_name' => $context,
             'route_name_prefix' => $this->getRouteNamePrefix(),
             'entity_route_name' => CaseConverter::convertToPascalCase($this->config->getEntityName()),
@@ -172,8 +146,6 @@ class CrudGenerator extends AbstractGenerator
             'routingControllerPath' => "{$bundle}:".(!empty($context) ? "{$context}\\" : '').$this->config->getEntityName(),
             'nativeFieldsNames' => implode(', ', array_map(function($val) { return "'{$val}'"; }, $this->config->getNativeFieldsNames(false))),
         ];
-
-        return $content;
     }
 
     /**
@@ -183,7 +155,7 @@ class CrudGenerator extends AbstractGenerator
     {
         $groups = ['\''.CaseConverter::convertToPascalCase($this->config->getEntityName()).'_full\''];
 
-        // parent secrializer groups
+        // parent serializer groups
         $parentConfig = $this->config->getParentEntity();
         if (null !== $parentConfig) {
             $groups[] = '\''.CaseConverter::convertToPascalCase($parentConfig->getEntityName()).'_full\'';

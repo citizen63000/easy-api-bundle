@@ -2,12 +2,14 @@
 
 namespace {{ namespace }};
 
+use Symfony\Component\Routing\Annotation\Route;
 use Swagger\Annotations as SWG;
 {% for use in uses %}
 use {{ use }};
 {% endfor %}
 
 /**
+ * @Route("/{{ entity_url_name }}", name="{{ route_name_prefix }}_{{ entity_route_name }}")
  * @SWG\Tag(name="{{ entity_name }}")
  */
 class {{ entity_name }}Controller extends {{ parent }}

@@ -98,14 +98,14 @@ class AbstractGenerator
     }
 
     /**
-     * @param $directory string
-     * @param $filename string
-     * @param $fileContent string
-     * @param $dumpExistingFiles boolean
-     *
+     * @param string $directory
+     * @param string $filename
+     * @param string $fileContent
+     * @param bool $dumpExistingFiles
+     * @param bool $returnAbsolutePath
      * @return string
      */
-    protected function writeFile($directory, $filename, $fileContent, $dumpExistingFiles = false)
+    protected function writeFile(string $directory, string $filename, string $fileContent, bool $dumpExistingFiles = false, bool $returnAbsolutePath = false)
     {
         $destinationFile = '/' === $directory[strlen($directory)-1] ? "{$directory}{$filename}" : "{$directory}/{$filename}";
 
@@ -120,7 +120,7 @@ class AbstractGenerator
 
         file_put_contents($destinationFile, $fileContent);
 
-        return $destinationFile;
+        return ($returnAbsolutePath ? "{$this->container->getParameter('kernel.project_dir')}/" : '').$destinationFile;
     }
 
     /**

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace EasyApiBundle\Util\Maker;
-
 
 use EasyApiBundle\Model\Maker\EntityConfiguration;
 use EasyApiBundle\Model\Maker\EntityField;
@@ -10,12 +8,11 @@ use EasyApiBundle\Model\Maker\EntityField;
 class FormGenerator extends AbstractGenerator
 {
     /**
-     * @param $bundle string
-     * @param $context string
-     * @param $entityName string
-     * @param $parent string
-     * @param $dumpExistingFiles boolean
-     *
+     * @param string $bundle
+     * @param string $context
+     * @param string $entityName
+     * @param string|null $parent
+     * @param bool $dumpExistingFiles
      * @return string
      */
     public function generate(string $bundle, string $context, string $entityName, string $parent = null, bool $dumpExistingFiles = false)
@@ -30,7 +27,7 @@ class FormGenerator extends AbstractGenerator
             $this->generateContent($parent)
         );
 
-        return "{$this->container->getParameter('kernel.project_dir')}/".$this->writeFile($destinationDir, $filename, $fileContent, $dumpExistingFiles);
+        return $this->writeFile($destinationDir, $filename, $fileContent, $dumpExistingFiles, true);
     }
 
     /**
@@ -52,8 +49,9 @@ class FormGenerator extends AbstractGenerator
         $bundle = $this->config->getBundleName();
         $context = str_replace('/', '\\', $this->config->getContextName());
         $content = ['fields' => [], 'uses' => [$this->config->getFullName() => $this->config->getFullName()], '__construct' => ['fields' => []]];
+        $parentConfig = $this->getConfig()->getParentEntity();
 
-        if (null === $parent && $parentConfig = $this->getConfig()->getParentEntity()) {
+        if (null === $parent && $parentConfig && $parentConfig->getEntityName() !== 'AbstractBaseEntity') {
             $content['uses'][] = "{$this->config->getBundleName()}\Form\Type\\".$parentConfig->getContextName().'\\'.$parentConfig->getEntityName().'Type';
             $content['parent'] = $parentConfig->getEntityName();
         } elseif(null !== $parent) {
