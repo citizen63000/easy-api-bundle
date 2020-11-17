@@ -134,17 +134,21 @@ abstract class AbstractFilterType extends AbstractApiType
                     } elseif(strpos($fieldName, '.')) {
                         $nodes = explode('.', $fieldName);
                         $field = $entityConfiguration->getField($nodes[0]);
-                        $nbNodes = count($nodes);
-                        for ($i = 1; $i < $nbNodes; ++$i) {
-                            $entityConfiguration = EntityConfigLoader::createEntityConfigFromEntityFullName($field->getEntityType());
-                            if($entityConfiguration->hasField($nodes[$i])){
-                                $field = $entityConfiguration->getField($nodes[$i]);
-                            } else {
-                                throw new EntityNotFoundException("Field {$nodes[$i]} not found on {$entityConfiguration} entity");
+                        if(null !== $field) {
+                            $nbNodes = count($nodes);
+                            for ($i = 1; $i < $nbNodes; ++$i) {
+                                $subEntityConfiguration = EntityConfigLoader::createEntityConfigFromEntityFullName($field->getEntityType());
+                                if($subEntityConfiguration->hasField($nodes[$i])){
+                                    $field = $subEntityConfiguration->getField($nodes[$i]);
+                                } else {
+                                    throw new EntityNotFoundException("Field {$nodes[$i]} not found on {$subEntityConfiguration} entity");
+                                }
                             }
+                            $fieldName = implode('_', $nodes);
+                            $this->addFilterField($builder, $field, $fieldName);
+                        } else {
+                            throw new EntityNotFoundException("Field {$nodes[0]} not found on {$entityConfiguration} entity");
                         }
-                        $fieldName = implode('_', $nodes);
-                        $this->addFilterField($builder, $field, $fieldName);
                     } else {
                         $this->addTextFilter($builder, $fieldName);
                     }
