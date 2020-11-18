@@ -10,9 +10,9 @@ use EasyApiBundle\Util\AbstractRepository;
 use EasyApiBundle\Util\AbstractService;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormConfigBuilderInterface;
 use \Symfony\Component\Form\FormInterface;
 use \Doctrine\ORM;
-use Symfony\Component\Form\FormTypeInterface;
 
 /**
  * Service qui fabrique la requête à partir d'une classe et d'un model (dans le form).
@@ -37,21 +37,17 @@ class ListFilter extends AbstractService
         $filterResult = new FilterResult();
 
         // value filters
-        foreach ($filterForm->all() as $field) {
-            $fieldName = $field->getName();
+        foreach ($filterForm->all() as $fieldName => $field) {
             if(null !== $model->$fieldName && !in_array($fieldName, AbstractFilterType::excluded)) {
                 if (method_exists($this, $method = "apply{$fieldName}")) {
                     $this->$method($qb, $model->$fieldName);
                 } else {
-                    $fieldConfig = $field->getConfig();
-                    $fieldType = $fieldConfig->getType()->getInnerType();
-
                     // linked entity var
                     if($pos = strpos($fieldName, '_')) {
-                        $this->linkedEntityFilter($qb, $fieldType, $fieldName, $model);
+                        $this->linkedEntityFilter($qb, $field->getConfig(), $fieldName, $model);
                     } else {
                         // field itself
-                        $this->fieldFilter($qb, $fieldType, self::classAlias, $fieldName, $fieldName, $model);
+                        $this->fieldFilter($qb, $field->getConfig(), self::classAlias, $fieldName, $fieldName, $model);
                     }
                 }
             }
@@ -67,11 +63,11 @@ class ListFilter extends AbstractService
 
     /**
      * @param QueryBuilder $qb
-     * @param FormTypeInterface $fieldType
+     * @param FormConfigBuilderInterface $fieldConfig
      * @param string $fieldName
      * @param FilterModel $model
      */
-    protected function linkedEntityFilter(QueryBuilder $qb, FormTypeInterface $fieldType, string $fieldName, FilterModel $model)
+    protected function linkedEntityFilter(QueryBuilder $qb, FormConfigBuilderInterface $fieldConfig, string $fieldName, FilterModel $model)
     {
         $classAlias = self::classAlias;
         $parts = explode('_', $fieldName);
@@ -81,19 +77,20 @@ class ListFilter extends AbstractService
             $qb->innerJoin("{$classAlias}.{$parts[$i]}", $alias);
             $classAlias = $alias;
         }
-        $this->fieldFilter($qb, $fieldType, $classAlias, $fieldName, $parts[$nbParts], $model);
+        $this->fieldFilter($qb, $fieldConfig, $classAlias, $fieldName, $parts[$nbParts], $model);
     }
 
     /**
      * @param QueryBuilder $qb
-     * @param FormTypeInterface $fieldType
+     * @param FormConfigBuilderInterface $fieldConfig
      * @param string $classAlias
      * @param string $fieldName
      * @param string $entityFieldName
      * @param FilterModel $model
      */
-    protected function fieldFilter(QueryBuilder $qb, FormTypeInterface $fieldType, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model)
+    protected function fieldFilter(QueryBuilder $qb, FormConfigBuilderInterface $fieldConfig, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model)
     {
+        $fieldType = $fieldConfig->getType()->getInnerType();
         if($fieldType instanceof EntityType) {
             $this->entityTypeFilter($qb, $classAlias, $fieldName, $entityFieldName, $model);
         } else {
@@ -120,7 +117,7 @@ class ListFilter extends AbstractService
     {
         $alias = "{$classAlias}_{$entityFieldName}";
         $qb->innerJoin("{$classAlias}.{$entityFieldName}", $alias);
-        $qb->andWhere($qb->expr()->eq("{$alias}.id", ":{$alias}"));
+        $qb->andWhere($qb->expr()->eq("{$alias}}", ":{$alias}"));
         $qb->setParameter(":{$alias}", $model->$fieldName);
     }
 
