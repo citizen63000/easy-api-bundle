@@ -117,7 +117,7 @@ class ListFilter extends AbstractService
     {
         $alias = "{$classAlias}_{$entityFieldName}";
         $qb->innerJoin("{$classAlias}.{$entityFieldName}", $alias);
-        $qb->andWhere($qb->expr()->eq("{$alias}}", ":{$alias}"));
+        $qb->andWhere($qb->expr()->eq("{$alias}", ":{$alias}"));
         $qb->setParameter(":{$alias}", $model->$fieldName);
     }
 
