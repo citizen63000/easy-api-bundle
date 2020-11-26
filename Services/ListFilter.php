@@ -135,8 +135,9 @@ class ListFilter extends AbstractService
         $realFieldName = substr($entityFieldName, 0, $operatorPosition);
         $operator = substr($entityFieldName, $operatorPosition+1);
         $exprOperator = $operator === 'min' ? 'gt' : 'lte';
-        $qb->andWhere($qb->expr()->$exprOperator("{$classAlias}.{$realFieldName}", ":{$entityFieldName}"));
-        $qb->setParameter(":{$entityFieldName}", $model->$fieldName);
+        $alias = ":{$classAlias}_{$exprOperator}_{$entityFieldName}";
+        $qb->andWhere($qb->expr()->$exprOperator("{$classAlias}.{$realFieldName}", $alias));
+        $qb->setParameter($alias, $model->$fieldName);
     }
 
     /**
@@ -148,8 +149,9 @@ class ListFilter extends AbstractService
      */
     protected function textFilter(QueryBuilder $qb, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model)
     {
-        $qb->andWhere($qb->expr()->like("{$classAlias}.{$entityFieldName}", ":{$entityFieldName}"));
-        $qb->setParameter(":{$entityFieldName}", "%{$model->$fieldName}%");
+        $alias = ":{$classAlias}_{$entityFieldName}";
+        $qb->andWhere($qb->expr()->like("{$classAlias}.{$entityFieldName}", $alias));
+        $qb->setParameter($alias, "%{$model->$fieldName}%");
     }
 
     /**
@@ -161,8 +163,9 @@ class ListFilter extends AbstractService
      */
     protected function defaultFilter(QueryBuilder $qb, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model)
     {
-        $qb->andWhere($qb->expr()->eq("{$classAlias}.{$entityFieldName}", ":{$entityFieldName}"));
-        $qb->setParameter(":{$entityFieldName}", $model->$fieldName);
+        $alias = ":{$classAlias}_{$entityFieldName}";
+        $qb->andWhere($qb->expr()->eq("{$classAlias}.{$entityFieldName}", $alias));
+        $qb->setParameter($alias, $model->$fieldName);
     }
 
     /**
