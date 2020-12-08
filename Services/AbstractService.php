@@ -1,15 +1,15 @@
 <?php
 
-namespace EasyApiBundle\Util;
+namespace EasyApiBundle\Services;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Registry;
+use EasyApiBundle\Entity\User\AbstractUser;
+use EasyApiBundle\Util\CoreUtilsTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 abstract class AbstractService
 {
@@ -21,15 +21,18 @@ abstract class AbstractService
     protected $container;
 
     /**
-     * @var User|null
+     * @var AbstractUser|null
      */
     protected $user;
 
     /**
      * DocumentGenerator constructor.
      *
-     * @param ContainerInterface $container
-     * @param TokenStorageInterface|null $tokenStorage
+     * @todo: replace by ServiceLocator
+     * see https://symfony.com/doc/current/service_container/service_subscribers_locators.html
+     *
+     * @param ContainerInterface     $container
+     * @param TokenStorageInterface $tokenStorage
      */
     public function __construct(ContainerInterface $container, TokenStorageInterface $tokenStorage = null)
     {
@@ -43,8 +46,7 @@ abstract class AbstractService
      *
      * @return object
      *
-     * @throws ServiceCircularReferenceException When a circular reference is detected
-     * @throws ServiceNotFoundException          When the service is not defined
+     * @throws \Exception
      */
     protected function get($id, $invalidBehavior = Container::EXCEPTION_ON_INVALID_REFERENCE)
     {
@@ -52,7 +54,7 @@ abstract class AbstractService
     }
 
     /**
-     * @return Container
+     * @return ContainerInterface
      */
     protected function getContainer()
     {
@@ -62,17 +64,19 @@ abstract class AbstractService
     /**
      * Shortcut to return the Doctrine Registry service.
      *
-     * @return ManagerRegistry
-     *
-     * @throws \Exception
+     * @return Registry|null
      */
     protected function getDoctrine()
     {
-        return $this->container->get('doctrine');
+        try {
+            return $this->container->get('doctrine');
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**
-     * @return User|null
+     * @return AbstractUser|null
      */
     protected function getUser()
     {
@@ -92,11 +96,15 @@ abstract class AbstractService
     /**
      * Renders a view.
      *
-     * @param string $view The view name
-     * @param array $parameters An array of parameters to pass to the view
-     * @param Response|null $response A response instance
+     * @param string   $view       The view name
+     * @param array    $parameters An array of parameters to pass to the view
+     * @param Response $response   A response instance
      *
      * @return Response A Response instance
+     *
+     * @final since version 3.4
+     *
+     * @throws \Exception
      */
     protected function render(string $view, array $parameters = [], Response $response = null)
     {

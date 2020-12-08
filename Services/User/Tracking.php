@@ -7,7 +7,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use EasyApiBundle\Entity\User\AbstractUser as User;
 use EasyApiBundle\Entity\User\AbstractConnectionHistory as ConnectionHistory;
-use EasyApiBundle\Util\AbstractService;
+use EasyApiBundle\Services\AbstractService;
 use Symfony\Component\HttpFoundation\Request;
 use UserAgentParser\Exception\NoResultFoundException;
 use UserAgentParser\Exception\PackageNotLoadedException;
@@ -21,8 +21,6 @@ class Tracking extends AbstractService
 
     /**
      * @return array
-     *
-     * @throws PackageNotLoadedException
      */
     protected function getProviders()
     {

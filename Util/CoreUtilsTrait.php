@@ -5,6 +5,7 @@ namespace EasyApiBundle\Util;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityRepository;
 use EasyApiBundle\Services\User\UserManager;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 use \Symfony\Component\DependencyInjection\ContainerInterface;
 use \Doctrine\Common\Persistence\ObjectManager;
 
@@ -87,6 +88,14 @@ trait CoreUtilsTrait
         return $this->container->get('app.user.manager');
     }
 
+    /**
+     * @return AdapterInterface
+     */
+    protected function getCache(): AdapterInterface
+    {
+        return $this->getContainer()->get('cache.app');
+    }
+
 //    /**
 //     * @return CoreMailer
 //     */
@@ -94,7 +103,7 @@ trait CoreUtilsTrait
 //    {
 //        return $this->getContainer()->get('api_mailer');
 //    }
-
+//
 //    /**
 //     * @return FileUploader
 //     */

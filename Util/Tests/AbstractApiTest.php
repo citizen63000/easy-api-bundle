@@ -18,6 +18,7 @@ abstract class AbstractApiTest extends WebTestCase
     use ApiTestRequesterTrait;
     use ApiTestDataLoaderTrait;
     use AssertionsTrait;
+    use TestUtilsTrait;
 
     // region Constants
 
@@ -26,14 +27,17 @@ abstract class AbstractApiTest extends WebTestCase
     protected const requiredFields = [];
     protected const defaultEntityId = 1;
 
+    public const USER_TEST_ID = 1;
     public const USER_TEST_USERNAME = '[API-TESTS]';
     public const USER_TEST_EMAIL = 'api-tests@example.com';
     public const USER_TEST_PASSWORD = 'IloveToBreakYourHopes!';
 
+    public const USER_ADMIN_TEST_ID = 2;
     public const USER_ADMIN_TEST_USERNAME = '[API-TESTS-ADMIN]';
     public const USER_ADMIN_TEST_EMAIL = 'api-tests-admin@example.com';
     public const USER_ADMIN_TEST_PASSWORD = 'IloveToBreakYourHopes!';
 
+    public const USER_NORULES_ADMIN_TEST_ID = 3;
     public const USER_NORULES_TEST_USERNAME = '[API-TESTS-NO-RULES]';
     public const USER_NORULES_TEST_EMAIL = 'api-tests-no-rules@example.com';
     public const USER_NORULES_TEST_PASSWORD = 'u-norules-pwd';

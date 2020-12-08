@@ -35,7 +35,11 @@ trait APITestCacheManagementTrait
     {
         $key = str_replace(['{', '}', '(', ')', '/', '\\', '@'], '_ESCAPED_', $key);
 
-        return self::$cache->getItem($key);
+        try {
+            return static::$cache->getItem($key);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
 }

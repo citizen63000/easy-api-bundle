@@ -2,9 +2,9 @@
 
 namespace EasyApiBundle\Services\User;
 
+use EasyApiBundle\Services\AbstractService;
 use FOS\UserBundle\Model\User;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationSuccessEvent;
-use EasyApiBundle\Util\AbstractService;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserManager extends AbstractService
@@ -32,6 +32,4 @@ class UserManager extends AbstractService
 
         return $event->getData();
     }
-
-
 }

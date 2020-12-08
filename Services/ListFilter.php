@@ -7,7 +7,6 @@ use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Form\Type\AbstractFilterType;
 use EasyApiBundle\Model\FilterResult;
 use EasyApiBundle\Util\AbstractRepository;
-use EasyApiBundle\Util\AbstractService;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormConfigBuilderInterface;
@@ -72,7 +71,7 @@ class ListFilter extends AbstractService
         $classAlias = self::classAlias;
         $parts = explode('_', $fieldName);
         $nbParts = count($parts)-1;
-        for($i=0; $i < $nbParts ; ++$i) {
+        for($i = 0; $i < $nbParts ; ++$i) {
             $alias = "{$classAlias}_{$fieldName}";
             $qb->innerJoin("{$classAlias}.{$parts[$i]}", $alias);
             $classAlias = $alias;
