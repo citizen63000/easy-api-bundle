@@ -148,7 +148,6 @@ final class SwaggerPhpDescriber implements ModelRegistryAwareInterface
                         $operation = new $annotationClass(['_context' => $context]);
                         $operation->path = $path;
                         $operation->mergeProperties($annotation);
-
                         $operations[$httpMethod] = $operation;
                         $analysis->addAnnotation($operation, null);
                     }

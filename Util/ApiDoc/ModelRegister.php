@@ -46,6 +46,7 @@ final class ModelRegister
     /**
      * @param Analysis $analysis
      * @param array|null $parentGroups
+     * @throws \Exception
      */
     public function __invoke(Analysis $analysis, array $parentGroups = null)
     {
@@ -55,10 +56,15 @@ final class ModelRegister
             if ($annotation instanceof Schema && $annotation->ref instanceof ModelAnnotation) {
                 $model = $annotation->ref;
 
-                //@author citizen63000
+                // ------- @author citizen63000 -------
                 if(0 === strpos($model->type, 'static::')) {
                     $model->type = constant(str_replace('static', $model->_context->flullClassname, $model->type));
                 }
+
+                if(null === $model->type) {
+                    throw new \Exception("Class(es) missing for {$model->_context->method} method in controler {$model->_context->flullClassname}, did you forget entityClass, entityCreateTypeClass or entityUpdateTypeClass constant ?");
+                }
+                // -------------------------------------
 
                 $annotation->ref = $this->modelRegistry->register(new Model($this->createType($model->type), $this->getGroups($model, $parentGroups), $model->options));
 
