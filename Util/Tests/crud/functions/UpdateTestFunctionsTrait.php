@@ -16,13 +16,14 @@ trait UpdateTestFunctionsTrait
      * @param array $params
      * @param string|null $userLogin
      * @param string|null $userPassword
+     * @param bool $doGetTest
      * @throws \Exception
      */
-    protected function doTestUpdate(?int $id, string $filename, array $params = [], string $userLogin = null, string $userPassword = null): void
+    protected function doTestUpdate(?int $id, string $filename, array $params = [], string $userLogin = null, string $userPassword = null, bool $doGetTest = true): void
     {
         $id = $id ?? static::defaultEntityId;
         $params = array_merge(['id' => $id], $params);
-        $data = $this->getDataSent($filename, 'Update');
+        $data = $this->getDataSent($filename, self::$updateActionType);
 
         // Request
         $apiOutput = self::httpPutWithLogin(['name' => static::getUpdateRouteName(), 'params' => $params], $userLogin, $userPassword, $data);
@@ -35,16 +36,18 @@ trait UpdateTestFunctionsTrait
         static::assertEquals($expectedResult, $result);
 
         // Get after put
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $id]], $userLogin, $userPassword);
-        static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
-        $result = $apiOutput->getData();
-        $expectedResult = $this->getExpectedResponse($filename, 'Update', $result, true);
-        static::assertAssessableContent($expectedResult, $result);
-        static::assertEquals($expectedResult, $result);
+        if($doGetTest) {
+            $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $id]], $userLogin, $userPassword);
+            static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
+            $result = $apiOutput->getData();
+            $expectedResult = $this->getExpectedResponse($filename, 'Update', $result, true);
+            static::assertAssessableContent($expectedResult, $result);
+            static::assertEquals($expectedResult, $result);
+        }
     }
 
     /**
-     * GET - Error case - not found.
+     * GET - Error case - entity not found.
      * @param int|null $id
      * @param array $params
      * @param string|null $userLogin
@@ -75,6 +78,7 @@ trait UpdateTestFunctionsTrait
      * @param array $params
      * @param string|null $userLogin
      * @param string|null $userPassword
+     * @throws \Exception
      */
     protected function doTestUpdateWithoutRight(int $id = null, array $params = [], string $userLogin = null, string $userPassword = null): void
     {
@@ -88,5 +92,27 @@ trait UpdateTestFunctionsTrait
         $apiOutput = self::httpPutWithLogin(['name' => static::getUpdateRouteName(), 'params' => $params], $userLogin, $userPassword, []);
 
         static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
+    }
+
+    /**
+     * PUT - Error case - 403 - Forbidden action.
+     * @param int|null $id
+     * @param string|null $filename
+     * @param array $params
+     * @param string|null $userLogin
+     * @param string|null $userPassword
+     * @param array $messages
+     * @param int $errorCode
+     * @throws \Exception
+     */
+    protected function doTestUpdateForbiddenAction(int $id = null, string $filename = null, array $params = [], string $userLogin = null, string $userPassword = null, $messages = [ApiProblem::FORBIDDEN], $errorCode = Response::HTTP_FORBIDDEN): void
+    {
+        $params = array_merge(['id' => $id ?? static::defaultEntityId], $params);
+
+        $data = null != $filename ? $this->getDataSent($filename, self::$updateActionType) : [];
+
+        $apiOutput = self::httpPutWithLogin(['name' => static::getUpdateRouteName(), 'params' => $params], $userLogin, $userPassword, $data);
+
+        static::assertApiProblemError($apiOutput, $errorCode, $messages);
     }
 }

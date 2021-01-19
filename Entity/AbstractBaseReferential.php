@@ -21,7 +21,6 @@ abstract class AbstractBaseReferential
     /**
      * @var string
      * @ORM\Column(type="string", length=32)
-     * @Groups({"abstract_referential_full", "abstract_base_referential_full"})
      * @Groups({"referential_full", "referential_short", "abstract_base_referential_full", "abstract_base_referential_short"})
      */
     protected $code;
@@ -49,17 +48,17 @@ abstract class AbstractBaseReferential
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
     /**
-     * @param int $id
+     * @param int|null $id
      */
-    public function setId(int $id): void
+    public function setId(?int $id): void
     {
         $this->id = $id;
     }
@@ -81,17 +80,17 @@ abstract class AbstractBaseReferential
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getRank(): int
+    public function getRank(): ?int
     {
         return $this->rank;
     }
 
     /**
-     * @param int $rank
+     * @param int|null $rank
      */
-    public function setRank(int $rank): void
+    public function setRank(?int $rank): void
     {
         $this->rank = $rank;
     }

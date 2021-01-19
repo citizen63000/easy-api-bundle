@@ -19,7 +19,7 @@ trait CreateTestFunctionsTrait
      */
     protected function doTestCreate(string $filename, array $params = [], string $userLogin = null, string $userPassword = null): void
     {
-        $data = $this->getDataSent($filename, 'Create');
+        $data = $this->getDataSent($filename, self::$createActionType);
 
         // Request
         $apiOutput = self::httpPostWithLogin(['name' => static::getCreateRouteName(), 'params' => $params], $userLogin, $userPassword, $data);
@@ -33,7 +33,6 @@ trait CreateTestFunctionsTrait
 
         // Get after post
         $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $expectedResult['id']]], $userLogin, $userPassword);
-
         static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
         $result = $apiOutput->getData();
         $expectedResult = $this->getExpectedResponse($filename, 'Create', $result, true);
@@ -67,5 +66,25 @@ trait CreateTestFunctionsTrait
         $apiOutput = self::httpPostWithLogin(['name' => static::getCreateRouteName(), 'params' => $params], $userLogin, $userPassword, []);
 
         static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
+    }
+
+    /**
+     * POST - Error case - 403 - Forbidden action.
+     * @param int|null $id
+     * @param string|null $filename
+     * @param array $params
+     * @param string|null $userLogin
+     * @param string|null $userPassword
+     * @param array $messages
+     * @param int $errorCode
+     * @throws \Exception
+     */
+    protected function doTestCreateForbiddenAction(int $id = null, string $filename = null, array $params = [], string $userLogin = null, string $userPassword = null, $messages = [ApiProblem::RESTRICTED_ACCESS], $errorCode = Response::HTTP_UNPROCESSABLE_ENTITY): void
+    {
+        $data = null != $filename ? $this->getDataSent($filename, self::$createActionType) : [];
+
+        $apiOutput = self::httpPostWithLogin(['name' => static::getCreateRouteName(), 'params' => $params], $userLogin, $userPassword, $data);
+
+        static::assertApiProblemError($apiOutput, $errorCode, $messages);
     }
 }
