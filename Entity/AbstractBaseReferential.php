@@ -42,7 +42,7 @@ abstract class AbstractBaseReferential
     /**
      * @return string|null
      */
-    public function __toString()
+    public function __toString(): ?string
     {
         return $this->getName();
     }
@@ -66,13 +66,29 @@ abstract class AbstractBaseReferential
     /**
      * @return string
      */
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    /**
+     * @param string|null $code
+     */
+    public function setCode(?string $code): void
+    {
+        $this->code = $code;
+    }
+
+    /**
+     * @return string
+     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
     /**
-     * @param string $name
+     * @param string|null $name
      */
     public function setName(?string $name): void
     {
@@ -94,5 +110,4 @@ abstract class AbstractBaseReferential
     {
         $this->rank = $rank;
     }
-
 }
