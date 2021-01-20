@@ -10,13 +10,13 @@ trait GetListTestFunctionsTrait
     use crudFunctionsTestTrait;
 
     /**
-     * GET - Nominal case.
+     * GET LIST - Nominal case.
      * @param string|null $filename
      * @param array|null $params
      * @param string|null $userLogin
      * @param string|null $userPassword
      */
-    protected function doTestGetList(string $filename = null, array $params = [], string $userLogin = null, string $userPassword = null): void
+    protected function doTestGetList(string $filename, array $params = [], string $userLogin = null, string $userPassword = null): void
     {
         $apiOutput = self::httpGetWithLogin(['name' => static::getGetListRouteName(), 'params' => $params], $userLogin, $userPassword);
 
@@ -24,7 +24,7 @@ trait GetListTestFunctionsTrait
 
         $expectedResult = $this->getExpectedResponse($filename, self::$getListActionType, $apiOutput->getData());
 
-        static::assertEquals($expectedResult, $apiOutput->getData());
+        static::assertEquals($expectedResult, $apiOutput->getData(), "Assert failed for file {$filename}");
     }
 
     /**

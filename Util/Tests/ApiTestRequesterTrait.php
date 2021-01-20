@@ -101,7 +101,6 @@ trait ApiTestRequesterTrait
         $files = ($content instanceof FileBag) ? $content->getData() : [];
         $url = \is_string($route) && 0 === mb_strpos($route, 'http') ? $route : self::getUrl($route);
 
-        //@todo see how is possible to use
         /** @var Client $client */
         $client = self::createClient(['debug' => static::$useProfiler]);
         if (static::$useProfiler) {
@@ -125,9 +124,26 @@ trait ApiTestRequesterTrait
         }
 
         $output = new ApiOutput($client->getResponse(), $formatOut, $profiler);
-        $profilerLink = '';
+        $profilerLink = static::getProfilerLink($output);
+
+        self::logDebug(
+            "\e[33m[API]\e[0m\t🌐 [\e[33m".strtoupper($method)."\e[0m]".(strlen($method) > 3 ? "\t" : "\t\t")."\e[34m{$url}\e[0m"
+            .((null !== $content && self::DEBUG_LEVEL_ADVANCED === static::$debugLevel) ? "\n\t\t\tSubmitted data : \e[33m{$body}\e[0m" : '')
+            ."\n\t\t\tStatus : \e[33m".$output->getResponse()->getStatusCode()
+            ."\e[0m\n\t\t\tResponse : \e[33m".$output->getData(true)."\e[0m\n\t\t\tRequest time : {$requestTotalTime} seconds{$profilerLink}"
+        );
+
+        return $output;
+    }
+
+    /**
+     * @param ApiOutput $output
+     * @return string
+     */
+    protected static function getProfilerLink(ApiOutput $output)
+    {
         if (true === static::$debug && $token = $output->getHeaders()->get('x-debug-token')) {
-            $profilerLink = "\e[0m\n\t\t\tProfiler : \e[33m"
+            return "\e[0m\n\t\t\tProfiler : \e[33m"
                 .self::$container->getParameter('router.request_context.scheme')
                 .'://'
                 .self::$container->getParameter('router.request_context.host')
@@ -139,14 +155,7 @@ trait ApiTestRequesterTrait
             ;
         }
 
-        self::logDebug(
-            "\e[33m[API]\e[0m\t🌐 [\e[33m".strtoupper($method)."\e[0m]".(strlen($method) > 3 ? "\t" : "\t\t")."\e[34m{$url}\e[0m"
-            .((null !== $content && self::DEBUG_LEVEL_ADVANCED === static::$debugLevel) ? "\n\t\t\tSubmitted data : \e[33m{$body}\e[0m" : '')
-            ."\n\t\t\tStatus : \e[33m".$output->getResponse()->getStatusCode()
-            ."\e[0m\n\t\t\tResponse : \e[33m".$output->getData(true)."\e[0m\n\t\t\tRequest time : {$requestTotalTime} seconds{$profilerLink}"
-        );
-
-        return $output;
+        return '';
     }
 
     /**
@@ -448,11 +457,22 @@ trait ApiTestRequesterTrait
 
         $strArguments = implode(' ', $convertedArguments);
         $projectDir = self::$container->getParameter('kernel.project_dir');
-        exec("cd {$projectDir} && bin/console {$commandName} {$strArguments} 2>&1", $output, $returnCode);
+
+        $requestBeginTime = microtime(true);
+        $command = "bin/console {$commandName} {$strArguments}";
+        exec("cd {$projectDir} && {$command} 2>&1", $output, $returnCode);
+        $requestTotalTime = microtime(true) - $requestBeginTime;
 
         $commandOutput = new CommandOutput();
         $commandOutput->setStatusCode($returnCode);
-        $commandOutput->setData(implode("\n", $output));
+        $strOutput = implode("\n", $output);
+        $commandOutput->setData($strOutput);
+
+        self::logDebug(
+            "\e[33m[API]\e[0m\t🌐 [\e[33m".strtoupper('Exec Command')."\e[0m]\t\t\e[34m{$command}\e[0m"
+            ."\n\t\t\tReturn code : \e[33m".$returnCode
+            ."\e[0m\n\t\t\tOutput : \e[33m".$strOutput."\e[0m\n\t\t\tExecution time : {$requestTotalTime} seconds\n"
+        );
 
         return $commandOutput;
     }

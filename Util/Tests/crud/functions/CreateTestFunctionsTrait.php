@@ -29,7 +29,7 @@ trait CreateTestFunctionsTrait
         $result = $apiOutput->getData();
         $expectedResult = $this->getExpectedResponse($filename, 'Create', $result, true);
         static::assertAssessableContent($expectedResult, $result);
-        static::assertEquals($expectedResult, $result, 'Post failed');
+        static::assertEquals($expectedResult, $result, "Assert failed for file {$filename}");
 
         // Get after post
         $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $expectedResult['id']]], $userLogin, $userPassword);
@@ -37,7 +37,7 @@ trait CreateTestFunctionsTrait
         $result = $apiOutput->getData();
         $expectedResult = $this->getExpectedResponse($filename, 'Create', $result, true);
         static::assertAssessableContent($expectedResult, $result);
-        static::assertEquals($expectedResult, $result, 'Get after post failed');
+        static::assertEquals($expectedResult, $result, "Get after post failed for file {$filename}");
     }
 
     /**

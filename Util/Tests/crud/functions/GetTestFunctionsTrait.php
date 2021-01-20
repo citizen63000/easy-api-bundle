@@ -25,7 +25,7 @@ trait GetTestFunctionsTrait
         $expectedResult = $this->getExpectedResponse($filename, 'Get', $result);
 
         static::assertAssessableContent($expectedResult, $result);
-        static::assertEquals($expectedResult, $result);
+        static::assertEquals($expectedResult, $result, "Assert failed for file {$filename}");
     }
 
     /**
