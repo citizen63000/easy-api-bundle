@@ -14,7 +14,7 @@ use \Symfony\Component\Form\FormInterface;
 use \Doctrine\ORM;
 
 /**
- * Service qui fabrique la requête à partir d'une classe et d'un model (dans le form).
+ * Make the query from class and model (in form).
  */
 class ListFilter extends AbstractService
 {
@@ -34,6 +34,7 @@ class ListFilter extends AbstractService
         $model = $filterForm->getData();
         $qb = $this->getFilterQueryBuilder($entityClass, $model);
         $filterResult = new FilterResult();
+        $joins = [];
 
         // value filters
         foreach ($filterForm->all() as $fieldName => $field) {
@@ -43,7 +44,7 @@ class ListFilter extends AbstractService
                 } else {
                     // linked entity var
                     if($pos = strpos($fieldName, '_')) {
-                        $this->linkedEntityFilter($qb, $field->getConfig(), $fieldName, $model);
+                        $this->linkedEntityFilter($qb, $field->getConfig(), $fieldName, $model, $joins);
                     } else {
                         // field itself
                         $this->fieldFilter($qb, $field->getConfig(), self::classAlias, $fieldName, $fieldName, $model);
@@ -65,16 +66,21 @@ class ListFilter extends AbstractService
      * @param FormConfigBuilderInterface $fieldConfig
      * @param string $fieldName
      * @param FilterModel $model
+     * @param array $joins
      */
-    protected function linkedEntityFilter(QueryBuilder $qb, FormConfigBuilderInterface $fieldConfig, string $fieldName, FilterModel $model)
+    protected function linkedEntityFilter(QueryBuilder $qb, FormConfigBuilderInterface $fieldConfig, string $fieldName, FilterModel $model, array &$joins)
     {
         $classAlias = self::classAlias;
         $parts = explode('_', $fieldName);
         $nbParts = count($parts)-1;
         for($i = 0; $i < $nbParts ; ++$i) {
-            $alias = "{$classAlias}_{$fieldName}";
-            $qb->innerJoin("{$classAlias}.{$parts[$i]}", $alias);
-            $classAlias = $alias;
+            $join = "{$classAlias}.{$parts[$i]}";
+            if(!isset($joins[$join])) {
+                $alias = "{$classAlias}_{$fieldName}";
+                $qb->innerJoin($join, $alias);
+                $joins[$join] = $alias;
+            }
+            $classAlias = $joins[$join];
         }
         $this->fieldFilter($qb, $fieldConfig, $classAlias, $fieldName, $parts[$nbParts], $model);
     }
@@ -195,6 +201,6 @@ class ListFilter extends AbstractService
      */
     protected function getFilterQueryBuilder(string $entityClass, FilterModel $model): QueryBuilder
     {
-        return $this->getRepository($entityClass)->createQueryBuilder(static::classAlias);
+        return $this->getRepository($entityClass)->createQueryBuilder(static::classAlias)->distinct(static::classAlias);
     }
 }
