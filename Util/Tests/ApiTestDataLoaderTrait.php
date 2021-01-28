@@ -25,6 +25,9 @@ trait ApiTestDataLoaderTrait
      */
     protected static $schemas = [];
 
+    /** @var array */
+    protected static $referentialsToClean = [];
+
     protected static function initializeLoader(): void
     {
         self::initializeCache();
@@ -126,6 +129,16 @@ trait ApiTestDataLoaderTrait
                     AND TABLE_TYPE = 'BASE TABLE'
                     AND TABLE_NAME NOT LIKE 'ref\_%'
                     ";
+
+            if(count(static::$referentialsToClean)) {
+                $arrayRefs = [];
+                foreach (static::$referentialsToClean as $table) {
+                    $arrayRefs[] = "'{$table}'";
+                }
+                $sqlRefsToClean = implode(',', $arrayRefs);
+                $sql.= " OR CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) IN ({$sqlRefsToClean})";
+            }
+
             $stmt = self::$entityManager->getConnection()->executeQuery($sql);
             $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
             $listingQueries = [];
