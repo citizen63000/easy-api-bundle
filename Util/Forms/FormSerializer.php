@@ -303,6 +303,7 @@ class FormSerializer
     }
 
     /**
+     * Return primary, discriminator and code
      * @param array $entities
      * @param SerializedFormField $sField
      * @param FormConfigBuilderInterface $config
@@ -315,18 +316,20 @@ class FormSerializer
         $attr = $config->getOption('attr');
 
         foreach ($entities as $key => $entity) {
+            $details = [
+                $primary => $entity->getId(),
+                'displayName' => $entity->__toString(),
+            ];
+
             if (null !== $attr && isset($attr['discriminator'])) {
-                $choices[$key] = [
-                    $primary => $entity->getId(),
-                    'displayName' => $entity->__toString(),
-                    'discriminator' => $this->getDiscriminator($sField, $entity, $attr['discriminator']),
-                ];
-            } else {
-                $choices[$key] = [
-                    $primary => $entity->getId(),
-                    'displayName' => $entity->__toString(),
-                ];
+                $details['discriminator'] = $this->getDiscriminator($sField, $entity, $attr['discriminator']);
             }
+
+            if($sField->isReferential() && !isset($details['code'])) {
+                $details['code'] = $entity->getCode();
+            }
+
+            $choices[$key] = $details;
         }
 
         return $choices;

@@ -42,7 +42,7 @@ abstract class AbstractMediaType extends AbstractApiType
                 TextType::class,
                 [
                     'label' => false,
-                    'required' => true,
+                    'required' => false,
                     'constraints' => $this->getConstraints('file', $options),
                     'attr' => [
                         'widget' => 'file',
@@ -90,6 +90,7 @@ abstract class AbstractMediaType extends AbstractApiType
     }
 
     /**
+     * Return field constraints
      * @param $fieldName
      * @param array $options
      * @return array
