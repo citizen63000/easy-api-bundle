@@ -7,7 +7,8 @@ use EasyApiBundle\Util\ApiProblem;
 trait AssertionsTrait
 {
     protected static $assessableFunctions = [
-        'assertDateTime' => '\\\assertDateTime\(\)'
+        'assertDateTime' => '\\\assertDateTime\(\)',
+        'assertDate' => '\\\assertDate\(\)',
     ];
 
     /**
