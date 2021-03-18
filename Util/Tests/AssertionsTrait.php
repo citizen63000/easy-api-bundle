@@ -144,7 +144,26 @@ trait AssertionsTrait
      */
     protected static function assertDateTime($key, $expected, $value): void
     {
-        $expectedFormat = 'Y-m-d H:i:s';
+        static::assertDateFromFormat($key, $expected, $value, 'Y-m-d H:i:s');
+    }
+    /**
+     * @param $key
+     * @param $expected
+     * @param $value
+     */
+    protected static function assertDate($key, $expected, $value): void
+    {
+        static::assertDateFromFormat($key, $expected, $value, 'Y-m-d');
+    }
+
+    /**
+     * @param $key
+     * @param $expected
+     * @param $value
+     * @param $expectedFormat
+     */
+    private static function assertDateFromFormat($key, $expected, $value, $expectedFormat): void
+    {
         $errorMessage = "invalid date format for {$key} field: expected format {$expectedFormat}, get value {$value}";
         $date = \DateTime::createFromFormat($expectedFormat, $value);
         static::assertTrue($date && ($date->format($expectedFormat) === $value), $errorMessage);

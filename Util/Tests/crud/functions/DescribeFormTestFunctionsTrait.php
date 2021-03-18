@@ -28,10 +28,13 @@ trait DescribeFormTestFunctionsTrait
     {
         $apiOutput = self::httpGetWithLogin(['name' => static::getDescribeFormRouteName(), 'params' => ['method' => $method]], $userLogin, $userPassword);
 
-        $expectedResult = $this->getExpectedResponse(strtolower($method).'.json', 'DescribeForm', $apiOutput->getData());
+        $result = $apiOutput->getData();
+
+        $expectedResult = $this->getExpectedResponse(strtolower($method).'.json', 'DescribeForm', $result);
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
-        self::assertEquals($expectedResult, $apiOutput->getData());
+        static::assertAssessableContent($expectedResult, $result);
+        self::assertEquals($expectedResult, $result);
     }
 
     /**
