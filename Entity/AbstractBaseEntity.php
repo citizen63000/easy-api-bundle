@@ -37,6 +37,13 @@ Abstract class AbstractBaseEntity
     protected $updatedAt;
 
     /**
+     * Group constructor.
+     */
+    public function __construct()
+    {
+    }
+
+    /**
      * @return int
      */
     public function getId(): ?int
