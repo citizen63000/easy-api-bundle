@@ -16,7 +16,7 @@ Abstract class AbstractBaseEntity
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"abstract_base_entity", "abstract_base_entity_full"})
+     * @Groups({"abstract_base_entity_id", "abstract_base_entity", "abstract_base_entity_full"})
      */
     protected $id;
 
