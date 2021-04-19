@@ -36,7 +36,8 @@
     "vich/uploader-bundle": "^1.8",
     "oneup/flysystem-bundle": "^3.0",
     "whichbrowser/parser": "^2.0",
-    "thadafinser/user-agent-parser": "^2.0"
+    "thadafinser/user-agent-parser": "^2.0",
+    "ext-fileinfo": "*"
   },
   "require-dev": {
     "guzzlehttp/psr7": "^1.3",

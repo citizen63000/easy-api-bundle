@@ -13,7 +13,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @see https://symfony.com/doc/3.4/form/dynamic_form_modification.html
- *
  */
 abstract class AbstractMediaType extends AbstractApiType
 {
@@ -75,9 +74,11 @@ abstract class AbstractMediaType extends AbstractApiType
             // Create a real file in temporary directory
             $fileName = md5(uniqid());
             $tmpFilePath = "/tmp/{$fileName}";
-            (new Filesystem())->dumpFile($tmpFilePath, base64_decode($base64));
-            // add extension
-            $mimeType = mime_content_type($tmpFilePath);
+            $fileData = base64_decode($base64);
+            (new Filesystem())->dumpFile($tmpFilePath, $fileData);
+            // add extension (mime_content_type doesn't work with docx)
+            $f = finfo_open();
+            $mimeType = finfo_buffer($f, $fileData, FILEINFO_MIME_TYPE);
             $extension = AbstractMedia::mimeToExtension($mimeType);
             $tmpFilePathWithExtension =  "{$tmpFilePath}.{$extension}";
             rename($tmpFilePath, $tmpFilePathWithExtension);
