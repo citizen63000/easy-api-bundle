@@ -9,9 +9,7 @@ use Vich\UploaderBundle\Naming\DirectoryNamerInterface;
 
 class MediaUploaderDirectoryNamer implements DirectoryNamerInterface
 {
-    /**
-     * @var ContainerInterface
-     */
+    /** @var ContainerInterface */
     protected $container;
 
     /**
@@ -25,9 +23,9 @@ class MediaUploaderDirectoryNamer implements DirectoryNamerInterface
     }
 
     /**
-     * Returns the name of a directory where files will be uploaded.
+     * @todo type parameters for php7.4
      *
-     * Directory name is formed based on user ID and media type
+     * Returns the name of a directory where files will be uploaded.
      *
      * @param AbstractMedia $object
      * @param PropertyMapping $mapping
