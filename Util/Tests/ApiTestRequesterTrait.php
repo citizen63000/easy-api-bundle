@@ -186,18 +186,27 @@ trait ApiTestRequesterTrait
      *
      * @param string $username
      * @param string $password
-     * @param bool   $useCache
+     * @param bool $useCache
+     * @param bool $useDefaultTokens
      *
      * @return string
      *
      * @throws \Exception
      */
-    protected static function loginHttp(string $username, string $password, bool $useCache = true)
+    protected static function loginHttp(string $username, string $password, bool $useCache = true, bool $useDefaultTokens = true): string
     {
         if (null === static::$context) {
-            throw new \Exception('The API context must be defined');
+            throw new \Exception('ApiTestRequesterTrait::loginHttp : The API context must be defined');
         }
 
+        // use default tokens to speedup login or if using external authentication
+        if($useDefaultTokens && isset(static::$defaultTokens[$username])) {
+            if(!self::isTokenExpired(static::$defaultTokens[$username])) {
+                return static::$defaultTokens[$username];
+            }
+        }
+
+        // use token in cache or generate it
         $cachedToken = self::getCachedData("test.token.{$username}_{$password}");
         if (!$cachedToken->isHit() || self::isTokenExpired($cachedToken->get()) || !$useCache) {
             $credentials = [

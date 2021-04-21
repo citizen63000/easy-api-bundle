@@ -71,6 +71,9 @@ abstract class AbstractApiTest extends WebTestCase
     /** @var int  */
     protected static $debugTop = 0;
 
+    /** @var array */
+    public static $defaultTokens = [];
+
     /**
      * Symfony env, should be TEST.
      *
@@ -247,7 +250,7 @@ abstract class AbstractApiTest extends WebTestCase
     /**
      * Show an error line and write it in log file
      *
-     * @param $message
+     * @param string $message
      */
     final protected static function logError(string $message): void
     {

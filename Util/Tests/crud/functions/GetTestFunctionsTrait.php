@@ -18,7 +18,19 @@ trait GetTestFunctionsTrait
      */
     public function doTestGet(int $id = null, string $filename = 'nominalCase.json', string $userLogin = null, string $userPassword = null): void
     {
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $id ?? static::defaultEntityId]], $userLogin, $userPassword);
+        self::doTestGenericGet(['id' => $id ?? static::defaultEntityId], $filename, $userLogin, $userPassword);
+    }
+
+    /**
+     * GET - Nominal case.
+     * @param array $params
+     * @param string|null $filename
+     * @param string|null $userLogin
+     * @param string|null $userPassword
+     */
+    public function doTestGenericGet(array $params = [], string $filename = 'nominalCase.json', string $userLogin = null, string $userPassword = null)
+    {
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => $params, $userLogin, $userPassword]);
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
         $result = $apiOutput->getData();
@@ -36,7 +48,18 @@ trait GetTestFunctionsTrait
      */
     public function doTestGetNotFound(int $id = null, string $userLogin = null, string $userPassword = null): void
     {
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $id ?? 99999999]], $userLogin, $userPassword);
+        self::doTestGenericGetNotFound(['id' => $id ?? 99999999], $userLogin, $userPassword);
+    }
+
+    /**
+     * GET - Error case - not found.
+     * @param array $params
+     * @param string|null $userLogin
+     * @param string|null $userPassword
+     */
+    public function doTestGenericGetNotFound(array $params = [], string $userLogin = null, string $userPassword = null): void
+    {
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => $params, $userLogin, $userPassword]);
         static::assertApiProblemError($apiOutput, Response::HTTP_NOT_FOUND, [sprintf(ApiProblem::ENTITY_NOT_FOUND, 'entity')]);
     }
 
@@ -46,7 +69,16 @@ trait GetTestFunctionsTrait
      */
     public function doTestGetWithoutAuthentication(int $id = null): void
     {
-        $apiOutput = self::httpGet(['name' => static::getGetRouteName(), 'params' => ['id' => $id ?? static::defaultEntityId]], false);
+        self::doTestGenericGetWithoutAuthentication(['id' => $id ?? static::defaultEntityId]);
+    }
+
+    /**
+     * GET - Error case - 401 - Without authentication.
+     * @param array $params
+     */
+    public function doTestGenericGetWithoutAuthentication(array $params = []): void
+    {
+        $apiOutput = self::httpGet(['name' => static::getGetRouteName(), 'params' => $params], false);
         static::assertApiProblemError($apiOutput, Response::HTTP_UNAUTHORIZED, [ApiProblem::JWT_NOT_FOUND]);
     }
 
@@ -58,12 +90,23 @@ trait GetTestFunctionsTrait
      */
     public function doTestGetWithoutRight(int $id = null, string $userLogin = null, string $userPassword = null): void
     {
+        self::doTestGenericGetWithoutRight(['id' => $id ?? static::defaultEntityId], $userLogin, $userPassword);
+    }
+
+    /**
+     * GET - Error case - 403 - Missing right.
+     * @param array $params
+     * @param string|null $userLogin
+     * @param string|null $userPassword
+     */
+    public function doTestGenericGetWithoutRight(array $params = [], string $userLogin = null, string $userPassword = null): void
+    {
         if(null === $userLogin && null === $userPassword) {
             $userLogin = static::USER_NORULES_TEST_USERNAME;
             $userPassword = static::USER_NORULES_TEST_PASSWORD;
         }
 
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $id ?? static::defaultEntityId]], $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => $params], $userLogin, $userPassword);
 
         static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
     }
