@@ -4,12 +4,11 @@ namespace EasyApiBundle\Entity\MediaUploader;
 
 use Doctrine\ORM\Mapping as ORM;
 use EasyApiBundle\Entity\AbstractBaseEntity;
-use EasyApiBundle\Services\MediaUploader\MediaUploaderDirectoryNamer;
-use EasyApiBundle\Services\MediaUploader\MediaUploaderFileNamer;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Vich\UploaderBundle\Naming\OrignameNamer;
 
 /**
  * @ORM\MappedSuperclass
@@ -17,10 +16,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
 abstract class AbstractMedia extends AbstractBaseEntity
 {
     /** @var string directory namer service to use */
-    protected const directoryNamer = MediaUploaderDirectoryNamer::class;
+    protected const directoryNamer = null;
 
-    /** @var string File namer service to use */
-    protected const fileNamer = MediaUploaderFileNamer::class;
+    /**
+     * File namer to use : custom service or Vich namer
+     * @see Vich namers : https://github.com/dustin10/VichUploaderBundle/blob/master/docs/namers.md
+     * @var string
+     */
+    protected const fileNamer = OrignameNamer::class;
 
     /**
      * @ORM\Column(name="uuid", type="uuid", length=255, nullable=false)
@@ -177,6 +180,14 @@ abstract class AbstractMedia extends AbstractBaseEntity
     public function getFileNamer(): ?string
     {
         return static::fileNamer;
+    }
+
+    /**
+     * @return string
+     */
+    public function generateFileName(): string
+    {
+        // implement this if you want to use Vich\UploaderBundle\Naming\PropertyNamer
     }
 
     /**
