@@ -4,9 +4,11 @@ namespace EasyApiBundle\Form\Type\MediaUploader;
 
 use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use EasyApiBundle\Form\Type\AbstractApiType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -38,7 +40,7 @@ abstract class AbstractMediaType extends AbstractApiType
             )
             ->add(
                 'file',
-                TextType::class,
+                FileType::class,
                 [
                     'label' => false,
                     'required' => false,
@@ -49,45 +51,38 @@ abstract class AbstractMediaType extends AbstractApiType
                 ]
             )
         ;
-        // use event on entity populate instead
-        $builder->get('file')
-            ->addModelTransformer(new CallbackTransformer(
-                function ($uploadedFile) {
-                    return $uploadedFile;
-                }
-                , function ($base64) {
-                    return self::convertBase64ToUploadedFile($base64);
-                }
-            ))
-        ;
+
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+
+            $data = $event->getData();
+
+            if(null !== $data && isset($data['file']) && isset($data['filename'])) {
+                $data['file'] = self::convertBase64ToUploadedFile($data['file'], $data['filename']);
+                $event->setData($data);
+            }
+
+        });
     }
 
     /**
+     * transform the base64 to uploadedFile
+     *
      * @param string $base64
-     * @return null|UploadedFile
+     * @param string $originalFileName
+     * @return UploadedFile
      */
-    private static function convertBase64ToUploadedFile(?string $base64): ?UploadedFile
+    private static function convertBase64ToUploadedFile(string $base64, string $originalFileName): UploadedFile
     {
-        // transform the base64 to uploadedFile
-        if(!empty($base64)) {
-
             // Create a real file in temporary directory
-            $fileName = md5(uniqid());
-            $tmpFilePath = "/tmp/{$fileName}";
+            $tmpFilePath = '/tmp/'.md5(uniqid());
             $fileData = base64_decode($base64);
             (new Filesystem())->dumpFile($tmpFilePath, $fileData);
             // add extension (mime_content_type doesn't work with docx)
             $f = finfo_open();
             $mimeType = finfo_buffer($f, $fileData, FILEINFO_MIME_TYPE);
-            $extension = AbstractMedia::mimeToExtension($mimeType);
-            $tmpFilePathWithExtension =  "{$tmpFilePath}.{$extension}";
-            rename($tmpFilePath, $tmpFilePathWithExtension);
 
             // we create an uploaded file for form
-            return new UploadedFile($tmpFilePathWithExtension, "{$fileName}.{$extension}", $mimeType, null, null, true);
-        }
-
-        return null;
+            return new UploadedFile($tmpFilePath, $originalFileName, $mimeType, null, null, true);
     }
 
     /**
