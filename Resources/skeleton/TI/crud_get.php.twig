@@ -1,70 +1,10 @@
 <?php
 
-namespace Tests\{{ bundle_name }}\{{ context_name }}\{{ entity_name }};
+namespace {{ namespace }};
 
-use EasyApiBundle\Util\ApiProblem;
-use Symfony\Component\HttpFoundation\Response;
-use Tests\Format;
+use EasyApiBundle\Util\Tests\crud\GetListTestTrait;
 
 class GET{{ entity_name }}Test extends {{ abstractContextName }}
 {
-    protected static $executeSetupOnAllTest = false;
-
-    /**
-     * GET - Nominal case.
-     */
-    public function testGet()
-    {
-        $expectedResult = self::createGETResponseData();
-
-        $apiOutput = $this->httpGet(['name' => '{{ route_name_get }}', 'params' => ['id' => self::ENTITY_ID_1]]);
-
-        self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
-        $result = $apiOutput->getData();
-{% if config.isTimestampable is defined %}
-        static::assertArrayHasKey('createdAt', $result);
-        static::assertArrayHasKey('updatedAt', $result);
-        unset($result['createdAt'], $result['updatedAt']);
-{% endif %}
-        static::assertEquals($expectedResult, $result);
-    }
-
-    /**
-     * GET - Unexisting entity.
-     */
-    public function testGetNotFound()
-    {
-        $apiOutput = $this->httpGet(['name' => '{{ route_name_get }}', 'params' => ['id' => 99999]]);
-
-        self::assertEquals(Response::HTTP_NOT_FOUND, $apiOutput->getStatusCode());
-    }
-
-    /**
-     * GET - Error case - 401 - Without authentication.
-     */
-    public function testGet401()
-    {
-        $apiOutput = $this->httpGet([
-            'name' => '{{ route_name_get }}', 'params' => ['id' => 1]],
-            false
-        );
-
-        self::assertEquals(Response::HTTP_UNAUTHORIZED, $apiOutput->getStatusCode());
-    }
-
-    /**
-     * GET - Error case - 403 - Missing read right.
-     */
-    public function testGetWithoutRightR403()
-    {
-        $token = self::loginHttp('[API-TESTS-NO-RULES]', 'u-norules-pwd');
-        $apiOutput = $this->httpGet([
-            'name' => '{{ route_name_get }}', 'params' => ['id' => self::ENTITY_ID_1]],
-            false,
-            Format::JSON,
-            ['Authorization' => self::getAuthorizationTokenPrefix()." {$token}"]
-        );
-
-        static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
-    }
+    use GetTestTrait;
 }

@@ -579,7 +579,9 @@ class EntityField
             }
 
             if ('float' === $this->getType()) {
-                return random_int(1, (2 ** ($this->precision - 1)) * (2 ** $this->scale)) / (2 ** $this->scale);
+                $scale = ($this->scale == 0) ? 1 : $this->scale;
+                $precision = ($this->precision == 0) ? 2 : $this->precision;
+                return random_int(1, (2 ** ($precision - 1)) * (2 ** $scale)) / (2 ** $scale);
             }
 
             if ('string' === $this->getType()) {

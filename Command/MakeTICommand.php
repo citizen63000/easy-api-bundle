@@ -56,6 +56,6 @@ final class MakeTICommand extends AbstractMakerCommand
         $dumpExistingFiles = !$dumpOption;
 
         // generate repository
-        $this->generateTi($output, $bundle, null, $entityName, $dumpExistingFiles);
+        $this->generateTi($output, $bundle, null, $entityName,  $dumpExistingFiles);
     }
 }
