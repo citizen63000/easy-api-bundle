@@ -22,7 +22,6 @@ trait GetTestFunctionsTrait
     }
 
     /**
-     * GET - Nominal case.
      * @param array $params
      * @param string|null $filename
      * @param string|null $userLogin
@@ -30,7 +29,7 @@ trait GetTestFunctionsTrait
      */
     public function doTestGenericGet(array $params = [], string $filename = 'nominalCase.json', string $userLogin = null, string $userPassword = null)
     {
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => $params, $userLogin, $userPassword]);
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => $params], $userLogin, $userPassword);
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
         $result = $apiOutput->getData();
@@ -52,14 +51,13 @@ trait GetTestFunctionsTrait
     }
 
     /**
-     * GET - Error case - not found.
      * @param array $params
      * @param string|null $userLogin
      * @param string|null $userPassword
      */
     public function doTestGenericGetNotFound(array $params = [], string $userLogin = null, string $userPassword = null): void
     {
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => $params, $userLogin, $userPassword]);
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => $params], $userLogin, $userPassword);
         static::assertApiProblemError($apiOutput, Response::HTTP_NOT_FOUND, [sprintf(ApiProblem::ENTITY_NOT_FOUND, 'entity')]);
     }
 
