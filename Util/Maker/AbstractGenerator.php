@@ -1,6 +1,5 @@
 <?php
 
-
 namespace EasyApiBundle\Util\Maker;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -61,7 +60,7 @@ class AbstractGenerator
      * @param string|null $parentEntityName
      * @param string|null $inheritanceType
      * @param string|null $context
-     * @return mixed|EntityConfiguration
+     * @return EntityConfiguration
      * @throws \Doctrine\DBAL\DBALException
      */
     protected function loadEntityConfigFromDatabase(string $bundle, string $entityName, string $tableName, string $schema = null, string $parentEntityName = null, string $inheritanceType = null, string $context =null)
@@ -151,7 +150,7 @@ class AbstractGenerator
      *
      * @return string
      */
-    protected function generateEntityFolderPath($bundle, $context)
+    protected function generateEntityFolderPath($bundle, $context): string
     {
         return "src/{$bundle}/Entity/{$context}/";
     }

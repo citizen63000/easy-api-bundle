@@ -1,83 +1,10 @@
 <?php
 
-namespace Tests\{{ bundle_name }}\{{ context_name }}\{{ entity_name }};
+namespace {{ namespace }};
 
-use EasyApiBundle\Util\ApiProblem;
-use Symfony\Component\HttpFoundation\Response;
-use Tests\Format;
+use EasyApiBundle\Util\Tests\crud\DescribeFormTestTrait;
 
 class GETDESCRIBEFORM{{ entity_name }}Test extends {{ abstractContextName }}
 {
-    protected static $executeSetupOnAllTest = false;
-
-    /**
-     * Nominal case for post form.
-     */
-    public function testForPost()
-    {
-        //$expectedResult = self::createDescribeFormPostResponseData();
-
-        $apiOutput = $this->httpGet(['name' => '{{ route_name_describe_form }}', 'params' => ['method' => 'POST']]);
-
-        self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
-        //self::assertEquals($expectedResult, $apiOutput->getData());
-    }
-
-    /**
-     * Nominal case for put form.
-     */
-    public function testForPut()
-    {
-        //$expectedResult = self::createDescribeFormPutResponseData();
-
-        $apiOutput = $this->httpGet(['name' => '{{ route_name_describe_form }}', 'params' => ['method' => 'PUT']]);
-
-        self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
-        //self::assertEquals($expectedResult, $apiOutput->getData());
-    }
-
-    /**
-    * GET - Error case - 401 - Without authentication.
-    */
-    public function testGet401()
-    {
-        $apiOutput = $this->httpGet([
-            'name' => '{{ route_name_describe_form }}', 'params' => ['id' => self::ENTITY_ID_1]],
-            false
-        );
-
-        self::assertEquals(Response::HTTP_UNAUTHORIZED, $apiOutput->getStatusCode());
-    }
-
-    /**
-    * GET - Error case - 403 - Missing create right.
-    */
-    public function testGetWithoutRightC403()
-    {
-        $token = self::loginHttp('[API-TESTS-NO-RULES]', 'u-norules-pwd');
-        $apiOutput = $this->httpGet([
-            'name' => '{{ route_name_describe_form }}', 'params' => ['method' => 'POST']],
-            false,
-            Format::JSON,
-            ['Authorization' => self::getAuthorizationTokenPrefix()." {$token}"]
-        );
-
-        static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
-    }
-
-    /**
-    * GET - Error case - 403 - Missing update right.
-    */
-    public function testGetWithoutRightU403()
-    {
-        $token = self::loginHttp('[API-TESTS-NO-RULES]', 'u-norules-pwd');
-        $apiOutput = $this->httpGet([
-            'name' => '{{ route_name_describe_form }}', 'params' => ['method' => 'PUT']],
-            false,
-            Format::JSON,
-            ['Authorization' => self::getAuthorizationTokenPrefix()." {$token}"]
-        );
-
-        static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
-    }
+    use DescribeFormTestTrait;
 }
