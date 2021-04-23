@@ -7,8 +7,9 @@ use EasyApiBundle\Util\ApiProblem;
 trait AssertionsTrait
 {
     protected static $assessableFunctions = [
-        'assertDateTime' => '\\\assertDateTime\(\)',
-        'assertDate' => '\\\assertDate\(\)',
+        'assertDateTime',
+        'assertDate',
+        'assertFileUrl',
     ];
 
     /**
@@ -124,9 +125,11 @@ trait AssertionsTrait
         foreach ($expected as $key => $value) {
             if (array_key_exists($key, $result)) {
                 if (!is_array($value)) {
-                    foreach (static::$assessableFunctions as $functionName => $functionExpr) {
-                        if (preg_match("/{$functionExpr}/", $value)) {
-                            static::$functionName($key, $value, $result[$key]);
+                    foreach (static::$assessableFunctions as $functionName) {
+                        $functionExpr1 = "\\\\{$functionName}\((.*)\)";
+                        $functionExpr2 = "{{$functionName}\((.*)\)}";
+                        if (preg_match("/{$functionExpr1}|$functionExpr2/", $value, $matches)) {
+                            static::$functionName($key, $matches[1], $result[$key]);
                             unset($expected[$key]);
                             unset($result[$key]);
                         }
@@ -165,8 +168,25 @@ trait AssertionsTrait
      */
     private static function assertDateFromFormat($key, $expected, $value, $expectedFormat): void
     {
-        $errorMessage = "invalid date format for {$key} field: expected format {$expectedFormat}, get value {$value}";
+        $errorMessage = "Invalid date format for {$key} field: expected format {$expectedFormat}, get value {$value}";
         $date = \DateTime::createFromFormat($expectedFormat, $value);
         static::assertTrue($date && ($date->format($expectedFormat) === $value), $errorMessage);
+    }
+
+    /**
+     * @param $key
+     * @param $expected
+     * @param $value
+     */
+    private static function assertFileUrl($key, $expected, $value): void
+    {
+        $expected = str_replace([ '.', '/', '-'], ['\.', '\/', '\-'], $expected);
+        $expectedUUID = '[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+';
+        $expected = str_replace(['{UUID}'], [$expectedUUID], $expected);
+        $expected = "/$expected/";
+        var_dump($expected, $value);
+        $errorMessage = "Invalid file url in {$key} field: expected {$expected}, get value {$value}";
+        $found = preg_match($expected, $value);
+        static::assertTrue( (bool) $found, $errorMessage);
     }
 }
