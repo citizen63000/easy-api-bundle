@@ -31,7 +31,7 @@ abstract class AbstractMediaType extends AbstractApiType
                 TextType::class,
                 [
                     'label' => false,
-                    'required' => true,
+                    'required' => false,
                     'constraints' => $this->getConstraints('filename', $options),
                     'attr' => [
                         'widget' => 'filename',
@@ -105,7 +105,7 @@ abstract class AbstractMediaType extends AbstractApiType
             $constraints[] =  new Assert\Blank(['groups' => $this->getGroupsForField($fieldName, $groups['Blank'])]);
         }
 
-        return count($constraints) ? $constraints : [ new Assert\NotBlank(['groups' => 'Default']) ];
+        return $constraints;
     }
 
 
