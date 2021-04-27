@@ -26,40 +26,34 @@ abstract class AbstractMedia extends AbstractBaseEntity
     protected const fileNamer = OrignameNamer::class;
 
     /**
-     * @ORM\Column(name="uuid", type="uuid", length=255, nullable=false)
-     *
      * @var UuidInterface
+     * @ORM\Column(name="uuid", type="uuid", length=255, nullable=false)
+     * @Groups({"abstract_media_full", "abstract_media_short", "abstract_media_uuid"})
      */
     private $uuid;
 
     /**
-     * @Groups({"media_uploader_full"})
-     *
-     * @ORM\Column(name="filename", type="string", length=255, nullable=true)
-     *
      * @var string
+     * @ORM\Column(name="filename", type="string", length=255, nullable=true)
+     * @Groups({"abstract_media_full", "abstract_media_short", "abstract_media_filename"})
      */
     private $filename;
 
-    /**
-     * @var File
-     */
+    /** @var File */
     private $file;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $directoryName;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $directoryValue;
 
     /**
      * @var AbstractBaseEntity
+     * @ORM\JoinColumns(@ORM\JoinColumn(name="container_entity_id", referencedColumnName="id"))
+     * @Groups({"abstract_media_full", "abstract_media_container_entity"})
      */
-    private $containerEntity;
+    protected $containerEntity;
 
     /**
      * AbstractMedia constructor.
@@ -183,11 +177,12 @@ abstract class AbstractMedia extends AbstractBaseEntity
     }
 
     /**
+     * Implement this if you want to use Vich\UploaderBundle\Naming\PropertyNamer
      * @return string
      */
     public function generateFileName(): string
     {
-        // implement this if you want to use Vich\UploaderBundle\Naming\PropertyNamer
+        return 'you_must_implement_generateFileName_method';
     }
 
     /**
