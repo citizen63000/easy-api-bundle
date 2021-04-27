@@ -209,7 +209,8 @@ class TiCrudGenerator extends AbstractGenerator
                 [ 'table' => $table]
             );
 
-            $csvWriteOperation .= '    '.$this->writeFile($directory, "{$table['tableName']}.csv", $fileContent, $dumpExistingFiles, true)."\n";
+            $fileName = str_replace('`', '', "{$table['tableName']}.csv");
+            $csvWriteOperation .= 'file://'.$this->writeFile($directory, $fileName, $fileContent, $dumpExistingFiles, true)."\n";
         }
 
         return "{$ymlWriteOperation}\n{$csvWriteOperation}";
@@ -227,7 +228,7 @@ class TiCrudGenerator extends AbstractGenerator
 
         foreach ($dataFixtures['tables'] as $table) {
             $filePath = str_replace('`', '', "{$path}{$table['tableName']}.csv");
-            $ymlData[] = [ 'filePath' => $filePath, 'tableName' => $table['tableName']];
+            $ymlData[] = [ 'filePath' => $filePath, 'tableName' => "{$table['schema']}.{$table['tableName']}"];
         }
 
         // yml content
@@ -255,28 +256,9 @@ class TiCrudGenerator extends AbstractGenerator
     protected function generateContent(): array
     {
         if (empty(static::$content)) {
-            $idColumnName = $this->config->isReferential() ? 'code' : 'id';
 
             // fixtures
-            $fixtures = [
-                'get' => $this->generateFixtures($this->config),
-                'get2' => $this->generateFixtures($this->config),
-                'post' => $this->generateFixtures($this->config),
-            ];
-
-            $fixtures['put'] = $fixtures['get'];
-            $fixtures['delete'] = $fixtures['get'];
-
-            if ($parent = $this->config->getParentEntity() && 'AbstractBaseEntity' !== $this->config->getParentEntity()->getEntityName() ) {
-                $parentIdColumnName = $this->config->isReferential() ? 'code' : 'id';
-                $fixtures['id1'] = $fixtures['get'][$parent->getEntityName()][$parentIdColumnName]['value'];
-                $fixtures['get2'][$parent->getEntityName()][$parentIdColumnName]['value'] = '2';
-                $fixtures['id2'] = $fixtures['get2'][$parent->getEntityName()][$parentIdColumnName]['value'];
-            } else {
-                $fixtures['id1'] = $fixtures['get'][$this->config->getEntityName()][$idColumnName]['value'];
-                $fixtures['get2'][$this->config->getEntityName()][$idColumnName]['value'] = '2';
-                $fixtures['id2'] = $fixtures['get2'][$this->config->getEntityName()][$idColumnName]['value'];
-            }
+            $fixtures =  $this->generateFixtures($this->config);
 
             // form
             $requiredFieldsForArray = [];
@@ -286,11 +268,9 @@ class TiCrudGenerator extends AbstractGenerator
                 $form = $describer->normalize($this->createForm($formName));
 
                 // requiredFieldsListing
-                $requiredFormFields = [];
                 foreach ($form->getFields() as $field) {
                     if ($field->isRequired()) {
                         $requiredFieldsForArray[] = "'{$field->getName()}'";
-                        $requiredFormFields[] = $field->getName();
                     }
                 }
             } catch (\Exception $e) {
@@ -359,15 +339,14 @@ class TiCrudGenerator extends AbstractGenerator
         // Has parent class ?
         if (($parent = $config->getParentEntity()) && !$config->getParentEntity()->isMappedSuperClass()) {
             $parentConfig = EntityConfigLoader::findAndCreateFromEntityName($parent->getEntityName(), $config->getBundleName());
-            if(null !== $parentConfig) {
-                $sqlParent = $this->prepareSqlInsertData($parentConfig, $fixtures, $config);
-                $columnIdName = $config->isReferential() ? 'code' : 'id';
-                $columns[] = $columnIdName;
-                $values['id'] = $fixtures['get'][$parentConfig->getEntityName()][$columnIdName]['value'];
-                $values2['id'] = $fixtures['get2'][$parentConfig->getEntityName()][$columnIdName]['value'];
-            } else {
-                echo "Impossible to find {$parent->getEntityName()} parent class\n";
-            }
+//            if(null !== $parentConfig) {
+//                $sqlParent = $this->prepareSqlInsertData($parentConfig, $fixtures, $config);
+//                $columnIdName = $config->isReferential() ? 'code' : 'id';
+//                $columns[] = $columnIdName;
+//                $values['id'] = $fixtures[$parentConfig->getEntityName()][$columnIdName]['value'];
+//            } else {
+//                echo "Impossible to find {$parent->getEntityName()} parent class\n";
+//            }
         }
 
         // is parent class ?
@@ -375,7 +354,6 @@ class TiCrudGenerator extends AbstractGenerator
         if ($config->isParentEntity() && null !== $childEntityConfig) {
             $columns[] = '`'.EntityConfiguration::inheritanceTypeColumnName.'`';
             $values[EntityConfiguration::inheritanceTypeColumnName] = '\''.$childEntityConfig->getEntityName().'\'';
-            $values2[EntityConfiguration::inheritanceTypeColumnName] = $values[EntityConfiguration::inheritanceTypeColumnName];
         }
 
         // Other fields
@@ -385,40 +363,31 @@ class TiCrudGenerator extends AbstractGenerator
                 // Referential ?
                 if ($field->isReferential()) {
                     try {
-                        $values[$field->getTableColumnName()] = $fixtures['get'][$config->getEntityName()][$field->getName()]['value']['code'];
-                        $values2[$field->getTableColumnName()] = $fixtures['get2'][$config->getEntityName()][$field->getName()]['value']['code'];
+                        $values[$field->getTableColumnName()] = $fixtures[$config->getEntityName()][$field->getName()]['value']['code'];
                     } catch (\Exception $e) {
                         $values[$field->getTableColumnName()] = 'REPLACE_BY_REAL_CODE';
                     }
                 } else {
                     $field->setRandomValue(1);
-                    $foreignConfig = EntityConfigLoader::findAndCreateFromEntityName($field->getEntityClassName());
-                    $tables[] = [
-                        'tableName' => (null !== $foreignConfig) ? $foreignConfig->getTableName() : str_replace('_id', '', $field->getTableColumnName()),
-                        'columns' => ['id', 'created_at', 'updated_at'],
-                        'values' => [['1', '2018-05-02 12:11:10', '2018-05-02 12:11:10'], ['2', '2018-05-02 12:11:10', '2018-05-02 12:11:10']],
-                    ];
-
                     $values[$field->getTableColumnName()] = $field->getRandomValue();
-                    $values2[$field->getTableColumnName()] = $field->getRandomValue();
                 }
             } else {
-                $values[$field->getTableColumnName()] = $fixtures['get'][$config->getEntityName()][$field->getName()]['value'];
-                $values2[$field->getTableColumnName()] = $fixtures['get2'][$config->getEntityName()][$field->getName()]['value'];
+                $values[$field->getTableColumnName()] = $fixtures[$config->getEntityName()][$field->getName()]['value'];
             }
         }
 
         $sqlEntity = [
+            'schema' => $config->getSchema(),
             'tableName' => $config->getTableName(),
             'columns' => $columns,
-            'values' => [$values, $values2],
+            'values' => [$values],
         ];
 
-        if (null !== $sqlParent) {
-            foreach ($sqlParent as $key => $value) {
-                $tables[] = $value;
-            }
-        }
+//        if (null !== $sqlParent) {
+//            foreach ($sqlParent as $key => $value) {
+//                $tables[] = $value;
+//            }
+//        }
 
         $tables[] = $sqlEntity;
 
@@ -437,12 +406,12 @@ class TiCrudGenerator extends AbstractGenerator
         $fixtures = [];
         $parentFixtures = null;
 
-        if ($parent = $config->getParentEntity()) {
-            $parentConfig = EntityConfigLoader::findAndCreateFromEntityName($parent->getEntityName(), $config->getBundleName());
-            if(null !== $parentFixtures) {
-                $parentFixtures = $this->generateFixtures($parentConfig);
-            }
-        }
+//        if ($parent = $config->getParentEntity()) {
+//            $parentConfig = EntityConfigLoader::findAndCreateFromEntityName($parent->getEntityName(), $config->getBundleName());
+//            if(null !== $parentFixtures) {
+//                $parentFixtures = $this->generateFixtures($parentConfig);
+//            }
+//        }
 
         foreach ($fields as $field) {
             if (!$field->isNativeType()) {
