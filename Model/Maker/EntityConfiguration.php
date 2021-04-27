@@ -512,10 +512,4 @@ class EntityConfiguration
 
         return $tab[count($tab)-1];
     }
-
-    public function isMappedSuperClass(): bool
-    {
-        var_dump($this->getInheritanceType());
-        return $this->getInheritanceType() === 'MappedSuperClass';
-    }
 }
