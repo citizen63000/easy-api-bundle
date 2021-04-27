@@ -36,13 +36,13 @@ trait UpdateTestFunctionsTrait
         static::assertEquals($expectedResult, $result, "Assert failed for file {$filename}");
 
         // Get after put
-        if($doGetTest) {
+        if ($doGetTest) {
             $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $id]], $userLogin, $userPassword);
             static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
             $result = $apiOutput->getData();
             $expectedResult = $this->getExpectedResponse($filename, 'Update', $result, true);
             static::assertAssessableContent($expectedResult, $result);
-            static::assertEquals($expectedResult, $result, "Assert failed for for get after put for file {$filename}");
+            static::assertEquals($expectedResult, $result, "Assert failed for get after put for file {$filename}");
         }
     }
 

@@ -128,9 +128,9 @@ trait ApiTestRequesterTrait
 
         self::logDebug(
             "\e[33m[API]\e[0m\t🌐 [\e[33m".strtoupper($method)."\e[0m]".(strlen($method) > 3 ? "\t" : "\t\t")."\e[34m{$url}\e[0m"
+            .(self::DEBUG_LEVEL_ADVANCED === static::$debugLevel ? "\n\t\t\tHeaders : \e[33m".json_encode($server, true)."\e[0m" : '')
             .((null !== $content && self::DEBUG_LEVEL_ADVANCED === static::$debugLevel) ? "\n\t\t\tSubmitted data : \e[33m{$body}\e[0m" : '')
-            ."\n\t\t\tStatus : \e[33m".$output->getResponse()->getStatusCode()
-            ."\e[0m\n\t\t\tResponse : \e[33m".$output->getData(true)."\e[0m\n\t\t\tRequest time : {$requestTotalTime} seconds{$profilerLink}"
+            ."\n\t\t\tStatus : \e[33m{$output->getResponse()->getStatusCode()}\e[0m\n\t\t\tResponse : \e[33m{$output->getData(true)}\e[0m\n\t\t\tRequest time : {$requestTotalTime} seconds{$profilerLink}"
         );
 
         return $output;
@@ -300,7 +300,7 @@ trait ApiTestRequesterTrait
     public static function httpGetWithLogin($route, $userLogin, $userPassword, $formatOut = Format::JSON, array $extraHttpHeaders = [])
     {
         if (null !== $userLogin && null === $userPassword) {
-            throw new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null');
+            throw new \Exception('ApiTestRequesterTrait::httpGetWithLogin : $userPassword parameter cannot be null if $userLogin parameters is not null');
         }
 
         $userLogin = $userLogin ?? static::$user;
@@ -343,7 +343,7 @@ trait ApiTestRequesterTrait
     public static function httpPostWithLogin($route, $userLogin, $userPassword, $content = [], array $extraHttpHeaders = [], $formatIn = Format::JSON, $formatOut = Format::JSON)
     {
         if (null !== $userLogin && null === $userPassword) {
-            throw new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null');
+            throw new \Exception('ApiTestRequesterTrait::httpPostWithLogin : $userPassword parameter cannot be null if $userLogin parameters is not null');
         }
 
         $userLogin = $userLogin ?? static::$user;
@@ -388,7 +388,7 @@ trait ApiTestRequesterTrait
     public static function httpPutWithLogin($route, $userLogin, $userPassword, $content = [], array $extraHttpHeaders = [], $formatIn = Format::JSON, $formatOut = Format::JSON)
     {
         if (null !== $userLogin && null === $userPassword) {
-            throw new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null');
+            throw new \Exception('ApiTestRequesterTrait::httpPutWithLogin : $userPassword parameter cannot be null if $userLogin parameters is not null');
         }
 
         $userLogin = $userLogin ?? static::$user;
@@ -479,8 +479,7 @@ trait ApiTestRequesterTrait
 
         self::logDebug(
             "\e[33m[API]\e[0m\t🌐 [\e[33m".strtoupper('Exec Command')."\e[0m]\t\t\e[34m{$command}\e[0m"
-            ."\n\t\t\tReturn code : \e[33m".$returnCode
-            ."\e[0m\n\t\t\tOutput : \e[33m".$strOutput."\e[0m\n\t\t\tExecution time : {$requestTotalTime} seconds\n"
+            ."\n\t\t\tReturn code : \e[33m{$returnCode}\e[0m\n\t\t\tOutput : \e[33m".$strOutput."\e[0m\n\t\t\tExecution time : {$requestTotalTime} seconds\n"
         );
 
         return $commandOutput;

@@ -56,14 +56,6 @@ abstract class AbstractUser extends FosUser implements EncoderAwareInterface
     private $encoder = '1';
 
     /**
-     * {@inheritdoc}
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * @param FOSUser $fosUser
      * @return AbstractUser
      */
@@ -84,18 +76,6 @@ abstract class AbstractUser extends FosUser implements EncoderAwareInterface
     }
 
     /**
-     * @return string
-     */
-    public function __toString()
-    {
-//        if($profile = $this->getProfile()) {
-//            return $profile->getFirstname().' '.$profile->getLastname();
-//        }
-
-        return parent::__toString();
-    }
-
-    /**
      * Get id.
      *
      * @return int
@@ -110,7 +90,7 @@ abstract class AbstractUser extends FosUser implements EncoderAwareInterface
      *
      * @param int $id
      *
-     * @return User
+     * @return self
      */
     public function setId(int $id)
     {

@@ -5,7 +5,6 @@ namespace EasyApiBundle\Entity\MediaUploader;
 use Doctrine\ORM\Mapping as ORM;
 use EasyApiBundle\Entity\AbstractBaseEntity;
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Vich\UploaderBundle\Naming\OrignameNamer;
@@ -26,8 +25,9 @@ abstract class AbstractMedia extends AbstractBaseEntity
     protected const fileNamer = OrignameNamer::class;
 
     /**
-     * @var UuidInterface
+     * @var Uuid
      * @ORM\Column(name="uuid", type="uuid", length=255, nullable=false)
+     * @Groups({"abstract_media_full", "abstract_media_short", "abstract_media_uuid"})
      */
     private $uuid;
 
@@ -64,17 +64,17 @@ abstract class AbstractMedia extends AbstractBaseEntity
     }
 
     /**
-     * @return UuidInterface
+     * @return Uuid
      */
-    public function getUuid(): UuidInterface
+    public function getUuid(): Uuid
     {
         return $this->uuid;
     }
 
     /**
-     * @param UuidInterface $uuid
+     * @param Uuid $uuid
      */
-    public function setUuid(UuidInterface $uuid): void
+    public function setUuid(Uuid $uuid): void
     {
         $this->uuid = $uuid;
     }
@@ -176,7 +176,7 @@ abstract class AbstractMedia extends AbstractBaseEntity
     }
 
     /**
-     * Implement this if you want to use Vich\UploaderBundle\Naming\PropertyNamer
+     * Implement this if you want to use vich file namer "PropertyNamer"
      * @return string
      */
     public function generateFileName(): string
