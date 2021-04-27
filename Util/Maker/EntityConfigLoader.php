@@ -5,6 +5,16 @@ namespace EasyApiBundle\Util\Maker;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\InheritanceType;
+use Doctrine\ORM\Mapping\ManyToMany;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\MappedSuperclass;
+use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\OneToOne;
+use Doctrine\ORM\Mapping\Table;
 use EasyApiBundle\Model\Maker\EntityConfiguration;
 use EasyApiBundle\Model\Maker\EntityField;
 use EasyApiBundle\Util\StringUtils\CaseConverter;
@@ -202,7 +212,7 @@ class EntityConfigLoader
      *
      * @return EntityConfigLoader
      */
-    public static function createFromFileContent(array $content)
+    public static function createFromFileContent(array $content): EntityConfigLoader
     {
         reset($content);
         $reader = new self();
@@ -314,14 +324,17 @@ class EntityConfigLoader
 
         foreach ($annotations as $annotation) {
             switch (get_class($annotation)) {
-                case 'Doctrine\ORM\Mapping\Table':
+                case Table::class:
                     $conf->setTableName($annotation->name);
                     if(isset($annotation->schema)) {
                         $conf->setSchema($annotation->schema);
                     }
                     break;
-                case 'Doctrine\ORM\Mapping\MappedSuperclass':
+                case MappedSuperclass::class:
                     $conf->setMappedSuperclass(true);
+                    break;
+                case InheritanceType::class:
+                    $conf->setInheritanceType($annotation->value);
                     break;
             }
         }
@@ -338,13 +351,13 @@ class EntityConfigLoader
             foreach ($annotations as $annotation) {
 
                 switch (get_class($annotation)) {
-                    case 'Doctrine\ORM\Mapping\Id':
+                    case Id::class:
                         $field->setIsPrimary(true);
                         break;
-                    case 'Doctrine\ORM\Mapping\GeneratedValue':
+                    case GeneratedValue::class:
                         $field->isAutoIncremented(true);
                         break;
-                    case 'Doctrine\ORM\Mapping\Column':
+                    case Column::class:
                         $field->setType($annotation->type);
                         $field->setLength($annotation->length);
                         $field->setPrecision($annotation->precision);
@@ -356,7 +369,7 @@ class EntityConfigLoader
 
                         }
                         break;
-                    case 'Doctrine\ORM\Mapping\ManyToOne':
+                    case ManyToOne::class:
                         $field->setEntityType($annotation->targetEntity);
                         //                $newField->setType($newField->getEntityClassName());
                         $field->setRelationType('manyToOne');
@@ -368,7 +381,7 @@ class EntityConfigLoader
                         //
                         //            }
                         break;
-                    case 'Doctrine\ORM\Mapping\OneToOne':
+                    case OneToOne::class:
                         $field->setEntityType($annotation->targetEntity);
                         //                $newField->setType($newField->getEntityClassName());
                         $field->setRelationType('oneToOne');
@@ -380,7 +393,7 @@ class EntityConfigLoader
                         //
                         //            }
                         break;
-                    case 'Doctrine\ORM\Mapping\OneToMany':
+                    case OneToMany::class:
                         $field->setType('\Doctrine\Common\Collections\ArrayCollection');
                         $field->setEntityType($annotation->targetEntity);
                         $field->setRelationType('oneToMany');
@@ -392,7 +405,7 @@ class EntityConfigLoader
                         //
                         //            }
                         break;
-                    case 'Doctrine\ORM\Mapping\ManyToMany':
+                    case ManyToMany::class:
                         $field->setType('\Doctrine\Common\Collections\ArrayCollection');
                         $field->setEntityType($annotation->targetEntity);
                         $field->setRelationType('manyToMany');
@@ -451,39 +464,6 @@ class EntityConfigLoader
         }
 
         return null;
-    }
-
-    /**
-     * @param $groups
-     *
-     * @return array
-     */
-    public function getProperties($groups)
-    {
-        $properties = [];
-
-        if ($this->config) {
-            $possibleProperties = $this->config->getProperties();
-            foreach ($possibleProperties as $key => $property) {
-                if (self::propertyHasValidGroup($property, $groups)) {
-                    if (isset($property['type']) && !self::isNativeType($property['type'])) {
-                        $serializerReader = new JmsSerializerConfigReader($property['type']);
-                        $properties[] = [
-                            'name' => $property['serialized_name'] ?? $key,
-                            'type' => 'object',
-                            'data' => $serializerReader->getProperties($groups),
-                        ];
-                    } else {
-                        $properties[] = [
-                            'name' => $property['serialized_name'] ?? $key,
-                            'type' => $property['type'] ?? 'string',
-                        ];
-                    }
-                }
-            }
-        }
-
-        return $properties;
     }
 
     /**
