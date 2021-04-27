@@ -13,11 +13,12 @@ trait CreateTestFunctionsTrait
      * POST - Nominal case.
      * @param string $filename
      * @param array $params
+     * @param bool $testGetAfterCreate
      * @param string|null $userLogin
      * @param string|null $userPassword
      * @throws \Exception
      */
-    protected function doTestCreate(string $filename, array $params = [], string $userLogin = null, string $userPassword = null): void
+    protected function doTestCreate(string $filename, array $params = [], bool $testGetAfterCreate = true, string $userLogin = null, string $userPassword = null): void
     {
         $data = $this->getDataSent($filename, self::$createActionType);
 
@@ -31,8 +32,21 @@ trait CreateTestFunctionsTrait
         static::assertAssessableContent($expectedResult, $result);
         static::assertEquals($expectedResult, $result, "Assert failed for file {$filename}");
 
-        // Get after post
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $expectedResult['id']]], $userLogin, $userPassword);
+        // Get after create
+        if($testGetAfterCreate) {
+            $this->doTestGetAfterCreate($expectedResult['id'], $filename, $userLogin, $userPassword);
+        }
+    }
+
+    /**
+     * @param int $id
+     * @param string $filename
+     * @param string|null $userLogin
+     * @param string|null $userPassword
+     */
+    protected function doTestGetAfterCreate(int $id, string $filename, string $userLogin = null, string $userPassword = null)
+    {
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $id]], $userLogin, $userPassword);
         static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
         $result = $apiOutput->getData();
         $expectedResult = $this->getExpectedResponse($filename, 'Create', $result, true);

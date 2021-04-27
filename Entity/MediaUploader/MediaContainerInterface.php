@@ -2,12 +2,13 @@
 
 namespace EasyApiBundle\Entity\MediaUploader;
 
-use Ramsey\Uuid\UuidInterface;
+use Ramsey\Uuid\Uuid;
 
 interface MediaContainerInterface
 {
     /**
-     * @return UuidInterface
+     * Return Uuid of entity
+     * @return Uuid
      */
-    public function getUuid() :UuidInterface;
+    public function getUuid() :Uuid;
 }

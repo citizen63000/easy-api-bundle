@@ -6,10 +6,20 @@ use EasyApiBundle\Util\ApiProblem;
 
 trait AssertionsTrait
 {
+    /** @var string[] */
     protected static $assessableFunctions = [
-        'assertDateTime' => '\\\assertDateTime\(\)',
-        'assertDate' => '\\\assertDate\(\)',
+        'assertDateTime',
+        'assertDate',
+        'assertFileUrl',
+        'assertFileName',
+        'assertUUID',
     ];
+
+    /** @var string */
+    public static $regexp_uuid = '[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+';
+
+    /** @var string */
+    public static $regexp_uid = '[a-zA-Z0-9]+';
 
     /**
      * Determine if two arrays are similar.
@@ -124,9 +134,11 @@ trait AssertionsTrait
         foreach ($expected as $key => $value) {
             if (array_key_exists($key, $result)) {
                 if (!is_array($value)) {
-                    foreach (static::$assessableFunctions as $functionName => $functionExpr) {
-                        if (preg_match("/{$functionExpr}/", $value)) {
-                            static::$functionName($key, $value, $result[$key]);
+                    foreach (static::$assessableFunctions as $functionName) {
+                        $functionExpr1 = "\\\\{$functionName}\((.*)\)";
+                        $functionExpr2 = "{{$functionName}\((.*)\)}";
+                        if (preg_match("/{$functionExpr1}|$functionExpr2/", $value, $matches)) {
+                            static::$functionName($key, $matches[1], $result[$key]);
                             unset($expected[$key]);
                             unset($result[$key]);
                         }
@@ -165,8 +177,55 @@ trait AssertionsTrait
      */
     private static function assertDateFromFormat($key, $expected, $value, $expectedFormat): void
     {
-        $errorMessage = "invalid date format for {$key} field: expected format {$expectedFormat}, get value {$value}";
+        $errorMessage = "Invalid date format for {$key} field: expected format {$expectedFormat}, get value {$value}";
         $date = \DateTime::createFromFormat($expectedFormat, $value);
         static::assertTrue($date && ($date->format($expectedFormat) === $value), $errorMessage);
+    }
+
+    /**
+     * You can use {UID} & {UUID} tags
+     * @param $key
+     * @param $expected
+     * @param $value
+     */
+    private static function assertFileUrl($key, $expected, $value): void
+    {
+        $expected = str_replace([ '.', '/', '-'], ['\.', '\/', '\-'], $expected);
+        $expectedUUID = '[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+';
+        $expected = str_replace('{UUID}', $expectedUUID, $expected);
+        $expected = str_replace('{UID}', '[a-zA-Z0-9]+', $expected);
+        $expected = "/$expected/";
+        $errorMessage = "Invalid file url in {$key} field: expected {$expected}, get value {$value}";
+        $found = preg_match($expected, $value);
+        static::assertTrue( (bool) $found, $errorMessage);
+    }
+
+    /**
+     * You can use {UID} & {UUID} tags
+     * @param $key
+     * @param $expected
+     * @param $value
+     */
+    private static function assertFileName($key, $expected, $value): void
+    {
+        $expected = str_replace([ '.', '-'], ['\.', '\-'], $expected);
+        $expected = str_replace('{UUID}', static::$regexp_uuid, $expected);
+        $expected = str_replace('{UID}', static::$regexp_uid, $expected);
+        $expected = "/$expected/";
+        $errorMessage = "Invalid file name in {$key} field: expected {$expected}, get value {$value}";
+        $found = preg_match($expected, $value);
+        static::assertTrue( (bool) $found, $errorMessage);
+    }
+
+    /**
+     * @param $key
+     * @param $expected
+     * @param $value
+     */
+    private static function assertUUID($key, $expected, $value): void
+    {
+        $expected = static::$regexp_uuid;
+        $errorMessage = "Invalid UUID in {$key} field: expected {$expected}, get value {$value}";
+        static::assertTrue( (bool) preg_match("/$expected/", $value), $errorMessage);
     }
 }

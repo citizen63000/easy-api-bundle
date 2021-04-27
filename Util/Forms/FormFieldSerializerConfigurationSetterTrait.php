@@ -13,7 +13,7 @@ trait FormFieldSerializerConfigurationSetterTrait
      */
     protected static function getAuthorizedBlockPrefixes()
     {
-        return ['text', 'textarea', 'number', 'integer', 'hidden', 'date', 'datetime', 'choice', 'checkbox', 'password', 'collection', 'entity'];
+        return ['text', 'textarea', 'number', 'integer', 'hidden', 'date', 'datetime', 'choice', 'checkbox', 'password', 'collection', 'entity', 'file'];
     }
 
     /**
@@ -251,6 +251,16 @@ trait FormFieldSerializerConfigurationSetterTrait
             $field->setWidget('choice-multiple');
         }
 
+        return $field;
+    }
+
+    /**
+     * @param SerializedFormField $field
+     * @return SerializedFormField
+     */
+    protected function setFileFieldConfiguration(FormConfigBuilderInterface $config, SerializedFormField $field): SerializedFormField
+    {
+        $field->setType('string');
         return $field;
     }
 }
