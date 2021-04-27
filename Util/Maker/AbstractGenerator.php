@@ -14,7 +14,7 @@ class AbstractGenerator
     /**
      * @var string
      */
-    protected static $templatesDirectory;
+    protected static $templatesDirectory = '';
 
     /**
      * @var ContainerInterface
@@ -139,7 +139,7 @@ class AbstractGenerator
      */
     protected function getTemplatePath(string $templateName): string
     {
-        return $this->getSkeletonPath().$templateName;
+        return $this->getSkeletonPath().static::$templatesDirectory.'/'.$templateName;
     }
 
     /**

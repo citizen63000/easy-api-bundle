@@ -17,7 +17,7 @@ class TiCrudGenerator extends AbstractGenerator
     /**
      * @var string
      */
-    protected static $templatesDirectory = 'Doctrine/TI/';
+    protected static $templatesDirectory = '/TI/';
 
     /**
      * @var array
@@ -73,7 +73,7 @@ class TiCrudGenerator extends AbstractGenerator
             $this->generateContent()
         );
 
-        return $this->writeFile($this->getEntityTestsDirectory(), 'GET'.$this->config->getEntityName().'Test.php', $fileContent, $dumpExistingFiles);
+        return $this->writeFile($this->getEntityTestsDirectory(), 'GetTest.php', $fileContent, $dumpExistingFiles, true);
     }
 
     /**
@@ -90,7 +90,7 @@ class TiCrudGenerator extends AbstractGenerator
             $this->generateContent()
         );
 
-        return $this->writeFile($this->getEntityTestsDirectory(), 'GETLIST'.$this->config->getEntityName().'Test.php', $fileContent, $dumpExistingFiles);
+        return $this->writeFile($this->getEntityTestsDirectory(), 'GetListTest.php', $fileContent, $dumpExistingFiles, true);
     }
 
     /**
@@ -107,7 +107,7 @@ class TiCrudGenerator extends AbstractGenerator
             $this->generateContent()
         );
 
-        return $this->writeFile($this->getEntityTestsDirectory(), 'GETDESCRIBEFORM'.$this->config->getEntityName().'Test.php', $fileContent, $dumpExistingFiles);
+        return $this->writeFile($this->getEntityTestsDirectory(), 'GetDescribeFormTest.php', $fileContent, $dumpExistingFiles, true);
     }
 
     /**
@@ -124,7 +124,7 @@ class TiCrudGenerator extends AbstractGenerator
             $this->generateContent()
         );
 
-        return $this->writeFile($this->getEntityTestsDirectory(), 'DELETE'.$this->config->getEntityName().'Test.php', $fileContent, $dumpExistingFiles);
+        return $this->writeFile($this->getEntityTestsDirectory(), 'DeleteTest.php', $fileContent, $dumpExistingFiles, true);
     }
 
     /**
@@ -141,7 +141,7 @@ class TiCrudGenerator extends AbstractGenerator
             $this->generateContent()
         );
 
-        return $this->writeFile($this->getEntityTestsDirectory(), 'POST'.$this->config->getEntityName().'Test.php', $fileContent, $dumpExistingFiles);
+        return $this->writeFile($this->getEntityTestsDirectory(), 'PostTest.php', $fileContent, $dumpExistingFiles, true);
     }
 
     /**
@@ -158,7 +158,7 @@ class TiCrudGenerator extends AbstractGenerator
             $this->generateContent()
         );
 
-        return $this->writeFile($this->getEntityTestsDirectory(), 'PUT'.$this->config->getEntityName().'Test.php', $fileContent, $dumpExistingFiles);
+        return $this->writeFile($this->getEntityTestsDirectory(), 'PutTest.php', $fileContent, $dumpExistingFiles, true);
     }
 
     /**
@@ -174,7 +174,7 @@ class TiCrudGenerator extends AbstractGenerator
             $this->generateContent()
         );
 
-        return $this->writeFile($this->getEntityTestsDirectory(), "{$abstractContextName}.php", $fileContent, $dumpExistingFiles);
+        return $this->writeFile($this->getEntityTestsDirectory(), "{$abstractContextName}.php", $fileContent, $dumpExistingFiles, true);
     }
 
     /**
@@ -209,7 +209,7 @@ class TiCrudGenerator extends AbstractGenerator
                 [ 'table' => $table]
             );
 
-            $csvWriteOperation .= '    '.$this->writeFile($directory, $table['tableName'].'.csv', $fileContent, $dumpExistingFiles)."\n";
+            $csvWriteOperation .= '    '.$this->writeFile($directory, "{$table['tableName']}.csv", $fileContent, $dumpExistingFiles, true)."\n";
         }
 
         return "{$ymlWriteOperation}\n{$csvWriteOperation}";
@@ -226,7 +226,8 @@ class TiCrudGenerator extends AbstractGenerator
         $path = str_replace(self::DATA_CSV_PATH, '', $this->generateDataCsvDirectoryPath());
 
         foreach ($dataFixtures['tables'] as $table) {
-            $ymlData[] = [ 'filePath' => "{$path}{$table['tableName']}.csv", 'tableName' => $table['tableName']];
+            $filePath = str_replace('`', '', "{$path}{$table['tableName']}.csv");
+            $ymlData[] = [ 'filePath' => $filePath, 'tableName' => $table['tableName']];
         }
 
         // yml content
@@ -235,7 +236,7 @@ class TiCrudGenerator extends AbstractGenerator
             ['files' => $ymlData]
         );
 
-        return $this->writeFile($this->generateDataYmlDirectoryPath(), $this->generateDataYmlFilename(), $fileContent, $dumpExistingFiles);
+        return $this->writeFile($this->generateDataYmlDirectoryPath(), $this->generateDataYmlFilename(), $fileContent, $dumpExistingFiles, true);
     }
 
     /**
@@ -356,13 +357,17 @@ class TiCrudGenerator extends AbstractGenerator
         $sqlParent = null;
 
         // Has parent class ?
-        if ($parent = $config->getParentEntity()) {
+        if (($parent = $config->getParentEntity()) && !$config->getParentEntity()->isMappedSuperClass()) {
             $parentConfig = EntityConfigLoader::findAndCreateFromEntityName($parent->getEntityName(), $config->getBundleName());
-            $sqlParent = $this->prepareSqlInsertData($parentConfig, $fixtures, $config);
-            $columnIdName = $config->isReferential() ? 'code' : 'id';
-            $columns[] = $columnIdName;
-            $values['id'] = $fixtures['get'][$parentConfig->getEntityName()][$columnIdName]['value'];
-            $values2['id'] = $fixtures['get2'][$parentConfig->getEntityName()][$columnIdName]['value'];
+            if(null !== $parentConfig) {
+                $sqlParent = $this->prepareSqlInsertData($parentConfig, $fixtures, $config);
+                $columnIdName = $config->isReferential() ? 'code' : 'id';
+                $columns[] = $columnIdName;
+                $values['id'] = $fixtures['get'][$parentConfig->getEntityName()][$columnIdName]['value'];
+                $values2['id'] = $fixtures['get2'][$parentConfig->getEntityName()][$columnIdName]['value'];
+            } else {
+                echo "Impossible to find {$parent->getEntityName()} parent class\n";
+            }
         }
 
         // is parent class ?
@@ -535,7 +540,7 @@ class TiCrudGenerator extends AbstractGenerator
      */
     public function generateDataCsvDirectoryPath(): string
     {
-        return $this->generateDataYmlDirectoryPath().$this->config->getEntityName().'/';
+        return "{$this->generateDataYmlDirectoryPath()}{$this->config->getEntityName()}/";
     }
 
     /**

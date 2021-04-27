@@ -7,6 +7,7 @@ use EasyApiBundle\Model\Maker\EntityField;
 
 class FormGenerator extends AbstractGenerator
 {
+    protected static $templatesDirectory = '/doctrine';
     /**
      * @param string $bundle
      * @param string $context
@@ -23,7 +24,7 @@ class FormGenerator extends AbstractGenerator
 
         // generate file
         $fileContent = $this->getContainer()->get('templating')->render(
-            '@EasyApiBundle/Resources/skeleton/doctrine/form.php.twig',
+            $this->getTemplatePath('form.php.twig'),
             $this->generateContent($parent)
         );
 

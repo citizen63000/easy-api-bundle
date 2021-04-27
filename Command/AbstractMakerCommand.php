@@ -93,7 +93,7 @@ abstract class AbstractMakerCommand extends AbstractCommand
         $filesPath = $generator->generate($bundle, $context, $entityName, $dumpExistingFiles);
         foreach ($filesPath as $type => $file) {
             $type = ucfirst($type);
-            $output->writeln("{$type} {$file} created.");
+            $output->writeln("file://{$file} created.");
         }
     }
 }

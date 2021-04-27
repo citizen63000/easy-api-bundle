@@ -3,18 +3,10 @@
 namespace Tests\{{ bundle_name }}\{{ context_name }}\{{ entity_name }};
 
 use \Tests\{{ bundle_name }}\Abstract{{ bundle_name }}Test;
-{% if(entity_parent_name is not null) %}
-use {{ entity_parent_use }};
-{% else %}
 use {{ entity_use }};
-{% endif %}
-
 
 abstract class {{ abstractContextName }} extends Abstract{{ bundle_name }}Test
 {
-    protected const ENTITY_ID_1 = {{ fixtures.id1 }};
-    protected const ENTITY_ID_2 = {{ fixtures.id2 }};
-
     protected const baseRouteName = '{{ route_name_prefix }}';
     protected const entityClass = {{ entity_name }}::class;
 
@@ -23,7 +15,7 @@ abstract class {{ abstractContextName }} extends Abstract{{ bundle_name }}Test
     /**
      * @return array
      */
-    protected static function getRequiredFields()
+    protected static function getRequiredFields(): array
     {
         return [{{ requiredFieldsForArray|raw }}];
     }
