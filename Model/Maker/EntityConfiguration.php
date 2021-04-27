@@ -23,6 +23,9 @@ class EntityConfiguration
      */
     protected $tableName;
 
+    /** @var bool */
+    protected $mappedSuperclass = false;
+
     /**
      * @var string
      */
@@ -136,6 +139,24 @@ class EntityConfiguration
     public function setTableName(?string $tableName): void
     {
         $this->tableName = $tableName;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMappedSuperclass(): bool
+    {
+        return $this->mappedSuperclass;
+    }
+
+    /**
+     * @param bool $mappedSuperclass
+     * @return EntityConfiguration
+     */
+    public function setMappedSuperclass(bool $mappedSuperclass): EntityConfiguration
+    {
+        $this->mappedSuperclass = $mappedSuperclass;
+        return $this;
     }
 
     /**

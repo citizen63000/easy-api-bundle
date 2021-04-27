@@ -338,7 +338,7 @@ class TiCrudGenerator extends AbstractGenerator
 
         // Has parent class ?
         if (($parent = $config->getParentEntity()) && !$config->getParentEntity()->isMappedSuperClass()) {
-            $parentConfig = EntityConfigLoader::findAndCreateFromEntityName($parent->getEntityName(), $config->getBundleName());
+//            $parentConfig = EntityConfigLoader::findAndCreateFromEntityName($parent->getEntityName(), $config->getBundleName());
 //            if(null !== $parentConfig) {
 //                $sqlParent = $this->prepareSqlInsertData($parentConfig, $fixtures, $config);
 //                $columnIdName = $config->isReferential() ? 'code' : 'id';

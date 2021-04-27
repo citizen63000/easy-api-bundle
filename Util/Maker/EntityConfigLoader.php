@@ -320,6 +320,9 @@ class EntityConfigLoader
                         $conf->setSchema($annotation->schema);
                     }
                     break;
+                case 'Doctrine\ORM\Mapping\MappedSuperclass':
+                    $conf->setMappedSuperclass(true);
+                    break;
             }
         }
 
