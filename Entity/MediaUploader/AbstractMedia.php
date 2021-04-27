@@ -28,7 +28,6 @@ abstract class AbstractMedia extends AbstractBaseEntity
     /**
      * @var UuidInterface
      * @ORM\Column(name="uuid", type="uuid", length=255, nullable=false)
-     * @Groups({"abstract_media_full", "abstract_media_short", "abstract_media_uuid"})
      */
     private $uuid;
 
