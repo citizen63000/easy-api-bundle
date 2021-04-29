@@ -106,6 +106,10 @@ class JWTAuthenticatedListener
      */
     public function onJWTAuthenticated(JWTAuthenticatedEvent $event): void
     {
+        $payload = $event->getPayload();
+        $payload['displayName'] = $event->getToken()->getUser()->__toString();
+        $event->setPayload($payload);
+
         if($this->container->getParameter(Tracking::TRACKING_ENABLE_PARAMETER)) {
             $this->container->get('app.user.tracking')->updateLastAction(
                 $event->getToken()->getUser(),

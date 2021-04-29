@@ -38,6 +38,7 @@ services:
       - '@security.token_storage'
       - '@doctrine.orm.entity_manager'
       - '%easy_api.user_class%'
+      - '%lexik_jwt_authentication.user_identity_field%'
 
   Lexik\Bundle\JWTAuthenticationBundle\Services\JWSProvider\JWSProviderInterface:
     alias: app.jwt_authentication.jws_provider

@@ -13,45 +13,32 @@ use Namshi\JOSE\JWS;
 
 class JWSProvider implements JWSProviderInterface
 {
-    /**
-     * @var KeyLoaderInterface
-     */
+    /** @var KeyLoaderInterface */
     private $keyLoader;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $cryptoEngine;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $signatureAlgorithm;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $ttl;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $authorizationHeaderPrefix;
 
-    /**
-     * @var TokenStorageInterface
-     */
+    /** @var TokenStorageInterface */
     private $tokenStorage;
 
-    /**
-     * @var EntityManager
-     */
+    /** @var EntityManager */
     private $em;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $userClass;
+
+    /** @var string */
+    private $userIdentityField;
 
     /**
      * @param KeyLoaderInterface    $keyLoader
@@ -64,7 +51,7 @@ class JWSProvider implements JWSProviderInterface
      *
      * @throws \InvalidArgumentException If the given algorithm is not supported
      */
-    public function __construct(KeyLoaderInterface $keyLoader, $cryptoEngine, $signatureAlgorithm, $ttl, $authorizationHeaderPrefix, TokenStorageInterface $tokenStorage, EntityManager $entityManager, string $userClass)
+    public function __construct(KeyLoaderInterface $keyLoader, $cryptoEngine, $signatureAlgorithm, $ttl, $authorizationHeaderPrefix, TokenStorageInterface $tokenStorage, EntityManager $entityManager, string $userClass, string $userIdentityField)
     {
         $cryptoEngine = 'openssl' === $cryptoEngine ? 'OpenSSL' : 'SecLib';
 
@@ -80,6 +67,7 @@ class JWSProvider implements JWSProviderInterface
         $this->tokenStorage = $tokenStorage;
         $this->em = $entityManager;
         $this->userClass = $userClass;
+        $this->userIdentityField = $userIdentityField;
     }
 
     /**
@@ -88,7 +76,8 @@ class JWSProvider implements JWSProviderInterface
      */
     public function generateTokenByUser(User $user)
     {
-        return $this->create(['roles' => $user->getRoles(), 'username' => $user->getUsername()]);
+        $identityGetter = 'get'.ucfirst($this->userIdentityField);
+        return $this->create(['roles' => $user->getRoles(), $this->userIdentityField => $user->$identityGetter()]);
     }
 
     /**
@@ -105,7 +94,7 @@ class JWSProvider implements JWSProviderInterface
         $user = (null !== $token) ? $token->getUser() : null;
 
         if (null === $user || (is_string($user) && $user === 'anon.')) {
-            $user = $this->em->getRepository($this->userClass)->findOneByUsername($payload['username']);
+            $user = $this->em->getRepository($this->userClass)->findOneBy([$this->userIdentityField => $payload[$this->userIdentityField]]);
         }
 
         if ($user instanceof User) {
