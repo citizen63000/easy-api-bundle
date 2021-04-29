@@ -2,6 +2,7 @@
 
 namespace EasyApiBundle\Util\Forms;
 
+use Swagger\Annotations as SWG;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class SerializedFormField
@@ -94,6 +95,7 @@ class SerializedFormField
 
     /**
      * @var mixed|null
+     * @SWG\Property(type="string")
      * @Groups({"public"})
      */
     protected $defaultValue = '';
