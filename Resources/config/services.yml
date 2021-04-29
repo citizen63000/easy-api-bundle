@@ -38,12 +38,18 @@ services:
       - '@security.token_storage'
       - '@doctrine.orm.entity_manager'
       - '%easy_api.user_class%'
-    autowiring_types: Lexik\Bundle\JWTAuthenticationBundle\Services\JWSProvider\JWSProviderInterface
+
+  Lexik\Bundle\JWTAuthenticationBundle\Services\JWSProvider\JWSProviderInterface:
+    alias: app.jwt_authentication.jws_provider
+    public: false
 
   app.jwt_authentication.encoder:
     parent: 'lexik_jwt_authentication.encoder.abstract'
     arguments: ['@app.jwt_authentication.jws_provider']
-    autowiring_types: Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface
+
+  Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface:
+    alias: app.jwt_authentication.encoder
+    public: false
 
   # JWT AUTHENTICATION_SUCCESS - Success login
   app.event.jwt_authentication_success_listener:
