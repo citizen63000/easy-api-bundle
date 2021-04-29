@@ -2,19 +2,14 @@
 
 namespace EasyApiBundle\EventListener;
 
-use EasyApiBundle\Exception\ApiProblemException;
 use EasyApiBundle\Services\User\Tracking;
-use EasyApiBundle\Util\ApiProblem;
 use EasyApiBundle\Entity\User\AbstractUser as User;
-use EasyApiBundle\Entity\User\AbstractConnectionHistory as ConnectionHistory;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationSuccessEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTAuthenticatedEvent;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Security\Core\Encoder\EncoderFactory;
@@ -25,32 +20,32 @@ class JWTAuthenticatedListener
     /**
      * @var EntityManager
      */
-    private $em;
+    protected $em;
 
     /**
      * @var RequestContext
      */
-    private $requestContext;
+    protected $requestContext;
 
     /**
      * @var RequestStack
      */
-    private $requestStack;
+    protected $requestStack;
 
     /**
      * @var string
      */
-    private $jwtTokenTTL;
+    protected $jwtTokenTTL;
 
     /**
      * @var Container
      */
-    private $container;
+    protected $container;
 
     /**
      * @var EncoderFactory
      */
-    private $encoderFactory;
+    protected $encoderFactory;
 
     /**
      * JWTAuthenticatedListener constructor.
@@ -76,7 +71,7 @@ class JWTAuthenticatedListener
      * @param AuthenticationSuccessEvent $event
      *
      * @throws OptimisticLockException
-     * @throws ORMException
+     * @throws ORMException|\Exception
      */
     public function onAuthenticationSuccessResponse(AuthenticationSuccessEvent $event): void
     {
@@ -107,14 +102,10 @@ class JWTAuthenticatedListener
      * @param JWTAuthenticatedEvent $event
      *
      * @throws ORMException
-     * @throws OptimisticLockException
+     * @throws OptimisticLockException|\Exception
      */
     public function onJWTAuthenticated(JWTAuthenticatedEvent $event): void
     {
-        $payload = $event->getPayload();
-        $payload['displayName'] = $event->getToken()->getUser()->__toString();
-        $event->setPayload($payload);
-
         if($this->container->getParameter(Tracking::TRACKING_ENABLE_PARAMETER)) {
             $this->container->get('app.user.tracking')->updateLastAction(
                 $event->getToken()->getUser(),
