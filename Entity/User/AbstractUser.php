@@ -135,9 +135,9 @@ abstract class AbstractUser extends FosUser implements EncoderAwareInterface
      *
      * @param bool $anonymous
      *
-     * @return User
+     * @return AbstractUser
      */
-    public function setAnonymous(bool $anonymous): User
+    public function setAnonymous(bool $anonymous): AbstractUser
     {
         $this->anonymous = $anonymous;
 
