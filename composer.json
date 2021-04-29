@@ -1,6 +1,6 @@
 {
   "name": "citizen63000/easy-api-bundle",
-  "description": "Complete API bundle to create easily APIs",
+  "description": "Complete API bundle to create easily your API",
   "keywords": ["api", "rest"],
   "type": "symfony-bundle",
   "authors": [
@@ -22,8 +22,6 @@
     "doctrine/doctrine-cache-bundle": "^1.3",
     "stof/doctrine-extensions-bundle": "^1.3",
     "ramsey/uuid-doctrine": "^1.6",
-    "jms/di-extra-bundle": "~1.9",
-    "jms/security-extra-bundle": "~1.6",
     "friendsofsymfony/user-bundle": "~2.0",
     "friendsofsymfony/rest-bundle": "2.1.*",
     "friendsofsymfony/http-cache": "~1.4",
@@ -37,15 +35,19 @@
     "oneup/flysystem-bundle": "^3.0",
     "whichbrowser/parser": "^2.0",
     "thadafinser/user-agent-parser": "^2.0",
-    "ext-fileinfo": "*"
+    "ext-fileinfo": "*",
+    "ext-pdo": "*",
+    "ext-json": "*"
   },
   "require-dev": {
+    "friendsofphp/php-cs-fixer": "@stable",
     "guzzlehttp/psr7": "^1.3",
     "php-http/guzzle6-adapter": "^1.1",
     "symfony/phpunit-bridge": "^3.0",
     "phpunit/phpunit": "6.*"
   },
   "config": {
+    "discard-changes": true,
     "platform": {
       "php": "7.2"
     },
