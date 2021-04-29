@@ -19,7 +19,6 @@ abstract class AbstractUser extends FosUser implements EncoderAwareInterface
     const ANONYMOUS_PREFIX = 'anonymous_';
     const ROLE_BASIC_USER = 'ROLE_BASIC_USER';
     const ROLE_ADMIN = 'ROLE_ADMIN';
-    const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
 
     /**
      * @var int
@@ -59,7 +58,7 @@ abstract class AbstractUser extends FosUser implements EncoderAwareInterface
      * @param FOSUser $fosUser
      * @return AbstractUser
      */
-    public function updateFromFosUser(FOSUser $fosUser)
+    public function updateFromFosUser(FOSUser $fosUser): AbstractUser
     {
         $this->setId($fosUser->getId());
         $this->setUsername($fosUser->getUsername());
@@ -78,9 +77,9 @@ abstract class AbstractUser extends FosUser implements EncoderAwareInterface
     /**
      * Get id.
      *
-     * @return int
+     * @return int|null
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -88,11 +87,11 @@ abstract class AbstractUser extends FosUser implements EncoderAwareInterface
     /**
      * Set id.
      *
-     * @param int $id
+     * @param int|null $id
      *
      * @return self
      */
-    public function setId(int $id)
+    public function setId(?int $id): AbstractUser
     {
         $this->id = $id;
 
@@ -138,7 +137,7 @@ abstract class AbstractUser extends FosUser implements EncoderAwareInterface
      *
      * @return User
      */
-    public function setAnonymous(bool $anonymous)
+    public function setAnonymous(bool $anonymous): User
     {
         $this->anonymous = $anonymous;
 
@@ -178,5 +177,4 @@ abstract class AbstractUser extends FosUser implements EncoderAwareInterface
     {
         return $this->encoder;
     }
-
 }

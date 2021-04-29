@@ -93,7 +93,7 @@ class SerializedFormField
     protected $widget = 'input';
 
     /**
-     * @var string
+     * @var mixed|null
      * @Groups({"public"})
      */
     protected $defaultValue = '';
@@ -347,7 +347,7 @@ class SerializedFormField
     }
 
     /**
-     * @return int|string
+     * @return mixed|null
      */
     public function getDefaultValue()
     {
@@ -355,7 +355,7 @@ class SerializedFormField
     }
 
     /**
-     * @param int|string $defaultValue
+     * @param mixed|null $defaultValue
      */
     public function setDefaultValue($defaultValue): void
     {
@@ -431,6 +431,6 @@ class SerializedFormField
      */
     public function isReferential(): bool
     {
-        return 1 === preg_match('/ref[A-Z]{1}[a-z]+/', $this->getName());
+        return 1 === preg_match('/ref[A-Z][a-z]+/', $this->getName());
     }
 }

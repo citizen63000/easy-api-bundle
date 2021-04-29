@@ -221,7 +221,7 @@ class EntityField
     }
 
     /**
-     * @param string $inverseReferencedColumnName
+     * @param string|null $inverseReferencedColumnName
      */
     public function setInverseReferencedColumnName(?string $inverseReferencedColumnName): void
     {
@@ -732,6 +732,6 @@ class EntityField
      */
     public function isReferential()
     {
-        return !$this->isNativeType() && 1 === preg_match('/^ref[A-Z]{1}[a-z]+/', $this->getName());
+        return !$this->isNativeType() && 1 === preg_match('/^ref[A-Z][a-z]+/', $this->getName());
     }
 }
