@@ -89,6 +89,13 @@ abstract class AbstractApiTest extends WebTestCase
     protected static $executeSetupOnAllTest = null;
 
     /**
+     * Indicates if you want launch setup on all tests in your test class.
+     *
+     * @var bool
+     */
+    protected static $loadDataOnSetup = null;
+
+    /**
      * Indicates if you want launch cleanup on all tests in your test class.
      *
      * @var bool
@@ -203,6 +210,7 @@ abstract class AbstractApiTest extends WebTestCase
         self::$projectDir = self::$container->getParameter('kernel.project_dir');
 
         static::initExecuteSetupOnAllTest();
+        static::initLoadDataOnSetup();
         self::initializeLoader();
         self::initializeRequester();
 
@@ -345,13 +353,23 @@ abstract class AbstractApiTest extends WebTestCase
     }
 
     /**
+     * Initialize $loadDataOnSetup, override it to change it
+     */
+    protected static function initLoadDataOnSetup()
+    {
+        if(null === static::$loadDataOnSetup) {
+            static::$loadDataOnSetup = true;
+        }
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function setUp()
     {
         self::logStep();
 
-        if (true === static::$executeSetupOnAllTest || (false === static::$executeSetupOnAllTest && false === static::$launchFirstSetup)) {
+        if (true === static::$loadDataOnSetup && (true === static::$executeSetupOnAllTest || (false === static::$executeSetupOnAllTest && false === static::$launchFirstSetup))) {
             static::loadData();
         }
 
