@@ -19,7 +19,6 @@
     "incenteev/composer-parameter-handler": "^2.0",
     "doctrine/orm": "^2.6",
     "doctrine/doctrine-bundle": "^1.10",
-    "doctrine/doctrine-cache-bundle": "^1.3",
     "stof/doctrine-extensions-bundle": "^1.3",
     "ramsey/uuid-doctrine": "^1.6",
     "friendsofsymfony/user-bundle": "~2.0",
