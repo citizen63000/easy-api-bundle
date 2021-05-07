@@ -67,9 +67,9 @@ trait CoreUtilsTrait
     /**
      * @return string
      */
-    protected function getUserClassname()
+    protected function getUserClassname(): string
     {
-        return $this->getParameter('user_class');
+        return $this->getParameter('easy_api.user_class');
     }
 
     /**
