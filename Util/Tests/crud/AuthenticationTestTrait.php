@@ -2,61 +2,67 @@
 
 namespace EasyApiBundle\Util\Tests\crud;
 
-use EasyApiBundle\Util\Tests\crud\functions\GetTestFunctionsTrait;
-use Namshi\JOSE\JWS;
+use EasyApiBundle\Util\Tests\crud\functions\AuthenticationTestFunctionsTrait;
 use Symfony\Component\HttpFoundation\Response;
 
 trait AuthenticationTestTrait
 {
-    use GetTestFunctionsTrait;
+    use AuthenticationTestFunctionsTrait;
 
-    protected static $routeName = 'fos_user_security_check';
+    protected static $authenticateRouteName = 'fos_user_security_check';
+    protected static $refreshTokenRouteName = 'gesdinet_jwt_refresh_token';
 
     protected static function initExecuteSetupOnAllTest()
     {
         static::$executeSetupOnAllTest = false;
     }
 
-    /**
-     * @param array $payload
-     */
-    protected function checkPayloadContent(array $payload)
-    {
-        self::assertArrayHasKey('iat', $payload);
-        self::assertArrayHasKey('exp', $payload);
-        self::assertEquals($payload['iat'] + self::$container->getParameter('jwt_token_ttl'), $payload['exp']);
-    }
-
     public function testAuthenticateWithGoodCredentials()
     {
-        $filename = 'authenticateWithGoodCredentials.json';
-        $params = [
-            'username' => static::USER_TEST_USERNAME,
-            'password' => static::USER_TEST_PASSWORD,
-        ];
+        $params = ['username' => static::USER_TEST_USERNAME, 'password' => static::USER_TEST_PASSWORD];
 
         // Request
-        $apiOutput = self::httpPost(['name' => static::$routeName], $params, false);
+        $apiOutput = self::httpPost(['name' => static::$authenticateRouteName], $params, false);
 
-        // Assert result
+        // Assert token
         static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
-        $result = $apiOutput->getData();
-        self::arrayHasKey('token', $result);
-        self::arrayHasKey('refreshToken', $result);
-        self::checkPayloadContent($token = JWS::load($result['token'])->getPayload());
+        self::checkAuthenticateResponse($apiOutput->getData());
     }
 
     public function testAuthenticateWithBadCredentials()
     {
-        $filename = 'authenticateWithGoodCredentials.json';
         $params = [
             'username' => 'thisusernotexist',
             'password' => 'thisusernotexist',
         ];
 
         // Request
-        $apiOutput = self::httpPost(['name' => static::$routeName], $params, false);
+        $apiOutput = self::httpPost(['name' => static::$authenticateRouteName], $params, false);
         static::assertEquals(Response::HTTP_UNAUTHORIZED, $apiOutput->getStatusCode());
         static::assertEquals(['errors' => ['core.error.bad_credentials']], $apiOutput->getData());
+    }
+
+    public function testRefreshToken()
+    {
+        $params = ['username' => static::USER_TEST_USERNAME, 'password' => static::USER_TEST_PASSWORD];
+
+        // get refreshToken
+        $apiOutput = self::httpPost(['name' => static::$authenticateRouteName], $params, false);
+        static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
+        $result = $apiOutput->getData();
+        self::arrayHasKey('refreshToken', $result);
+
+        // test refreshToken route
+        $apiOutput = self::httpPost(['name' => static::$refreshTokenRouteName], ['refreshToken' => $result['refreshToken']], false);
+        static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
+        self::checkAuthenticateResponse($apiOutput->getData());
+    }
+
+    public function testRefreshTokenWithBadRefreshToken()
+    {
+        // Request
+        $apiOutput = self::httpPost(['name' => static::$refreshTokenRouteName], ['refreshToken' => 'imfakerefreshtoken'], false);
+        static::assertEquals(Response::HTTP_NOT_FOUND, $apiOutput->getStatusCode());
+        static::assertEquals(['errors' => ['core.error.token.not_found']], $apiOutput->getData());
     }
 }
