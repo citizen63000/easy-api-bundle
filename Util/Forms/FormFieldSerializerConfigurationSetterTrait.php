@@ -1,8 +1,6 @@
 <?php
 
-
 namespace EasyApiBundle\Util\Forms;
-
 
 use Symfony\Component\Form\FormConfigBuilderInterface;
 
@@ -137,7 +135,11 @@ trait FormFieldSerializerConfigurationSetterTrait
         if ($choices = $config->getOption('choices')) {
             $values = [];
             foreach ($choices as $value => $key) {
-                $values[$key] = $value;
+                if ($config->getOption('multiple')) {
+                    $values[] = $value;
+                } else {
+                    $values[$key] = $value;
+                }
             }
 
             $field->setValues($values);
@@ -255,6 +257,7 @@ trait FormFieldSerializerConfigurationSetterTrait
     }
 
     /**
+     * @param FormConfigBuilderInterface $config
      * @param SerializedFormField $field
      * @return SerializedFormField
      */
