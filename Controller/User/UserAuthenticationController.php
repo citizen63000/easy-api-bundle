@@ -1,6 +1,5 @@
 <?php
 
-
 namespace EasyApiBundle\Controller\User;
 
 use FOS\UserBundle\Model\User;
@@ -47,7 +46,7 @@ class UserAuthenticationController extends AbstractApiController
             );
         }
 
-        $user = $this->getRepository(User::class)->findOneByUsername($refreshToken->getUsername());
+        $user = $this->getRepository($this->getUserClassname())->findOneByUsername($refreshToken->getUsername());
         if (null === $user) {
             throw new ApiProblemException(
                 new ApiProblem(Response::HTTP_NOT_FOUND, sprintf(ApiProblem::ENTITY_NOT_FOUND, 'user'), 'user')
