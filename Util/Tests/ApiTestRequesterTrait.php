@@ -262,10 +262,9 @@ trait ApiTestRequesterTrait
 
     /**
      * @param string $token
-     *
      * @return bool
      */
-    private static function isTokenExpired(string $token): bool
+    protected static function isTokenExpired(string $token): bool
     {
         return self::$jwsProvider->load($token)->isExpired();
     }

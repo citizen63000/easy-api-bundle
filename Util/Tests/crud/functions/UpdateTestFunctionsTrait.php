@@ -47,6 +47,27 @@ trait UpdateTestFunctionsTrait
     }
 
     /**
+     * Test Invalid submitted data case, fox example invalid data in a field with constraint
+     * @param int|null $id
+     * @param string $filename
+     * @param array $params
+     * @param array $expectedErrors
+     * @param int|string $expectedStatusCode
+     * @param string|null $userLogin
+     * @param string|null $userPassword
+     * @throws \Exception
+     */
+    protected function doTestUpdateInvalid(?int $id, string $filename, array $params = [], array $expectedErrors, string $expectedStatusCode = Response::HTTP_UNPROCESSABLE_ENTITY, string $userLogin = null, string $userPassword = null): void
+    {
+        $id = $id ?? static::defaultEntityId;
+        $params = array_merge(['id' => $id], $params);
+        $data = $this->getDataSent($filename, self::$updateActionType);
+        $apiOutput = self::httpPostWithLogin(['name' => static::getCreateRouteName(), 'params' => $params], $userLogin, $userPassword, $data);
+        self::assertEquals($expectedStatusCode, $apiOutput->getStatusCode());
+        self::assertEquals(['errors' => $expectedErrors], $apiOutput->getData());
+    }
+
+    /**
      * GET - Error case - entity not found.
      * @param int|null $id
      * @param array $params

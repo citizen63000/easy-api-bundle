@@ -58,9 +58,9 @@ trait CreateTestTrait
     }
 
     /**
-     * POST - Error case - 403 - Missing create right.
+     * POST - Error case - 403 - Missing rights.
      */
-    public function testCreateWithoutRightC403(): void
+    public function testCreateWithoutRights(): void
     {
         $this->doTestCreateWithoutRight();
     }

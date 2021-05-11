@@ -60,13 +60,14 @@ trait crudFunctionsTestTrait
     }
 
     /**
+     * Retrive data from file $filename or create it.
      * @param string $filename
      * @param string $type Create|Update
-     * @param string|null $defaultContent
+     * @param array $defaultContent
      * @return array
      * @throws \Exception
      */
-    protected function getDataSent(string $filename, string $type, string $defaultContent = null): array
+    protected function getDataSent(string $filename, string $type, array $defaultContent = null): array
     {
         $dir = $this->getCurrentDir()."/DataSent/{$type}";
         $filePath = "{$dir}/{$filename}";
