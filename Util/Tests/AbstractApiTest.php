@@ -58,7 +58,7 @@ abstract class AbstractApiTest extends WebTestCase
     public const regexp_uid = '[a-zA-Z0-9]+';
 
     /** @var string[] */
-    private const assessableFunctions = [
+    protected const assessableFunctions = [
         'assertDateTime',
         'assertDate',
         'assertFileUrl',
