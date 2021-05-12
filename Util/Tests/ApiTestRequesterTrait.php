@@ -53,7 +53,7 @@ trait ApiTestRequesterTrait
      *
      * @param string $method HTTP method
      * @param string|array $route Route to call
-     * @param mixed $content Content body if needed
+     * @param array|string $content Content body if needed
      * @param bool $withToken Defines if a token is required or not (need to login first)
      * @param string $formatIn Input data format <=> Content-type header, see {@link Format} (Default : JSON)
      * @param string $formatOut Output data format <=> Accept header, see {@link Format} (Default : JSON)
@@ -71,10 +71,10 @@ trait ApiTestRequesterTrait
         string $method,
         $route,
         $content = null,
-        bool $withToken = true,
-        string $formatIn = Format::JSON,
-        string $formatOut = Format::JSON,
-        array $extraHttpHeaders = []
+        ?bool $withToken = true,
+        ?string $formatIn = Format::JSON,
+        ?string $formatOut = Format::JSON,
+        ?array $extraHttpHeaders = []
     ): ApiOutput
     {
         //Headers initialization
