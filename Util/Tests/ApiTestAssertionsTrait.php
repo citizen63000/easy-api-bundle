@@ -121,7 +121,7 @@ trait ApiTestAssertionsTrait
         $assessableFunctions = array_merge(static::assessableFunctions, static::$additionalAssessableFunctions);
         foreach ($expected as $key => $value) {
             if (array_key_exists($key, $result)) {
-                if (!is_array($value)) {
+                if (!is_array($value) && preg_match("/^\\\\|^{/", $value)) {
                     foreach ($assessableFunctions as $functionName) {
                         $functionExpr1 = "\\\\{$functionName}\((.*)\)";
                         $functionExpr2 = "{{$functionName}\((.*)\)}";
