@@ -57,6 +57,7 @@ abstract class AbstractApiTest extends WebTestCase
 
     protected static $artifactTestDir = null;
 
+    /** @var array */
     protected static $additionalInitFiles = [];
 
     /** @var bool  */
@@ -76,7 +77,6 @@ abstract class AbstractApiTest extends WebTestCase
 
     /**
      * Symfony env, should be TEST.
-     *
      * @var string
      */
     protected static $env = 'TEST';
@@ -84,7 +84,7 @@ abstract class AbstractApiTest extends WebTestCase
     /**
      * Indicates if you want launch setup on all tests in your test class.
      *
-     * @var bool
+     * @var bool|null
      */
     protected static $executeSetupOnAllTest = null;
 
@@ -152,9 +152,6 @@ abstract class AbstractApiTest extends WebTestCase
 
     // region Utils
 
-    /** @var array */
-    protected static $defaultOptions = ['exceptions' => false];
-
     /**
      * simulates a browser and makes requests to a Kernel object.
      *
@@ -216,7 +213,7 @@ abstract class AbstractApiTest extends WebTestCase
 
         global $argv;
         if (in_array('--debug', $argv, true)) {
-            self::$debug = true;
+            static::$debug = true;
         }
     }
 
@@ -229,9 +226,7 @@ abstract class AbstractApiTest extends WebTestCase
     {
         if (true === static::$debug) {
             $backTrace = debug_backtrace()[1];
-            self::logDebug(
-                "\e[42;31m[STEP]\e[0m 👁️ \e[92m{$backTrace['class']}::{$backTrace['function']}()\e[0m", self::DEBUG_LEVEL_ADVANCED, $debugNewLine
-            );
+            self::logDebug("\e[42;31m[STEP]\e[0m 👁️ \e[92m{$backTrace['class']}::{$backTrace['function']}()\e[0m", self::DEBUG_LEVEL_ADVANCED, $debugNewLine);
         }
     }
 
@@ -245,7 +240,8 @@ abstract class AbstractApiTest extends WebTestCase
     final protected static function logDebug(string $message, int $debugLevel = self::DEBUG_LEVEL_SIMPLE, bool $debugNewLine = false): void
     {
         if (true === static::$debug && $debugLevel <= static::$debugLevel) {
-            fwrite(STDOUT,
+            fwrite(
+                STDOUT,
                 ($debugNewLine ? "\n" : '')
                 ."\e[33m🐞"
                 .((self::DEBUG_LEVEL_ADVANCED === static::$debugLevel) ? ' ['.str_pad(++self::$debugTop, 3, '0', STR_PAD_LEFT).']' : '')
@@ -277,13 +273,13 @@ abstract class AbstractApiTest extends WebTestCase
      *
      * @param string $entityName
      * @param null   $condition
-     * @param array  $parameters
+     * @param array $parameters
      *
      * @return int
      *
      * @throws NonUniqueResultException|NoResultException
      */
-    final protected static function countEntities(string $entityName, $condition = null, $parameters = []): int
+    final protected static function countEntities(string $entityName, $condition = null, array $parameters = []): int
     {
         $qb = self::$entityManager->getRepository($entityName)
             ->createQueryBuilder('a')
@@ -347,7 +343,7 @@ abstract class AbstractApiTest extends WebTestCase
      */
     protected static function initExecuteSetupOnAllTest()
     {
-        if(null === static::$executeSetupOnAllTest) {
+        if (null === static::$executeSetupOnAllTest) {
             static::$executeSetupOnAllTest = true;
         }
     }
@@ -357,7 +353,7 @@ abstract class AbstractApiTest extends WebTestCase
      */
     protected static function initLoadDataOnSetup()
     {
-        if(null === static::$loadDataOnSetup) {
+        if (null === static::$loadDataOnSetup) {
             static::$loadDataOnSetup = true;
         }
     }
@@ -440,7 +436,7 @@ abstract class AbstractApiTest extends WebTestCase
      * @param string|null $user
      * @param string|null $password
      */
-    protected static function defineUserPassword($user = null, $password = null): void
+    protected static function defineUserPassword(string $user = null, string $password = null): void
     {
         self::logStep();
         if (!self::$user || !$user && !$password) {
@@ -468,10 +464,7 @@ abstract class AbstractApiTest extends WebTestCase
      */
     protected function getFileBag(array $filenames): FileBag
     {
-        $fileDir = self::$container->getParameter('kernel.project_dir').
-            DIRECTORY_SEPARATOR.'tests'.
-            DIRECTORY_SEPARATOR.'artifacts'
-        ;
+        $fileDir = self::$container->getParameter('kernel.project_dir') . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'artifacts';
         $fileBag = new FileBag();
         foreach ($filenames as $field => $filename) {
             $fileBag->addFile($field, $fileDir.DIRECTORY_SEPARATOR.$filename, true, $filename);
@@ -497,7 +490,7 @@ abstract class AbstractApiTest extends WebTestCase
      *
      * @return bool|string
      */
-    protected static function getArtifactFileContent(string $filename)
+    protected static function getArtifactFileContent(string $filename): ?string
     {
         return file_get_contents(static::getArtifactsDir().DIRECTORY_SEPARATOR.$filename);
     }
@@ -513,7 +506,7 @@ abstract class AbstractApiTest extends WebTestCase
     /**
      * @return string
      */
-    protected static function getDomainUrl()
+    protected static function getDomainUrl(): string
     {
         $scheme = self::$container->getParameter('router.request_context.scheme');
         $host = self::$container->getParameter('router.request_context.host');
@@ -524,9 +517,9 @@ abstract class AbstractApiTest extends WebTestCase
     /**
      * @return KernelInterface
      */
-    protected static function getKernel()
+    protected static function getKernel(): KernelInterface
     {
-        if(null == static::$kernel) {
+        if (null == static::$kernel) {
             static::$kernel = static::createKernel();
         }
 

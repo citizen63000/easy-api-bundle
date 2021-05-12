@@ -68,7 +68,9 @@ trait AssertionsTrait
         static::assertEquals($expectedStatus, $apiOutput->getStatusCode());
         $error = $apiOutput->getData();
         static::assertArrayHasKey('errors', $error);
-        array_walk($messages, static function (&$message) { $message = ApiProblem::PREFIX.$message; });
+        array_walk($messages, static function (&$message) {
+            $message = ApiProblem::PREFIX.$message;
+        });
         static::assertArraysAreSimilar($messages, $error['errors']);
     }
 
@@ -141,9 +143,10 @@ trait AssertionsTrait
                             static::$functionName($key, $matches[1], $result[$key]);
                             unset($expected[$key]);
                             unset($result[$key]);
+                            break;
                         }
                     }
-                } elseif(is_array($result[$key])) {
+                } elseif (is_array($result[$key])) {
                     static::assertAssessableContent($expected[$key], $result[$key]);
                 }
             }
@@ -197,7 +200,7 @@ trait AssertionsTrait
         $expected = "/$expected/";
         $errorMessage = "Invalid file url in {$key} field: expected {$expected}, get value {$value}";
         $found = preg_match($expected, $value);
-        static::assertTrue( (bool) $found, $errorMessage);
+        static::assertTrue((bool) $found, $errorMessage);
     }
 
     /**
@@ -214,7 +217,7 @@ trait AssertionsTrait
         $expected = "/$expected/";
         $errorMessage = "Invalid file name in {$key} field: expected {$expected}, get value {$value}";
         $found = preg_match($expected, $value);
-        static::assertTrue( (bool) $found, $errorMessage);
+        static::assertTrue((bool) $found, $errorMessage);
     }
 
     /**
@@ -226,6 +229,6 @@ trait AssertionsTrait
     {
         $expected = static::$regexp_uuid;
         $errorMessage = "Invalid UUID in {$key} field: expected {$expected}, get value {$value}";
-        static::assertTrue( (bool) preg_match("/$expected/", $value), $errorMessage);
+        static::assertTrue((bool) preg_match("/$expected/", $value), $errorMessage);
     }
 }

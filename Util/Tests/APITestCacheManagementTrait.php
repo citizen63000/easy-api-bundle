@@ -6,26 +6,21 @@ use Symfony\Component\Cache\Adapter\AbstractAdapter;
 
 trait APITestCacheManagementTrait
 {
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected static $useCache = true;
 
-    /**
-     * @var AbstractAdapter
-     */
+    /** @var AbstractAdapter */
     protected static $cache;
 
     /**
-     *
+     * Initialize self::$cache
      */
     protected static function initializeCache() :void
     {
-        if(null === self::$cache) {
+        if (null === self::$cache) {
             self::$cache = self::$container->get('cache.app');
         }
     }
-
 
     /**
      * @param $key
@@ -41,5 +36,4 @@ trait APITestCacheManagementTrait
             return null;
         }
     }
-
 }

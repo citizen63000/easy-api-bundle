@@ -43,7 +43,7 @@ trait ApiTestRequesterTrait
      * @param string $token
      * @return string
      */
-    protected static function getAuthorizationStringFromToken(string $token)
+    protected static function getAuthorizationStringFromToken(string $token): string
     {
         return self::getAuthorizationTokenPrefix() . " {$token}";
     }
@@ -67,9 +67,15 @@ trait ApiTestRequesterTrait
      * @see https://github.com/DarwinOnLine/symfony-flex-api/blob/master/symfony/tests/AbstractApiTest.php
      * @see https://github.com/DarwinOnLine/symfony-flex-api/blob/master/symfony/src/Utils/ApiOutput.php
      */
-    public static function executeRequest(string $method, $route, $content = null, bool $withToken = true,
-                                          $formatIn = Format::JSON, $formatOut = Format::JSON,
-                                          array $extraHttpHeaders = [])
+    public static function executeRequest(
+        string $method,
+        $route,
+        $content = null,
+        bool $withToken = true,
+        $formatIn = Format::JSON,
+        $formatOut = Format::JSON,
+        array $extraHttpHeaders = []
+    ): ApiOutput
     {
         //Headers initialization
         $server = [];
@@ -101,7 +107,6 @@ trait ApiTestRequesterTrait
         $files = ($content instanceof FileBag) ? $content->getData() : [];
         $url = \is_string($route) && 0 === mb_strpos($route, 'http') ? $route : self::getUrl($route);
 
-        /** @var Client $client */
         $client = self::createClient(['debug' => static::$useProfiler]);
         if (static::$useProfiler) {
             $client->enableProfiler();
@@ -115,8 +120,8 @@ trait ApiTestRequesterTrait
         unset($_ENV['SHELL_VERBOSITY'], $_SERVER['SHELL_VERBOSITY']);
 
         $profiler = $client->getProfile();
-        if(!$profiler) {
-            if(!static::$container->has('profiler')) {
+        if (!$profiler) {
+            if (!static::$container->has('profiler')) {
                 throw new \Exception('You must enable the profiler in the configuration to use it.');
             } else {
                 throw new \Exception('Impossible to load the profiler in the client.');
@@ -140,7 +145,7 @@ trait ApiTestRequesterTrait
      * @param ApiOutput $output
      * @return string
      */
-    protected static function getProfilerLink(ApiOutput $output)
+    protected static function getProfilerLink(ApiOutput $output): string
     {
         if (true === static::$debug && $token = $output->getHeaders()->get('x-debug-token')) {
             return "\e[0m\n\t\t\tProfiler : \e[33m"
@@ -164,9 +169,9 @@ trait ApiTestRequesterTrait
      * @param string|array $route
      * @param int          $referenceType
      *
-     * @return string
+     * @return string|null
      */
-    protected static function getUrl($route, int $referenceType = UrlGeneratorInterface::RELATIVE_PATH)
+    protected static function getUrl($route, int $referenceType = UrlGeneratorInterface::RELATIVE_PATH): ?string
     {
         if (is_array($route)) {
             $routeName = $route['name'] ?? '';
@@ -200,8 +205,8 @@ trait ApiTestRequesterTrait
         }
 
         // use default tokens to speedup login or if using external authentication
-        if($useDefaultTokens && isset(static::$defaultTokens[$username])) {
-            if(!self::isTokenExpired(static::$defaultTokens[$username])) {
+        if ($useDefaultTokens && isset(static::$defaultTokens[$username])) {
+            if (!self::isTokenExpired(static::$defaultTokens[$username])) {
                 return static::$defaultTokens[$username];
             }
         }
@@ -281,8 +286,7 @@ trait ApiTestRequesterTrait
      * @return ApiOutput
      * @throws \Exception
      */
-    public static function httpGet($route, bool $withToken = true,
-                                   $formatOut = Format::JSON, array $extraHttpHeaders = [])
+    public static function httpGet($route, bool $withToken = true, $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
     {
         return self::executeRequest('GET', $route, null, $withToken, null, $formatOut, $extraHttpHeaders);
     }
@@ -296,7 +300,7 @@ trait ApiTestRequesterTrait
      * @return ApiOutput
      * @throws \Exception
      */
-    public static function httpGetWithLogin($route, $userLogin, $userPassword, $formatOut = Format::JSON, array $extraHttpHeaders = [])
+    public static function httpGetWithLogin($route, $userLogin, $userPassword, $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
     {
         if (null !== $userLogin && null === $userPassword) {
             throw new \Exception('ApiTestRequesterTrait::httpGetWithLogin : $userPassword parameter cannot be null if $userLogin parameters is not null');
@@ -322,8 +326,7 @@ trait ApiTestRequesterTrait
      * @return ApiOutput
      * @throws \Exception
      */
-    public static function httpPost($route, $content = [], bool $withToken = true,
-                                    $formatIn = Format::JSON, $formatOut = Format::JSON, array $extraHttpHeaders = [])
+    public static function httpPost($route, $content = [], bool $withToken = true, $formatIn = Format::JSON, $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
     {
         return self::executeRequest('POST', $route, $content, $withToken, $formatIn, $formatOut, $extraHttpHeaders);
     }
@@ -339,7 +342,7 @@ trait ApiTestRequesterTrait
      * @return ApiOutput
      * @throws \Exception
      */
-    public static function httpPostWithLogin($route, $userLogin, $userPassword, $content = [], array $extraHttpHeaders = [], $formatIn = Format::JSON, $formatOut = Format::JSON)
+    public static function httpPostWithLogin($route, $userLogin, $userPassword, $content = [], array $extraHttpHeaders = [], $formatIn = Format::JSON, $formatOut = Format::JSON): ApiOutput
     {
         if (null !== $userLogin && null === $userPassword) {
             throw new \Exception('ApiTestRequesterTrait::httpPostWithLogin : $userPassword parameter cannot be null if $userLogin parameters is not null');
@@ -367,8 +370,7 @@ trait ApiTestRequesterTrait
      *
      * @throws \Exception
      */
-    public static function httpPut($route, $content = [], bool $withToken = true,
-                                   $formatIn = Format::JSON, $formatOut = Format::JSON, array $extraHttpHeaders = [])
+    public static function httpPut($route, $content = [], bool $withToken = true, $formatIn = Format::JSON, $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
     {
         return self::executeRequest('PUT', $route, $content, $withToken, $formatIn, $formatOut, $extraHttpHeaders);
     }
@@ -384,7 +386,7 @@ trait ApiTestRequesterTrait
      * @return ApiOutput
      * @throws \Exception
      */
-    public static function httpPutWithLogin($route, $userLogin, $userPassword, $content = [], array $extraHttpHeaders = [], $formatIn = Format::JSON, $formatOut = Format::JSON)
+    public static function httpPutWithLogin($route, $userLogin, $userPassword, $content = [], array $extraHttpHeaders = [], $formatIn = Format::JSON, $formatOut = Format::JSON): ApiOutput
     {
         if (null !== $userLogin && null === $userPassword) {
             throw new \Exception('ApiTestRequesterTrait::httpPutWithLogin : $userPassword parameter cannot be null if $userLogin parameters is not null');
@@ -408,7 +410,7 @@ trait ApiTestRequesterTrait
      *
      * @throws \Exception
      */
-    public static function httpDelete($route, bool $withToken = true, array $extraHttpHeaders = [])
+    public static function httpDelete($route, bool $withToken = true, array $extraHttpHeaders = []): ApiOutput
     {
         return self::executeRequest('DELETE', $route, null, $withToken, Format::JSON, Format::JSON, $extraHttpHeaders);
     }
@@ -421,7 +423,7 @@ trait ApiTestRequesterTrait
      * @return ApiOutput
      * @throws \Exception
      */
-    public static function httpDeleteWithLogin($route, $userLogin, $userPassword, array $extraHttpHeaders = [])
+    public static function httpDeleteWithLogin($route, $userLogin, $userPassword, array $extraHttpHeaders = []): ApiOutput
     {
         if (null === $userPassword && null !== $userLogin) {
             throwException(new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null'));
@@ -431,7 +433,7 @@ trait ApiTestRequesterTrait
         $userPassword = $userPassword ?? static::$password;
         $token = self::loginHttp($userLogin, $userPassword);
 
-        return static::httpDelete($route,  false, $extraHttpHeaders + ['Authorization' => static::getAuthorizationStringFromToken($token)]);
+        return static::httpDelete($route, false, $extraHttpHeaders + ['Authorization' => static::getAuthorizationStringFromToken($token)]);
     }
 
     /**
@@ -444,12 +446,12 @@ trait ApiTestRequesterTrait
      *
      * @throws \Exception
      */
-    public static function execCommand(string $commandName, array $arguments = [])
+    public static function execCommand(string $commandName, array $arguments = []): CommandOutput
     {
         $convertedArguments = [];
         foreach ($arguments as $k => $v) {
-            if('--env' !== $k || 'test' === $v) {
-                if(!is_int($k)) {
+            if ('--env' !== $k || 'test' === $v) {
+                if (!is_int($k)) {
                     $convertedArguments[] = "{$k}='{$v}'";
                 } else {
                     $convertedArguments[] = $v;
@@ -459,7 +461,7 @@ trait ApiTestRequesterTrait
             }
         }
 
-        if(!in_array('--env=test', $convertedArguments)) {
+        if (!in_array('--env=test', $convertedArguments)) {
             $convertedArguments[] = '--env=test';
         }
 
@@ -494,19 +496,19 @@ trait ApiTestRequesterTrait
      *
      * @throws \Exception
      */
-    public static function callCommand(string $commandName, array $arguments = [])
+    public static function callCommand(string $commandName, array $arguments = []): CommandOutput
     {
         $application = new Application(static::getKernel());
         $application->find($commandName);
         $application->setAutoExit(false);
 
         foreach ($arguments as $k => $v) {
-            if(is_int($k) && '--' !== substr($v, 0, 2)) {
+            if (is_int($k) && '--' !== substr($v, 0, 2)) {
                 throw new \Exception("you must pass the parameter name for value {$v}");
             }
         }
 
-        $input = new ArrayInput(array_merge(['command' => $commandName], $arguments));
+        $input = new ArrayInput(['command' => $commandName] + $arguments);
 
         // You can use NullOutput() if you don't need the output
         $output = new BufferedOutput();

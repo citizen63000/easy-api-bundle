@@ -39,7 +39,7 @@ trait DeleteTestFunctionsTrait
      */
     public function doTestGenericDelete(array $params, array $additionalParameters = [], string $userLogin = null, string $userPassword = null): void
     {
-        $allParams = array_merge($params, $additionalParameters);
+        $allParams = $params + $additionalParameters;
 
         // count before delete
         $apiOutput = self::httpGetWithLogin(['name' => static::getGetListRouteName()], $userLogin, $userPassword);

@@ -37,13 +37,13 @@ trait GetListTestFunctionsTrait
     {
         try {
             $pagination = [];
-            if(null !== $page) {
+            if (null !== $page) {
                 $pagination['page'] = $page;
             }
-            if(null !== $limit) {
+            if (null !== $limit) {
                 $pagination['limit'] = $limit;
             }
-            $this->doTestGetList($filename, array_merge($pagination, $params), $userLogin, $userPassword);
+            $this->doTestGetList($filename, $pagination + $params, $userLogin, $userPassword);
         } catch (ReflectionException $e) {
             echo $e->getMessage();
         }
@@ -61,7 +61,7 @@ trait GetListTestFunctionsTrait
      */
     protected function doTestGetListFiltered(string $filename, int $page = null, int $limit = null, array $filters = [], string $sort = null, array $params = [], string $userLogin = null, string $userPassword = null)
     {
-        $this->doTestGetListPaginate($filename, $page, $limit, array_merge($filters, ['sort' => $sort], $params), $userLogin, $userPassword);
+        $this->doTestGetListPaginate($filename, $page, $limit, $filters + ['sort' => $sort] + $params, $userLogin, $userPassword);
     }
 
     /**
@@ -80,7 +80,7 @@ trait GetListTestFunctionsTrait
      */
     protected function doTestGetWithoutRight(string $userLogin = null, string $userPassword = null): void
     {
-        if(null === $userLogin && null === $userPassword) {
+        if (null === $userLogin && null === $userPassword) {
             $userLogin = static::USER_NORULES_TEST_USERNAME;
             $userPassword = static::USER_NORULES_TEST_PASSWORD;
         }

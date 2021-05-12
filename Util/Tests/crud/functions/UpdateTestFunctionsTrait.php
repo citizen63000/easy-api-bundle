@@ -22,7 +22,7 @@ trait UpdateTestFunctionsTrait
     protected function doTestUpdate(?int $id, string $filename, array $params = [], string $userLogin = null, string $userPassword = null, bool $doGetTest = true): void
     {
         $id = $id ?? static::defaultEntityId;
-        $params = array_merge(['id' => $id], $params);
+        $params += ['id' => $id];
         $data = $this->getDataSent($filename, self::$updateActionType);
 
         // Request
@@ -60,7 +60,7 @@ trait UpdateTestFunctionsTrait
     protected function doTestUpdateInvalid(?int $id, string $filename, array $params = [], array $expectedErrors, string $expectedStatusCode = Response::HTTP_UNPROCESSABLE_ENTITY, string $userLogin = null, string $userPassword = null): void
     {
         $id = $id ?? static::defaultEntityId;
-        $params = array_merge(['id' => $id], $params);
+        $params += ['id' => $id];
         $data = $this->getDataSent($filename, self::$updateActionType);
         $apiOutput = self::httpPostWithLogin(['name' => static::getCreateRouteName(), 'params' => $params], $userLogin, $userPassword, $data);
         self::assertEquals($expectedStatusCode, $apiOutput->getStatusCode());
@@ -76,7 +76,7 @@ trait UpdateTestFunctionsTrait
      */
     public function doTestUpdateNotFound(int $id = null, array $params = [], string $userLogin = null, string $userPassword = null): void
     {
-        $params = array_merge(['id' => $id ?? 99999999], $params);
+        $params += ['id' => $id ?? 99999999];
         $apiOutput = self::httpPutWithLogin(['name' => static::getUpdateRouteName(), 'params' => $params], $userLogin, $userPassword, []);
         static::assertApiProblemError($apiOutput, Response::HTTP_NOT_FOUND, [sprintf(ApiProblem::ENTITY_NOT_FOUND, 'entity')]);
     }
@@ -86,9 +86,9 @@ trait UpdateTestFunctionsTrait
      * @param int|null $id
      * @param array $params
      */
-    protected function doTestUpdateWithoutAuthentication(int $id = null, $params = []): void
+    protected function doTestUpdateWithoutAuthentication(int $id = null, array $params = []): void
     {
-        $params = array_merge(['id' => $id ?? static::defaultEntityId], $params);
+        $params += ['id' => $id ?? static::defaultEntityId];
         $apiOutput = self::httpPut(['name' => static::getUpdateRouteName(), 'params' => $params], [], false);
         static::assertApiProblemError($apiOutput, Response::HTTP_UNAUTHORIZED, [ApiProblem::JWT_NOT_FOUND]);
     }
@@ -103,7 +103,7 @@ trait UpdateTestFunctionsTrait
      */
     protected function doTestUpdateWithoutRight(int $id = null, array $params = [], string $userLogin = null, string $userPassword = null): void
     {
-        $params = array_merge(['id' => $id ?? static::defaultEntityId], $params);
+        $params += ['id' => $id ?? static::defaultEntityId];
 
         if (null === $userLogin && null === $userPassword) {
             $userLogin = static::USER_NORULES_TEST_USERNAME;
@@ -128,7 +128,7 @@ trait UpdateTestFunctionsTrait
      */
     protected function doTestUpdateForbiddenAction(int $id = null, string $filename = null, array $params = [], string $userLogin = null, string $userPassword = null, $messages = [ApiProblem::FORBIDDEN], $errorCode = Response::HTTP_FORBIDDEN): void
     {
-        $params = array_merge(['id' => $id ?? static::defaultEntityId], $params);
+        $params += ['id' => $id ?? static::defaultEntityId];
 
         $data = null != $filename ? $this->getDataSent($filename, self::$updateActionType) : [];
 

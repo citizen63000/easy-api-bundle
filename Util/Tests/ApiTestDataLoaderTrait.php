@@ -4,6 +4,7 @@ namespace EasyApiBundle\Util\Tests;
 
 use Doctrine\DBAL\Statement;
 use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Symfony\Component\Yaml\Parser as YmlParser;
 
 /**
@@ -45,26 +46,21 @@ trait ApiTestDataLoaderTrait
 
         self::cleanDb();
 
-        $files = array_merge(static::initFiles, static::$additionalInitFiles);
+        $files = static::initFiles + static::$additionalInitFiles;
 
         foreach ($files as $filename) {
-
             preg_match('/\.(yml|sql)$/i', $filename, $matches); // can use pathinfo but twice slower
             $extension = $matches[1];
 
             if ('yml' === $extension) {
-
                 self::loadYaml($filename);
-
             } elseif ('sql' === $extension) {
-
                 if (true === static::$debug) {
                     self::logDebug("\e[32m[SQL]\e[0m ▶ \e[32m{$filename}\e[0m", self::DEBUG_LEVEL_SIMPLE);
                 }
 
                 self::executeSQLQuery(self::getSqlFileContent($filename));
             }
-
         }
 
         if (true === static::$debug) {
@@ -85,8 +81,7 @@ trait ApiTestDataLoaderTrait
         $stmt = self::$entityManager->getConnection()->executeQuery(self::retrieveNotEmptyTablesQuery());
         $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
 
-        if($stmt->rowCount() > 0) {
-
+        if ($stmt->rowCount() > 0) {
             $resetQuery = "SET FOREIGN_KEY_CHECKS = 0;\n";
             foreach ($tables as $table) {
                 $resetQuery .= "DELETE FROM {$table};ALTER TABLE {$table} AUTO_INCREMENT=1;";
@@ -112,8 +107,7 @@ trait ApiTestDataLoaderTrait
         $cachedQuery = self::getCachedData('test.data.reset.not_empty_tables_query');
 
         if (!$cachedQuery->isHit() || !static::$useCache) {
-
-            if(count(static::$schemas) > 0) {
+            if (count(static::$schemas) > 0) {
                 $arraySchemas = [];
                 foreach (static::$schemas as $schema) {
                     $arraySchemas[] = "'{$schema}'";
@@ -130,7 +124,7 @@ trait ApiTestDataLoaderTrait
                     AND TABLE_NAME NOT LIKE 'ref\_%'
                     ";
 
-            if(count(static::$referentialsToClean)) {
+            if (count(static::$referentialsToClean)) {
                 $arrayRefs = [];
                 foreach (static::$referentialsToClean as $table) {
                     $arrayRefs[] = "'{$table}'";
@@ -165,7 +159,6 @@ trait ApiTestDataLoaderTrait
 
         foreach ($content as $managerName => $files) {
             foreach ($files as $file => $table) {
-
                 if (true === static::$debug && self::DEBUG_LEVEL_ADVANCED <= static::$debugLevel) {
                     self::logDebug("\e[32m[CSV]\e[0m ▶ \e[32m{$filename} ▶ {$file}\e[0m", self::DEBUG_LEVEL_ADVANCED);
                 }
@@ -173,7 +166,7 @@ trait ApiTestDataLoaderTrait
                 preg_match('/\.(csv|sql)$/i', $file, $matches); // can use pathinfo but twice slower
                 $extDataFile = $matches[1];
 
-                if('csv' === $extDataFile) {
+                if ('csv' === $extDataFile) {
                     self::executeSQLQuery(self::generateLoadDataQuery($table, $file), false, static::$showQuery, $managerName);
                 } elseif ('sql' === $extDataFile) {
                     self::executeSQLQuery(self::getSqlFileContent($file), false, static::$showQuery, $managerName);
@@ -216,10 +209,12 @@ trait ApiTestDataLoaderTrait
     /**
      * Execute SQL query (Tests purposes ONLY), giving SQL query.
      *
-     * @param string $query        SQL query
-     * @param bool   $debugNewLine Adds a new line before debug log
-     * @param bool   $showQuery    Show query (debug mode)
-     * @param string   $managerName the manager to use (default manager used if null)
+     * @param string $query SQL query
+     * @param bool $debugNewLine Adds a new line before debug log
+     * @param bool $showQuery Show query (debug mode)
+     * @param string|null $managerName the manager to use (default manager used if null)
+     * @throws OptimisticLockException
+     * @throws ORMException
      */
     final protected static function executeSQLQuery(string $query, bool $debugNewLine = false, bool $showQuery = false, string $managerName = null) :void
     {
@@ -230,22 +225,18 @@ trait ApiTestDataLoaderTrait
         }
 
         try {
-
             $start = microtime(true);
             $result = $em->getConnection()->exec($query);
             $seconds = microtime(true) - $start;
 
             // errors
-            if(static::$debug) {
-                self::logDebug(
-                    "\t\t🎌 \e[32m{$result}\e[0m affected rows in {$seconds} seconds", self::DEBUG_LEVEL_ADVANCED, $debugNewLine
-                );
+            if (static::$debug) {
+                self::logDebug("\t\t🎌 \e[32m{$result}\e[0m affected rows in {$seconds} seconds", self::DEBUG_LEVEL_ADVANCED, $debugNewLine);
                 $warnings = $em->getConnection()->executeQuery('SHOW WARNINGS')->fetchAll(\PDO::FETCH_ASSOC);
                 foreach ($warnings as $warning) {
                     self::logError("\t\t🎌\t SQl Error: level: {$warning['Level']}, code: {$warning['Code']}, message: {$warning['Message']}, Query: {$query}");
                 }
             }
-
         } catch (\Exception $e) {
             self::logError($e->getMessage());
             // STOP
@@ -271,7 +262,8 @@ trait ApiTestDataLoaderTrait
             . DIRECTORY_SEPARATOR
             . 'csv'
             . DIRECTORY_SEPARATOR
-            . $filename);
+            . $filename
+        );
     }
 
     /**
@@ -287,21 +279,6 @@ trait ApiTestDataLoaderTrait
         fclose($f);
 
         return str_replace(['"', "\n"], '', $line);
-
-//        $cachedColumns = self::getCachedData("test.data.columns.{$filename}");
-//
-//        if (!$cachedColumns->isHit() || !static::$useCache) {
-//
-//            $path = self::$projectDir.DIRECTORY_SEPARATOR.'tests'.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.'csv'.DIRECTORY_SEPARATOR.$filename;
-//            $f = fopen($path, 'r');
-//            $line = fgets($f);
-//            fclose($f);
-//
-//            $cachedColumns->set(str_replace(['"', "\n"], '', $line));
-//            self::$cache->save($cachedColumns);
-//        }
-//
-//        return $cachedColumns->get();
     }
 
     /**
@@ -321,7 +298,7 @@ trait ApiTestDataLoaderTrait
      *
      * @return array
      */
-    protected static function parseDataYmlFile(string $filename)
+    protected static function parseDataYmlFile(string $filename): array
     {
         $cachedContent = self::getCachedData("test.data.{$filename}");
 

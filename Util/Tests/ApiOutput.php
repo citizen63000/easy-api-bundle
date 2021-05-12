@@ -53,10 +53,10 @@ class ApiOutput
      * ApiOutput constructor.
      *
      * @param Response $response
-     * @param string $format
+     * @param string|null $format
      * @param Profile|null $profiler
      */
-    public function __construct(Response $response, $format = null, ?Profile $profiler = null)
+    public function __construct(Response $response, string $format = null, ?Profile $profiler = null)
     {
         $this->response = $response;
         $this->profile = $profiler;
@@ -93,7 +93,7 @@ class ApiOutput
      *
      * @return array|mixed|string
      */
-    public function getData($asString = false)
+    public function getData(bool $asString = false)
     {
         return $asString ? $this->stringData : $this->data;
     }
@@ -101,7 +101,7 @@ class ApiOutput
     /**
      * @return Response
      */
-    public function getResponse()
+    public function getResponse(): Response
     {
         return $this->response;
     }
@@ -115,22 +115,11 @@ class ApiOutput
     }
 
     /**
-     * @deprecated use getMailerMessages() instead
      * Returns the messages of a mailer.
      *
      * @return \Swift_Message[] the messages
      */
-    public function getMessages()
-    {
-        return $this->getMailerMessages();
-    }
-
-    /**
-     * Returns the messages of a mailer.
-     *
-     * @return \Swift_Message[] the messages
-     */
-    public function getMailerMessages()
+    public function getMailerMessages(): array
     {
         return $this->getProfile()->getCollector('swiftmailer')->getMessages();
     }
