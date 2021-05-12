@@ -121,7 +121,7 @@ trait DeleteTestFunctionsTrait
      */
     public function doTestGenericDeleteWithoutRight(array $params, string $userLogin = null, string $userPassword = null): void
     {
-        if(null === $userLogin && null === $userPassword) {
+        if (null === $userLogin && null === $userPassword) {
             $userLogin = static::USER_NORULES_TEST_USERNAME;
             $userPassword = static::USER_NORULES_TEST_PASSWORD;
         }

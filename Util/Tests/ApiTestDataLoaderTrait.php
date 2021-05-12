@@ -46,7 +46,7 @@ trait ApiTestDataLoaderTrait
 
         self::cleanDb();
 
-        $files = static::initFiles + static::$additionalInitFiles;
+        $files = array_merge(static::initFiles, static::$additionalInitFiles);
 
         foreach ($files as $filename) {
             preg_match('/\.(yml|sql)$/i', $filename, $matches); // can use pathinfo but twice slower

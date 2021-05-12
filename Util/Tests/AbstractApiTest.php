@@ -17,7 +17,7 @@ abstract class AbstractApiTest extends WebTestCase
 {
     use ApiTestRequesterTrait;
     use ApiTestDataLoaderTrait;
-    use AssertionsTrait;
+    use ApiTestAssertionsTrait;
     use TestUtilsTrait;
 
     // region Constants
@@ -51,6 +51,21 @@ abstract class AbstractApiTest extends WebTestCase
 
     protected const initFiles = ['init.yml'];
 
+    /** @var string */
+    public const regexp_uuid = '[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+';
+
+    /** @var string */
+    public const regexp_uid = '[a-zA-Z0-9]+';
+
+    /** @var string[] */
+    private const assessableFunctions = [
+        'assertDateTime',
+        'assertDate',
+        'assertFileUrl',
+        'assertFileName',
+        'assertUUID',
+    ];
+
     // endregion
 
     // region Settings
@@ -59,6 +74,9 @@ abstract class AbstractApiTest extends WebTestCase
 
     /** @var array */
     protected static $additionalInitFiles = [];
+
+    /** @var array */
+    protected static $additionalAssessableFunctions = [];
 
     /** @var bool  */
     protected static $debug = false;

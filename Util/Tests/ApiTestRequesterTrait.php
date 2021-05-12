@@ -72,8 +72,8 @@ trait ApiTestRequesterTrait
         $route,
         $content = null,
         bool $withToken = true,
-        $formatIn = Format::JSON,
-        $formatOut = Format::JSON,
+        string $formatIn = Format::JSON,
+        string $formatOut = Format::JSON,
         array $extraHttpHeaders = []
     ): ApiOutput
     {
@@ -286,7 +286,7 @@ trait ApiTestRequesterTrait
      * @return ApiOutput
      * @throws \Exception
      */
-    public static function httpGet($route, bool $withToken = true, $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
+    public static function httpGet($route, bool $withToken = true, string $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
     {
         return self::executeRequest('GET', $route, null, $withToken, null, $formatOut, $extraHttpHeaders);
     }
@@ -300,7 +300,7 @@ trait ApiTestRequesterTrait
      * @return ApiOutput
      * @throws \Exception
      */
-    public static function httpGetWithLogin($route, $userLogin, $userPassword, $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
+    public static function httpGetWithLogin($route, $userLogin, $userPassword, string $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
     {
         if (null !== $userLogin && null === $userPassword) {
             throw new \Exception('ApiTestRequesterTrait::httpGetWithLogin : $userPassword parameter cannot be null if $userLogin parameters is not null');
@@ -326,7 +326,7 @@ trait ApiTestRequesterTrait
      * @return ApiOutput
      * @throws \Exception
      */
-    public static function httpPost($route, $content = [], bool $withToken = true, $formatIn = Format::JSON, $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
+    public static function httpPost($route, $content = [], bool $withToken = true, string $formatIn = Format::JSON, string $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
     {
         return self::executeRequest('POST', $route, $content, $withToken, $formatIn, $formatOut, $extraHttpHeaders);
     }
@@ -335,14 +335,14 @@ trait ApiTestRequesterTrait
      * @param $route
      * @param $userLogin
      * @param $userPassword
-     * @param array $content
+     * @param array|string $content
      * @param array $extraHttpHeaders
      * @param string $formatIn
      * @param string $formatOut
      * @return ApiOutput
      * @throws \Exception
      */
-    public static function httpPostWithLogin($route, $userLogin, $userPassword, $content = [], array $extraHttpHeaders = [], $formatIn = Format::JSON, $formatOut = Format::JSON): ApiOutput
+    public static function httpPostWithLogin($route, $userLogin, $userPassword, $content = [], array $extraHttpHeaders = [], string $formatIn = Format::JSON, string $formatOut = Format::JSON): ApiOutput
     {
         if (null !== $userLogin && null === $userPassword) {
             throw new \Exception('ApiTestRequesterTrait::httpPostWithLogin : $userPassword parameter cannot be null if $userLogin parameters is not null');
@@ -370,7 +370,7 @@ trait ApiTestRequesterTrait
      *
      * @throws \Exception
      */
-    public static function httpPut($route, $content = [], bool $withToken = true, $formatIn = Format::JSON, $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
+    public static function httpPut($route, $content = [], bool $withToken = true, string $formatIn = Format::JSON, string $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
     {
         return self::executeRequest('PUT', $route, $content, $withToken, $formatIn, $formatOut, $extraHttpHeaders);
     }
@@ -379,7 +379,7 @@ trait ApiTestRequesterTrait
      * @param $route
      * @param $userLogin
      * @param $userPassword
-     * @param array $content
+     * @param array|string $content
      * @param array $extraHttpHeaders
      * @param string $formatIn
      * @param string $formatOut
@@ -508,7 +508,7 @@ trait ApiTestRequesterTrait
             }
         }
 
-        $input = new ArrayInput(['command' => $commandName] + $arguments);
+        $input = new ArrayInput(array_merge(['command' => $commandName], $arguments));
 
         // You can use NullOutput() if you don't need the output
         $output = new BufferedOutput();

@@ -4,23 +4,8 @@ namespace EasyApiBundle\Util\Tests;
 
 use EasyApiBundle\Util\ApiProblem;
 
-trait AssertionsTrait
+trait ApiTestAssertionsTrait
 {
-    /** @var string[] */
-    protected static $assessableFunctions = [
-        'assertDateTime',
-        'assertDate',
-        'assertFileUrl',
-        'assertFileName',
-        'assertUUID',
-    ];
-
-    /** @var string */
-    public static $regexp_uuid = '[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+';
-
-    /** @var string */
-    public static $regexp_uid = '[a-zA-Z0-9]+';
-
     /**
      * Determine if two arrays are similar.
      *
@@ -133,10 +118,11 @@ trait AssertionsTrait
      */
     protected static function assertAssessableContent(array &$expected, array &$result): void
     {
+        $assessableFunctions = array_merge(static::assessableFunctions, static::$additionalAssessableFunctions);
         foreach ($expected as $key => $value) {
             if (array_key_exists($key, $result)) {
                 if (!is_array($value)) {
-                    foreach (static::$assessableFunctions as $functionName) {
+                    foreach ($assessableFunctions as $functionName) {
                         $functionExpr1 = "\\\\{$functionName}\((.*)\)";
                         $functionExpr2 = "{{$functionName}\((.*)\)}";
                         if (preg_match("/{$functionExpr1}|$functionExpr2/", $value, $matches)) {
@@ -212,8 +198,8 @@ trait AssertionsTrait
     private static function assertFileName($key, $expected, $value): void
     {
         $expected = str_replace([ '.', '-'], ['\.', '\-'], $expected);
-        $expected = str_replace('{UUID}', static::$regexp_uuid, $expected);
-        $expected = str_replace('{UID}', static::$regexp_uid, $expected);
+        $expected = str_replace('{UUID}', static::regexp_uuid, $expected);
+        $expected = str_replace('{UID}', static::regexp_uid, $expected);
         $expected = "/$expected/";
         $errorMessage = "Invalid file name in {$key} field: expected {$expected}, get value {$value}";
         $found = preg_match($expected, $value);
@@ -227,7 +213,7 @@ trait AssertionsTrait
      */
     private static function assertUUID($key, $expected, $value): void
     {
-        $expected = static::$regexp_uuid;
+        $expected = static::regexp_uuid;
         $errorMessage = "Invalid UUID in {$key} field: expected {$expected}, get value {$value}";
         static::assertTrue((bool) preg_match("/$expected/", $value), $errorMessage);
     }
