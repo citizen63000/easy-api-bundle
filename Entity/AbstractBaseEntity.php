@@ -37,10 +37,19 @@ Abstract class AbstractBaseEntity
     protected $updatedAt;
 
     /**
-     * Group constructor.
+     * AbstractBaseEntity constructor.
      */
     public function __construct()
     {
+    }
+
+    /**
+     * Clone method : reset id, createdAt and updatedAt
+     */
+    public function __clone()
+    {
+        $this->id = null;
+        $this->createdAt = $this->updatedAt = new \DateTime();
     }
 
     /**
@@ -90,5 +99,4 @@ Abstract class AbstractBaseEntity
     {
         $this->updatedAt = $updatedAt;
     }
-
 }
