@@ -87,8 +87,8 @@ And in an annotation named "GetFormParameter" which allows you to generate api-d
         ...       
     }
 ```
-### Test framework
-## User assertion:
+## Test framework
+### User assertion:
 Define it in ```php static::$additionalAssessableFunctions ``` and implement it, with good parameters :
 ```php
 static::$additionalAssessableFunctions = ['assertMyAssertion'];
