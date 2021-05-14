@@ -2,8 +2,10 @@
 Symfony bundle to easily make api, inspired by work of [DarwinOnLine](https://github.com/DarwinOnLine)
 
 ### CRUD controllers :
+Exemple :
 ```php
 /**
+ * @Route("/my-path", name="my_path")
  * @SWG\Tag(name="MyEntity")
  */
 class MyEntityCrudController extends AbstractApiController
@@ -12,9 +14,19 @@ class MyEntityCrudController extends AbstractApiController
     public const entityCreateTypeClass = MyEntityType::class;
     public const entityUpdateTypeClass = MyEntityType::class;
     public const serializationGroups = ['my_entity_full'];
-
+    public const listSerializationGroups = ['my_entity_light'];
+    public const filterFields = [];
+    public const filterSortFields = [];
+    
     use CrudControllerTrait;
 }
+```
+### CRUD routing :
+Example:
+```yaml
+api_my_path:
+  resource: "@AppBundle/Controller/MyContext/MyController.php"
+  type: annotation
 ```
 
 ### Configuration (everything is optionnal) :
@@ -27,12 +39,12 @@ easy_api:
     enable: false
     connection_history_class: AppBundle\Entity\User\ConnectionHistory
   inheritance:
-    entity: 'CoreBundle\Entity\AbstractEntity'
-    entityReferential: 'CoreBundle\Entity\AbstractReferential'
-    form: 'CoreBundle\Form\Type\AbstractCoreType'
-    repository: 'CoreBundle\Form\Type\AbstractRepository'
-    controller: 'CoreBundle\Controller\AbstractApiController'
-    serialized_form: 'CoreBundle\Form\Model\SerializedForm'
+    entity: 'AppBundle\Entity\AbstractEntity'
+    entityReferential: 'AppBundle\Entity\AbstractReferential'
+    form: 'AppBundle\Form\Type\AbstractCoreType'
+    repository: 'AppBundle\Form\Type\AbstractRepository'
+    controller: 'AppBundle\Controller\AbstractApiController'
+    serialized_form: 'AppBundle\Form\Model\SerializedForm'
 ```
 ### API-DOC Annotations
 You can use all annotations of the nelmio api bundle.
@@ -74,4 +86,23 @@ And in an annotation named "GetFormParameter" which allows you to generate api-d
     {
         ...       
     }
+```
+### Test framework
+## User assertion:
+Define it in ```php static::$additionalAssessableFunctions ``` and implement it, with good parameters :
+```php
+static::$additionalAssessableFunctions = ['assertMyAssertion'];
+...
+/**
+* @param $key The key in response
+* @param $parameter The parameter passed (optionnal)
+* @param $value The value in response
+*/
+protected static function assertMyAssertion($key, $parameter, $value): void
+{
+    $parameter = $parameter ?? 'John';
+    $expected = "hello world $parameter";
+    $errorMessage = "Invalid value for {$key} field: expected {$expected}, get {$value}";
+    static::assertTrue($expected === $value, $errorMessage);
+}
 ```

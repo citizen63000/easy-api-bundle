@@ -167,6 +167,7 @@ trait ApiTestAssertionsTrait
         $date = \DateTime::createFromFormat($expectedFormat, $value);
         static::assertTrue($date && ($date->format($expectedFormat) === $value), $errorMessage);
     }
+
     /**
      * @param $key
      * @param $expected
