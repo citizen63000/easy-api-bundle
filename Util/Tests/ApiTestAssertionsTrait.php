@@ -146,8 +146,8 @@ trait ApiTestAssertionsTrait
     private static function getAssessableFunctionParameter(string $param)
     {
         // value in quotes
-        if ('\'' === substr($param, 0, 1) && '\'' === substr($param, strlen($param), 1)) {
-            return substr($param, 1, strlen($param)-1);
+        if ('\'' === substr($param, 0, 1) && '\'' === substr($param, strlen($param)-1, 1)) {
+            return substr($param, 1, strlen($param)-2);
         }
 
         return $param;
