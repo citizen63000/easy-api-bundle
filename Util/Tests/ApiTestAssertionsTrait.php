@@ -126,7 +126,7 @@ trait ApiTestAssertionsTrait
                         $functionExpr1 = "\\\\{$functionName}\((.*)\)";
                         $functionExpr2 = "{{$functionName}\((.*)\)}";
                         if (preg_match("/{$functionExpr1}|$functionExpr2/", $value, $matches)) {
-                            static::$functionName($key, $matches[1], $result[$key]);
+                            static::$functionName($key, !empty($matches[1]) ? self::getAssessableFunctionParameter($matches[1]) : null, $result[$key]);
                             unset($expected[$key]);
                             unset($result[$key]);
                             break;
@@ -140,13 +140,30 @@ trait ApiTestAssertionsTrait
     }
 
     /**
+     * @param string|null $param
+     * @return false|string|null
+     */
+    private static function getAssessableFunctionParameter(string $param)
+    {
+        // value in quotes
+        if ('\'' === substr($param, 0, 1) && '\'' === substr($param, strlen($param), 1)) {
+            return substr($param, 1, strlen($param)-1);
+        }
+
+        return $param;
+    }
+
+    /**
      * @param $key
-     * @param $expected
+     * @param $format
      * @param $value
      */
-    protected static function assertDateTime($key, $expected, $value): void
+    protected static function assertDateTime($key, $format, $value): void
     {
-        static::assertDateFromFormat($key, $expected, $value, 'Y-m-d H:i:s');
+        $expectedFormat = $format ?? 'Y-m-d H:i:s';
+        $errorMessage = "Invalid date format for {$key} field: expected format {$expectedFormat}, get value {$value}";
+        $date = \DateTime::createFromFormat($expectedFormat, $value);
+        static::assertTrue($date && ($date->format($expectedFormat) === $value), $errorMessage);
     }
     /**
      * @param $key
@@ -155,20 +172,7 @@ trait ApiTestAssertionsTrait
      */
     protected static function assertDate($key, $expected, $value): void
     {
-        static::assertDateFromFormat($key, $expected, $value, 'Y-m-d');
-    }
-
-    /**
-     * @param $key
-     * @param $expected
-     * @param $value
-     * @param $expectedFormat
-     */
-    private static function assertDateFromFormat($key, $expected, $value, $expectedFormat): void
-    {
-        $errorMessage = "Invalid date format for {$key} field: expected format {$expectedFormat}, get value {$value}";
-        $date = \DateTime::createFromFormat($expectedFormat, $value);
-        static::assertTrue($date && ($date->format($expectedFormat) === $value), $errorMessage);
+        static::assertDateTime($key, 'Y-m-d', $value);
     }
 
     /**
