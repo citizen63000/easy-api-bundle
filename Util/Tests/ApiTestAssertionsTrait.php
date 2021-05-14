@@ -121,18 +121,20 @@ trait ApiTestAssertionsTrait
         $assessableFunctions = array_merge(static::assessableFunctions, static::$additionalAssessableFunctions);
         foreach ($expected as $key => $value) {
             if (array_key_exists($key, $result)) {
-                if (!is_array($value) && preg_match("/^\\\\|^{/", $value)) {
-                    foreach ($assessableFunctions as $functionName) {
-                        $functionExpr1 = "\\\\{$functionName}\((.*)\)";
-                        $functionExpr2 = "{{$functionName}\((.*)\)}";
-                        if (preg_match("/{$functionExpr1}|$functionExpr2/", $value, $matches)) {
-                            static::$functionName($key, !empty($matches[1]) ? self::getAssessableFunctionParameter($matches[1]) : null, $result[$key]);
-                            unset($expected[$key]);
-                            unset($result[$key]);
-                            break;
+                if (!is_array($value)) {
+                    if (preg_match("/^\\\\|^{/", $value)) {
+                        foreach ($assessableFunctions as $functionName) {
+                            $functionExpr1 = "\\\\{$functionName}\((.*)\)";
+                            $functionExpr2 = "{{$functionName}\((.*)\)}";
+                            if (preg_match("/{$functionExpr1}|$functionExpr2/", $value, $matches)) {
+                                static::$functionName($key, !empty($matches[1]) ? self::getAssessableFunctionParameter($matches[1]) : null, $result[$key]);
+                                unset($expected[$key]);
+                                unset($result[$key]);
+                                break;
+                            }
                         }
                     }
-                } elseif (is_array($result[$key])) {
+                } else {
                     static::assertAssessableContent($expected[$key], $result[$key]);
                 }
             }
