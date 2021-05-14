@@ -200,10 +200,6 @@ trait ApiTestRequesterTrait
      */
     protected static function loginHttp(string $username, string $password, bool $useCache = true, bool $useDefaultTokens = true): string
     {
-        if (null === static::$context) {
-            throw new \Exception('ApiTestRequesterTrait::loginHttp : The API context must be defined');
-        }
-
         // use default tokens to speedup login or if using external authentication
         if ($useDefaultTokens && isset(static::$defaultTokens[$username])) {
             if (!self::isTokenExpired(static::$defaultTokens[$username])) {
@@ -214,16 +210,11 @@ trait ApiTestRequesterTrait
         // use token in cache or generate it
         $cachedToken = self::getCachedData("test.token.{$username}_{$password}");
         if (!$cachedToken->isHit() || self::isTokenExpired($cachedToken->get()) || !$useCache) {
-            $credentials = [
-                'username' => $username,
-                'password' => $password,
-            ];
+
+            $credentials = ['username' => $username, 'password' => $password];
 
             self::logDebug("\e[32m[USR]\e[0m🔑 Log in with : \e[32m{$username}\e[0m // \e[32m{$password}\e[0m", self::DEBUG_LEVEL_ADVANCED);
-            $response = self::executeRequest('POST', [
-                'name' => 'fos_user_security_check',
-                'params' => ['context' => static::$context],
-            ], $credentials, false);
+            $response = self::executeRequest('POST', ['name' => 'fos_user_security_check'], $credentials, false);
             $tokenAuth = $response->getData();
 
             if (null === $tokenAuth) {

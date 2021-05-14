@@ -159,13 +159,6 @@ abstract class AbstractApiTest extends WebTestCase
      */
     protected static $token;
 
-    /**
-     * API context.
-     *
-     * @var string
-     */
-    protected static $context;
-
     // endregion
 
     // region Utils

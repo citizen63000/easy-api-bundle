@@ -40,6 +40,9 @@ abstract class AbstractApiController extends FOSRestController
     public const serializationGroups = [];
 
     /** @var array */
+    public const serializationAttributes = [];
+
+    /** @var array */
     public const listSerializationGroups = [];
 
     /** @var array  */
@@ -311,6 +314,7 @@ abstract class AbstractApiController extends FOSRestController
     }
 
     /**
+     * @todo add "attributes" parameter for serialization by fields names
      * @param $entity
      * @param array|null $serializationGroups
      * @param int $status
