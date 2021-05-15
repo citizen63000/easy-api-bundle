@@ -61,6 +61,7 @@ abstract class AbstractApiTest extends WebTestCase
     protected const assessableFunctions = [
         'assertDateTime',
         'assertDate',
+        'assertDateTimeNow',
         'assertFileUrl',
         'assertFileName',
         'assertUUID',

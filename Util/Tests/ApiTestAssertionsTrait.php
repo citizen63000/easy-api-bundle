@@ -7,6 +7,15 @@ use EasyApiBundle\Util\ApiProblem;
 trait ApiTestAssertionsTrait
 {
     /**
+     * Use it to add personal assessable function, call it in setUp()
+     * @param string $functionName
+     */
+    protected function addAdditionalAssessableFunction(string $functionName): void
+    {
+        static::$additionalAssessableFunctions[]= $functionName;
+    }
+
+    /**
      * Determine if two arrays are similar.
      *
      * @param array $a
@@ -156,6 +165,8 @@ trait ApiTestAssertionsTrait
     }
 
     /**
+     * Test if the value is DateTime
+     * usage : assertDateTime([format for ex 'y-m-d'])
      * @param $key
      * @param $format
      * @param $value
@@ -169,6 +180,23 @@ trait ApiTestAssertionsTrait
     }
 
     /**
+     * Test if the value is DateTime and value is now with 1 second range
+     * usage : assertDateTimeNow([format for ex 'y-m-d'])
+     * @param string $key
+     * @param string|null $format
+     * @param string|null $value
+     */
+    protected static function assertDateTimeNow(string $key, ?string $format, ?string $value)
+    {
+        $expectedFormat = $format ?? 'Y-m-d H:i:s';
+        $date = \DateTime::createFromFormat($expectedFormat, $value);
+        $errorMessage = "Invalid date format for {$key} field: expected format {$expectedFormat}, get value {$value}";
+        static::assertTrue($date->diff(new \DateTime())->diff('%S') <= 1, $errorMessage);
+    }
+
+    /**
+     * Test if the value is Date (format Y-m-d)
+     * usage : assertDate()
      * @param $key
      * @param $expected
      * @param $value
@@ -179,7 +207,9 @@ trait ApiTestAssertionsTrait
     }
 
     /**
+     * Test if the value is file url
      * You can use {UID} & {UUID} tags
+     * Usage : assertFileUrl(my_directory_{UUID}/file_{UID}.jpg)
      * @param $key
      * @param $expected
      * @param $value
@@ -197,7 +227,9 @@ trait ApiTestAssertionsTrait
     }
 
     /**
+     * Test if the value is filename with extension
      * You can use {UID} & {UUID} tags
+     * Usage : assertFileUrl(my_file_{UID}.jpg)
      * @param $key
      * @param $expected
      * @param $value
@@ -214,6 +246,8 @@ trait ApiTestAssertionsTrait
     }
 
     /**
+     * Test if the value is UUID
+     * Usage : assertUUID()
      * @param $key
      * @param $expected
      * @param $value
