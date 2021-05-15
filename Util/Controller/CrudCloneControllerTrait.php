@@ -5,20 +5,16 @@ namespace EasyApiBundle\Util\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-trait CrudCreateControllerTrait
+/**
+ * @WIP
+ */
+trait CrudCloneControllerTrait
 {
     /**
-     * Create entity.
+     * Clone entity.
      *
-     * @Symfony\Component\Routing\Annotation\Route(methods={"POST"}, name="_create")
+     * @Symfony\Component\Routing\Annotation\Route("/{id}", methods={"POST"}, name="_clone")
      *
-     * @Swagger\Annotations\Parameter(
-     *     name="data",
-     *     in="body",
-     *     description="Create data.",
-     *     required=true,
-     *     @Swagger\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type="static::entityCreateTypeClass"))
-     * ),
      * @Swagger\Annotations\Response(
      *     response=201,
      *     description="Successful operation",
@@ -37,8 +33,8 @@ trait CrudCreateControllerTrait
      *
      * @return Response
      */
-    public function createAction(Request $request)
+    public function cloneAction(Request $request)
     {
-        return $this->createEntityAction($request);
+        return $this->cloneEntityAction($request);
     }
 }

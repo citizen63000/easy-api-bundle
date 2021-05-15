@@ -28,30 +28,14 @@ trait CreateTestFunctionsTrait
         // Assert result
         static::assertEquals(Response::HTTP_CREATED, $apiOutput->getStatusCode());
         $result = $apiOutput->getData();
-        $expectedResult = $this->getExpectedResponse($filename, 'Create', $result, true);
+        $expectedResult = $this->getExpectedResponse($filename, static::$createActionType, $result, true);
         static::assertAssessableContent($expectedResult, $result);
         static::assertEquals($expectedResult, $result, "Assert failed for file {$filename}");
 
         // Get after create
         if($testGetAfterCreate) {
-            $this->doTestGetAfterCreate($expectedResult['id'], $filename, $userLogin, $userPassword);
+            $this->doTestGetAfterSave($expectedResult['id'], $filename, $userLogin, $userPassword);
         }
-    }
-
-    /**
-     * @param int $id
-     * @param string $filename
-     * @param string|null $userLogin
-     * @param string|null $userPassword
-     */
-    protected function doTestGetAfterCreate(int $id, string $filename, string $userLogin = null, string $userPassword = null)
-    {
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $id]], $userLogin, $userPassword);
-        static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
-        $result = $apiOutput->getData();
-        $expectedResult = $this->getExpectedResponse($filename, 'Create', $result, true);
-        static::assertAssessableContent($expectedResult, $result);
-        static::assertEquals($expectedResult, $result, "Get after post failed for file {$filename}");
     }
 
     /**
@@ -102,7 +86,6 @@ trait CreateTestFunctionsTrait
 
     /**
      * POST - Error case - 403 - Forbidden action.
-     * @param int|null $id
      * @param string|null $filename
      * @param array $params
      * @param string|null $userLogin
@@ -111,7 +94,7 @@ trait CreateTestFunctionsTrait
      * @param int $errorCode
      * @throws \Exception
      */
-    protected function doTestCreateForbiddenAction(int $id = null, string $filename = null, array $params = [], string $userLogin = null, string $userPassword = null, $messages = [ApiProblem::RESTRICTED_ACCESS], $errorCode = Response::HTTP_UNPROCESSABLE_ENTITY): void
+    protected function doTestCreateForbiddenAction(string $filename = null, array $params = [], string $userLogin = null, string $userPassword = null, array $messages = [ApiProblem::RESTRICTED_ACCESS], $errorCode = Response::HTTP_UNPROCESSABLE_ENTITY): void
     {
         $data = null != $filename ? $this->getDataSent($filename, self::$createActionType) : [];
 

@@ -63,14 +63,14 @@ trait crudFunctionsTestTrait
      * Retrive data from file $filename or create it.
      * @param string $filename
      * @param string $type Create|Update
-     * @param array $defaultContent
+     * @param array|null $defaultContent
      * @return array
      * @throws \Exception
      */
     protected function getDataSent(string $filename, string $type, array $defaultContent = null): array
     {
-        $dir = $this->getCurrentDir()."/DataSent/{$type}";
-        $filePath = "{$dir}/{$filename}";
+        $dir = "{$this->getCurrentDir()}/DataSent/$type";
+        $filePath = "$dir/$filename";
 
         if(!file_exists($filePath)) {
             if(!is_dir($dir)) {
@@ -88,7 +88,7 @@ trait crudFunctionsTestTrait
             return $json;
         }
 
-        throw new \Exception("Invalid json in file {$filename}");
+        throw new \Exception("Invalid json in file $filename");
     }
 
     /**
@@ -148,26 +148,22 @@ trait crudFunctionsTestTrait
                 case 'text':
                     $defaultValue = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt';
                     break;
-                case 'boolean':
-                    $defaultValue = 1;
-                    break;
                 case 'integer':
                     $defaultValue = random_int(0, 5000);
                     break;
                 case 'number':
-                    $defaultValue = random_int(0, 5000);
+                    $defaultValue = random_int(1, 50000) / 10;
                     break;
                 case 'array':
                     $defaultValue = [];
                     break;
+                case 'boolean':
                 case 'entity':
                     $defaultValue = 1;
                     break;
             }
-
             $fields[$field->getName()] = $defaultValue;
         }
-
         return $fields;
     }
 
@@ -193,6 +189,14 @@ trait crudFunctionsTestTrait
     protected static function getCreateRouteName()
     {
         return static::baseRouteName.'_create';
+    }
+
+    /**
+     * @return string
+     */
+    protected static function getCloneRouteName()
+    {
+        return static::baseRouteName.'_clone';
     }
 
     /**
@@ -225,5 +229,21 @@ trait crudFunctionsTestTrait
     protected static function getDataClassShortName()
     {
         return lcfirst(substr(static::entityClass, strrpos(static::entityClass, '\\') + 1));
+    }
+
+    /**
+     * @param int $id
+     * @param string $filename
+     * @param string|null $userLogin
+     * @param string|null $userPassword
+     */
+    protected function doTestGetAfterSave(int $id, string $filename, string $userLogin = null, string $userPassword = null)
+    {
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $id]], $userLogin, $userPassword);
+        static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
+        $result = $apiOutput->getData();
+        $expectedResult = $this->getExpectedResponse($filename, static::$createActionType, $result, true);
+        static::assertAssessableContent($expectedResult, $result);
+        static::assertEquals($expectedResult, $result, "Get after saving failed for file {$filename}");
     }
 }

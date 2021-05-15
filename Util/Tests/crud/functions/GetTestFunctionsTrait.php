@@ -33,7 +33,7 @@ trait GetTestFunctionsTrait
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
         $result = $apiOutput->getData();
-        $expectedResult = $this->getExpectedResponse($filename, 'Get', $result);
+        $expectedResult = $this->getExpectedResponse($filename, static::$getActionType, $result);
 
         static::assertAssessableContent($expectedResult, $result);
         static::assertEquals($expectedResult, $result, "Assert failed for file {$filename}");
