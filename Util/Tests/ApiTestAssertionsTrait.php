@@ -191,7 +191,7 @@ trait ApiTestAssertionsTrait
         $expectedFormat = $format ?? 'Y-m-d H:i:s';
         $date = \DateTime::createFromFormat($expectedFormat, $value);
         $errorMessage = "Invalid date format for {$key} field: expected format {$expectedFormat}, get value {$value}";
-        static::assertTrue($date->diff(new \DateTime())->diff('%S') <= 1, $errorMessage);
+        static::assertTrue($date->diff(new \DateTime())->format('%S') <= 1, $errorMessage);
     }
 
     /**
