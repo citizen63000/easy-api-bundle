@@ -308,15 +308,14 @@ abstract class AbstractApiTest extends WebTestCase
     }
 
     /**
-     * @param string $className
+     * @param string|null $className
      *
      * @return int
      *
-     * @throws DBALException
      */
-    protected static function getLastEntityId(string $className): int
+    protected static function getLastEntityId(string $className = null): int
     {
-        $tableName = self::$entityManager->getClassMetadata($className)->getTableName();
+        $tableName = self::$entityManager->getClassMetadata($className ?? static::entityClass)->getTableName();
         $stmt = self::$entityManager->getConnection()->prepare("SELECT max(id) as id FROM {$tableName}");
         $stmt->execute();
 
@@ -324,13 +323,13 @@ abstract class AbstractApiTest extends WebTestCase
     }
 
     /**
-     * @param string $className
+     * @param string|null $className
      *
      * @return int|null
      *
      * @throws DBALException
      */
-    protected static function getNextEntityId(string $className): ?int
+    protected static function getNextEntityId(string $className = null): ?int
     {
         return ($id = self::getLastEntityId($className)) ? ++$id : null;
     }
