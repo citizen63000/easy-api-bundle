@@ -1,6 +1,5 @@
 <?php
 
-
 namespace EasyApiBundle\Services\User;
 
 use Doctrine\ORM\OptimisticLockException;
@@ -38,7 +37,7 @@ class Tracking extends AbstractService
      * @throws PackageNotLoadedException
      * @throws ORMException
      */
-    public function logConnection(User $user, Request $request, $token, $isSSO = false)
+    public function logConnection(User $user, Request $request, string $token, bool $isSSO = false)
     {
         $connectionHistoryClass = $this->getParameter(self::CONNECTION_HISTORY_CLASS_PARAMETER);
 
@@ -51,7 +50,7 @@ class Tracking extends AbstractService
         $connectionHistory->setIsSSO($isSSO);
         $connectionHistory->setIp($request->getClientIp());
         $connectionHistory->setUserAgent($request->headers->get('User-Agent'));
-        $connectionHistory->setTokenValue($token);
+        $connectionHistory->setTokenValue($token); // @todo hash token
         $connectionHistory->setLoginDate(new \DateTime());
 
         $this->updateConnectionFromUserAgent($connectionHistory);
@@ -137,7 +136,7 @@ class Tracking extends AbstractService
     }
 
     /**
-     * @param $result
+     * @param UserAgent $result
      * @param ConnectionHistory $connectionHistory
      *
      * @return ConnectionHistory
