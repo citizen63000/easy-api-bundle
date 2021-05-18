@@ -25,6 +25,7 @@ services:
   EasyApiBundle\Services\ListFilter:
     autowire: true
     autoconfigure: true
+    public: true
     arguments: ['@service_container', '@security.token_storage']
 
   app.jwt_authentication.jws_provider:
