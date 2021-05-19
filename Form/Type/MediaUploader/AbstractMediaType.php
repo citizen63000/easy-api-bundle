@@ -32,6 +32,7 @@ abstract class AbstractMediaType extends AbstractApiType
                     'label' => false,
                     'required' => false,
                     'constraints' => $this->getConstraints('filename', $options),
+                    'empty_data' => false, // false to not ignore if is null
                     'attr' => [
                         'widget' => 'filename',
                     ],
