@@ -2,7 +2,6 @@
 
 namespace EasyApiBundle\Form\Type\MediaUploader;
 
-use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use EasyApiBundle\Form\Type\AbstractApiType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -73,16 +72,15 @@ abstract class AbstractMediaType extends AbstractApiType
      */
     private static function convertBase64ToUploadedFile(string $base64, string $originalFileName): UploadedFile
     {
-            // Create a real file in temporary directory
-            $tmpFilePath = '/tmp/'.md5(uniqid());
-            $fileData = base64_decode($base64);
-            (new Filesystem())->dumpFile($tmpFilePath, $fileData);
-            // add extension (mime_content_type doesn't work with docx)
-            $f = finfo_open();
-            $mimeType = finfo_buffer($f, $fileData, FILEINFO_MIME_TYPE);
+        // Create a real file in temporary directory
+        $tmpFilePath = '/tmp/'.md5(uniqid());
+        $fileData = base64_decode(preg_replace('/^data:[a-zA-Z0-9\-\/\.]+;base64,/', '', $base64));
+        (new Filesystem())->dumpFile($tmpFilePath, $fileData);
+        // add extension (mime_content_type doesn't work with docx)
+        $mimeType = finfo_buffer(finfo_open(), $fileData, FILEINFO_MIME_TYPE);
 
-            // we create an uploaded file for form
-            return new UploadedFile($tmpFilePath, $originalFileName, $mimeType, null, null, true);
+        // we create an uploaded file for form
+        return new UploadedFile($tmpFilePath, $originalFileName, $mimeType, null, null, true);
     }
 
     /**
