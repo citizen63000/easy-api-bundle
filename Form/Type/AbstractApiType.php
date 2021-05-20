@@ -1,16 +1,29 @@
 <?php
 
-
 namespace EasyApiBundle\Form\Type;
 
+use EasyApiBundle\Form\Type\MediaUploader\AbstractMediaType;
 use EasyApiBundle\Util\ApiProblem;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 
 abstract class AbstractApiType extends AbstractType
 {
+    private $valuesToSetNull = [];
+
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        parent::buildForm($builder, $options);
+
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, [$this, 'managePreSubmitAbstractMediaFiles']);
+        $builder->addEventListener(FormEvents::POST_SUBMIT, [$this, 'manageAbstractMediaFiles']);
+    }
+
     /**
      * @var string
      */
@@ -30,7 +43,7 @@ abstract class AbstractApiType extends AbstractType
     protected static $groupsConditions = [];
 
     /**
-     * @var
+     * @var array
      */
     protected $validationGroups;
 
@@ -157,5 +170,55 @@ abstract class AbstractApiType extends AbstractType
     protected static function getDataClassShortName()
     {
         return lcfirst(substr(static::$dataClass, strrpos(static::$dataClass, '\\') + 1));
+    }
+
+    /**
+     * Set empty AbstractMedia entity to null in media container entity to delete it
+     * Ex : myFile: { filename: null, file: null} => myFile: null
+     * @param FormEvent $event
+     */
+    public function managePreSubmitAbstractMediaFiles(FormEvent $event)
+    {
+
+        $data = $event->getData();
+        $form = $event->getForm();
+
+        if (!$data) {
+            return;
+        }
+
+        foreach ($form as $name => $child) {
+            $config = $child->getConfig();
+            $type = $config->getType();
+            if($type->getInnerType() instanceof AbstractMediaType) {
+                if(array_key_exists($name, $data)) {
+                    if(is_array($data[$name])) {
+                        $filename = $data[$name]['filename'] ?? null;
+                        $file = $data[$name]['file'] ?? null;
+                        if(null === $filename && null === $file) {
+                            $data[$name] = null;
+                            $this->valuesToSetNull[] = $name;
+                        }
+                    } elseif (null === $data[$name]) {
+                        $this->valuesToSetNull[] = $name;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Set null data fields to null in entity
+     * Ex : myFile: { filename: null, file: null} => myFile: null
+     * @param FormEvent $event
+     */
+    public function manageAbstractMediaFiles(FormEvent $event)
+    {
+        $data = $event->getData();
+
+        foreach ($this->valuesToSetNull as $fieldName) {
+            $data->{'set'.ucfirst($fieldName)}(null);
+            $event->setData($data);
+        }
     }
 }
