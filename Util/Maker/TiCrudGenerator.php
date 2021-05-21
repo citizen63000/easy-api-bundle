@@ -61,12 +61,10 @@ class TiCrudGenerator extends AbstractGenerator
 
     /**
      * Generate Get service tests.
-     *
-     * @param $dumpExistingFiles boolean
-     *
+     * @param bool $dumpExistingFiles
      * @return string
      */
-    protected function generateGetTests($dumpExistingFiles = false): string
+    protected function generateGetTests(bool $dumpExistingFiles = false): string
     {
         $fileContent = $this->getContainer()->get('templating')->render(
             $this->getTemplatePath('crud_get.php.twig'),
@@ -78,12 +76,10 @@ class TiCrudGenerator extends AbstractGenerator
 
     /**
      * Generate GetList service tests.
-     *
-     * @param $dumpExistingFiles boolean
-     *
+     * @param bool $dumpExistingFiles
      * @return string
      */
-    protected function generateGetListTests($dumpExistingFiles = false): string
+    protected function generateGetListTests(bool $dumpExistingFiles = false): string
     {
         $fileContent = $this->getContainer()->get('templating')->render(
             $this->getTemplatePath('crud_get_list.php.twig'),
@@ -95,12 +91,10 @@ class TiCrudGenerator extends AbstractGenerator
 
     /**
      * Generate DescribeForm service tests.
-     *
-     * @param $dumpExistingFiles boolean
-     *
+     * @param bool $dumpExistingFiles
      * @return string
      */
-    protected function generateDescribeFormTests($dumpExistingFiles = false): string
+    protected function generateDescribeFormTests(bool $dumpExistingFiles = false): string
     {
         $fileContent = $this->getContainer()->get('templating')->render(
             $this->getTemplatePath('crud_describe_form.php.twig'),
@@ -112,12 +106,10 @@ class TiCrudGenerator extends AbstractGenerator
 
     /**
      * Generate Delete service tests.
-     *
-     * @param $dumpExistingFiles boolean
-     *
+     * @param bool $dumpExistingFiles
      * @return string
      */
-    protected function generateDeleteTests($dumpExistingFiles = false): string
+    protected function generateDeleteTests(bool $dumpExistingFiles = false): string
     {
         $fileContent = $this->getContainer()->get('templating')->render(
             $this->getTemplatePath('crud_delete.php.twig'),
@@ -129,12 +121,10 @@ class TiCrudGenerator extends AbstractGenerator
 
     /**
      * Generate Post service tests.
-     *
-     * @param $dumpExistingFiles boolean
-     *
+     * @param bool $dumpExistingFiles
      * @return string
      */
-    protected function generatePostTests($dumpExistingFiles = false): string
+    protected function generatePostTests(bool $dumpExistingFiles = false): string
     {
         $fileContent = $this->getContainer()->get('templating')->render(
             $this->getTemplatePath('crud_post.php.twig'),
@@ -146,12 +136,10 @@ class TiCrudGenerator extends AbstractGenerator
 
     /**
      * Generate Put service tests.
-     *
-     * @param $dumpExistingFiles boolean
-     *
+     * @param bool $dumpExistingFiles
      * @return string
      */
-    protected function generatePutTests($dumpExistingFiles = false): string
+    protected function generatePutTests(bool $dumpExistingFiles = false): string
     {
         $fileContent = $this->getContainer()->get('templating')->render(
             $this->getTemplatePath('crud_put.php.twig'),
@@ -162,11 +150,10 @@ class TiCrudGenerator extends AbstractGenerator
     }
 
     /**
-     * @param $dumpExistingFiles boolean
-     *
+     * @param bool $dumpExistingFiles
      * @return string
      */
-    protected function generateAbstractContext($dumpExistingFiles = false): string
+    protected function generateAbstractContext(bool $dumpExistingFiles = false): string
     {
         $abstractContextName = $this->getAbstractContextTestName();
         $fileContent = $this->getContainer()->get('templating')->render(
@@ -292,7 +279,7 @@ class TiCrudGenerator extends AbstractGenerator
                 'entity_parent_use' => $entityParentUse,
                 'bundle_name' => $this->config->getBundleName(),
                 'context_name' => $this->config->getContextName(),
-                'namespace' => "Tests\\{$this->config->getBundleName()}\\{$this->config->getContextName()}\\{$this->config->getEntityName()}",
+                'namespace' => "Tests\\{$this->config->getBundleName()}\\".(!empty($this->config->getContextName()) ? "{$this->config->getContextName()}\\" : '')."\\{$this->config->getEntityName()}",
                 'route_name_prefix' => $this->getRouteNamePrefix().'_'.CaseConverter::convertToPascalCase($this->config->getEntityName()),
                 'fields' => $this->config->getFields(),
                 'requiredFieldsForArray' => implode(', ', $requiredFieldsForArray),
@@ -474,7 +461,7 @@ class TiCrudGenerator extends AbstractGenerator
         $prefix = str_replace(['API', 'Bundle'], ['api_', ''], $bundleName);
         $contextName = str_replace(['\\', '/'], '_', $this->config->getContextName());
 
-        return CaseConverter::convertToPascalCase("{$prefix}_{$contextName}");
+        return CaseConverter::convertToPascalCase($prefix.(!empty($contextName) ? "_{$contextName}" : ''));
     }
 
     /**
@@ -485,16 +472,18 @@ class TiCrudGenerator extends AbstractGenerator
         return $this->getContextDirectoryPath().$this->getConfig()->getEntityName().'/';
     }
 
+    /**
+     * @return string
+     */
     protected function generateDataSubDirectoryPath(): string
     {
         $contextDirectory = ucfirst(strtolower($this->getConfig()->getContextNameForPath()));
 
-        return "{$this->config->getBundleName()}/{$contextDirectory}/";
+        return "{$this->config->getBundleName()}/".(!empty($contextDirectory) ? "$contextDirectory/" : '');
     }
 
     /**
      * Directory for yml data fixtures configuration file
-     *
      * @return string
      */
     public function generateDataYmlDirectoryPath(): string
