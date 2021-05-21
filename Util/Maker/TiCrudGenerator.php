@@ -449,7 +449,7 @@ class TiCrudGenerator extends AbstractGenerator
      */
     protected function getContextDirectoryPath(): string
     {
-        return "tests/{$this->config->getBundleName()}/{$this->config->getContextNameForPath()}/";
+        return "tests/{$this->config->getBundleName()}/".(!empty($this->config->getContextNameForPath()) ? "{$this->config->getContextNameForPath()}/" : '');
     }
 
     /**
