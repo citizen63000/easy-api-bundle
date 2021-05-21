@@ -251,7 +251,8 @@ class TiCrudGenerator extends AbstractGenerator
             $requiredFieldsForArray = [];
             try {
                 $describer = new FormSerializer($this->container->get('form.factory'), $this->container->get('router'), $this->getDoctrine());
-                $formName = $this->config->getBundleName().'\\Form\\Type\\'.$this->config->getContextName().'\\'.$this->config->getEntityName().'Type';
+                $context = (!empty($this->config->getContextName()) ? "{$this->config->getContextName()}\\" : '');
+                $formName = "{$this->config->getBundleName()}\\Form\\Type\\{$context}{$this->config->getEntityName()}Type";
                 $form = $describer->normalize($this->createForm($formName));
 
                 // requiredFieldsListing
@@ -279,7 +280,7 @@ class TiCrudGenerator extends AbstractGenerator
                 'entity_parent_use' => $entityParentUse,
                 'bundle_name' => $this->config->getBundleName(),
                 'context_name' => $this->config->getContextName(),
-                'namespace' => "Tests\\{$this->config->getBundleName()}\\".(!empty($this->config->getContextName()) ? "{$this->config->getContextName()}\\" : '')."\\{$this->config->getEntityName()}",
+                'namespace' => "Tests\\{$this->config->getBundleName()}\\".(!empty($this->config->getContextName()) ? "{$this->config->getContextName()}\\" : '')."{$this->config->getEntityName()}",
                 'route_name_prefix' => $this->getRouteNamePrefix().'_'.CaseConverter::convertToPascalCase($this->config->getEntityName()),
                 'fields' => $this->config->getFields(),
                 'requiredFieldsForArray' => implode(', ', $requiredFieldsForArray),
