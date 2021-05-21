@@ -3,15 +3,9 @@
 namespace EasyApiBundle\Util\Maker;
 
 use EasyApiBundle\Util\StringUtils\CaseConverter;
-use Twig\Error\Error;
 
 class CrudGenerator extends AbstractGenerator
 {
-    /**
-     * @var string
-     */
-    protected static $templatesDirectory = 'Doctrine/';
-
     /**
      * @param string $bundle
      * @param string|null $context
@@ -19,10 +13,8 @@ class CrudGenerator extends AbstractGenerator
      * @param bool $dumpExistingFiles
      *
      * @return array paths to the generated files
-     *
-     * @throws Error
      */
-    public function generate(string $bundle, ?string $context, string $entityName, bool $dumpExistingFiles = false)
+    public function generate(string $bundle, ?string $context, string $entityName, bool $dumpExistingFiles = false): array
     {
         $this->config = $this->loadEntityConfig($entityName, $bundle, $context);
         $paths = [];
@@ -39,7 +31,7 @@ class CrudGenerator extends AbstractGenerator
      *
      * @return string
      */
-    protected function generateController(bool $dumpExistingFiles)
+    protected function generateController(bool $dumpExistingFiles): string
     {
         $fileContent = $this->getContainer()->get('templating')->render(
             $this->getTemplatePath('doctrine/crud_controller.php.twig'),
@@ -54,9 +46,9 @@ class CrudGenerator extends AbstractGenerator
      *
      * @param bool $dumpExistingFiles
      *
-     * @return bool|int
+     * @return string
      */
-    protected function generateRouting(bool $dumpExistingFiles)
+    protected function generateRouting(bool $dumpExistingFiles): string
     {
         $bundleName = $this->config->getBundleName();
         $routingFilePath = "src/{$bundleName}/Resources/config/";
@@ -82,7 +74,7 @@ class CrudGenerator extends AbstractGenerator
     /**
      * @return string
      */
-    protected function getControllerDirectoryPath()
+    protected function getControllerDirectoryPath(): string
     {
         $context = str_replace('\\', '/', $this->config->getContextName());
 
@@ -92,7 +84,7 @@ class CrudGenerator extends AbstractGenerator
     /**
      * @return string
      */
-    protected function getRoutingDirectoryPath()
+    protected function getRoutingDirectoryPath(): string
     {
         $context = str_replace('\\', '/', $this->config->getContextName());
 
@@ -102,7 +94,7 @@ class CrudGenerator extends AbstractGenerator
     /**
      * @return string
      */
-    protected function getRouteNamePrefix()
+    protected function getRouteNamePrefix(): string
     {
         $bundleName = $this->config->getBundleName();
         $prefix = str_replace(['API', 'Bundle'], ['api_', ''], $bundleName);
@@ -117,7 +109,7 @@ class CrudGenerator extends AbstractGenerator
     /**
      * @return array
      */
-    protected function generateContent()
+    protected function generateContent(): array
     {
         $transformedContext = str_replace('\\', '/', $this->config->getContextName());
         $bundle = $this->config->getBundleName();
@@ -151,7 +143,7 @@ class CrudGenerator extends AbstractGenerator
     /**
      * @return array
      */
-    protected function getSerializerGroups()
+    protected function getSerializerGroups(): array
     {
         $groups = ['\''.CaseConverter::convertToPascalCase($this->config->getEntityName()).'_full\''];
 

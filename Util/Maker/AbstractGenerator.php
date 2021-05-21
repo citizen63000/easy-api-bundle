@@ -3,6 +3,7 @@
 namespace EasyApiBundle\Util\Maker;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\DBAL\DBALException;
 use EasyApiBundle\Model\Maker\EntityConfiguration;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Kernel;
@@ -61,13 +62,11 @@ class AbstractGenerator
      * @param string|null $inheritanceType
      * @param string|null $context
      * @return EntityConfiguration
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
-    protected function loadEntityConfigFromDatabase(string $bundle, string $entityName, string $tableName, string $schema = null, string $parentEntityName = null, string $inheritanceType = null, string $context =null)
+    protected function loadEntityConfigFromDatabase(string $bundle, string $entityName, string $tableName, string $schema = null, string $parentEntityName = null, string $inheritanceType = null, string $context =null): EntityConfiguration
     {
-        $this->config = EntityConfigLoader::createEntityConfigFromDatabase($this->getDoctrine()->getManager(), $bundle, $entityName, $tableName, $schema, $parentEntityName, $inheritanceType, $context);
-
-        return $this->config;
+        return EntityConfigLoader::createEntityConfigFromDatabase($this->getDoctrine()->getManager(), $bundle, $entityName, $tableName, $schema, $parentEntityName, $inheritanceType, $context);
     }
 
     /**
@@ -76,7 +75,7 @@ class AbstractGenerator
      * @param string|null $context
      * @return EntityConfiguration|null
      */
-    protected function loadEntityConfig(string $entityName, string $bundle = null, string $context = null)
+    protected function loadEntityConfig(string $entityName, string $bundle = null, string $context = null): ?EntityConfiguration
     {
         $this->config = EntityConfigLoader::findAndCreateFromEntityName($entityName, $bundle);
 
@@ -91,7 +90,7 @@ class AbstractGenerator
     /**
      * @return string
      */
-    protected static function getConsoleCommand()
+    protected static function getConsoleCommand(): string
     {
         return (Kernel::MAJOR_VERSION > 2) ? 'bin/console' : 'app/console';
     }
@@ -104,7 +103,7 @@ class AbstractGenerator
      * @param bool $returnAbsolutePath
      * @return string
      */
-    protected function writeFile(string $directory, string $filename, string $fileContent, bool $dumpExistingFiles = false, bool $returnAbsolutePath = false)
+    protected function writeFile(string $directory, string $filename, string $fileContent, bool $dumpExistingFiles = false, bool $returnAbsolutePath = false): string
     {
         $destinationFile = '/' === $directory[strlen($directory)-1] ? "{$directory}{$filename}" : "{$directory}/{$filename}";
 
@@ -125,7 +124,7 @@ class AbstractGenerator
     /**
      * @return string
      */
-    protected function getSkeletonPath()
+    protected function getSkeletonPath(): string
     {
         $configPath = $this->container->get('generator_skeleton_path', null);
 
@@ -150,22 +149,9 @@ class AbstractGenerator
      *
      * @return string
      */
-    protected function generateEntityFolderPath($bundle, $context): string
+    protected function generateEntityFolderPath(string $bundle, string $context): string
     {
         return "src/{$bundle}/Entity/{$context}/";
-    }
-
-    /**
-     * Return the path of the entity.
-     *
-     * @param $entityName
-     *
-     * @return string
-     */
-    protected function findEntityFolderPath($bundle, $context, $entityName)
-    {
-        // TODO verify if the file exist ,
-        return $this->generateEntityFolderPath($bundle, $context);
     }
 
     /**
@@ -189,7 +175,7 @@ class AbstractGenerator
     /**
      * @return array
      */
-    public static function getProjectBundles()
+    public static function getProjectBundles(): array
     {
         $dir = 'src/';
         $bundles = [];
@@ -207,7 +193,7 @@ class AbstractGenerator
     /**
      * @return string
      */
-    public static function findTypeFile($typeName, $bundle)
+    public static function findTypeFile($typeName, $bundle): ?string
     {
         $dir = "src/{$bundle}/Form/Type";
 
@@ -220,7 +206,7 @@ class AbstractGenerator
      *
      * @return string|null
      */
-    public static function findEntityFile($entityName, $bundle)
+    public static function findEntityFile($entityName, $bundle): ?string
     {
         $dir = "src/{$bundle}/Entity";
 
@@ -230,16 +216,15 @@ class AbstractGenerator
     /**
      * @param $path
      * @param $filename
-     * @param int $flags
      *
      * @return string|null
      */
-    protected static function findFileRecursive($path, $filename, $flags = 0)
+    protected static function findFileRecursive($path, $filename): ?string
     {
         $files = scandir($path);
         foreach ($files as $file) {
             if ('.' !== $file && '..' !== $file && is_dir($path.DIRECTORY_SEPARATOR.$file)) {
-                $findFiles = self::findFileRecursive($path.DIRECTORY_SEPARATOR.$file, $filename, $flags = 0);
+                $findFiles = self::findFileRecursive($path . DIRECTORY_SEPARATOR . $file, $filename);
                 if (null !== $findFiles) {
                     return $findFiles;
                 }
