@@ -75,14 +75,48 @@ class ListFilter extends AbstractService
         $nbParts = count($parts)-1;
         for($i = 0; $i < $nbParts ; ++$i) {
             $join = "{$classAlias}.{$parts[$i]}";
-            if(!isset($joins[$join])) {
-                $alias = "{$classAlias}_{$fieldName}";
-                $qb->innerJoin($join, $alias);
-                $joins[$join] = $alias;
-            }
+//            if(!isset($joins[$join])) {
+//                $alias = "{$classAlias}_{$fieldName}";
+//                $qb->innerJoin($join, $alias);
+//                $joins[$join] = $alias;
+//            }
+            $this->joinEntity($qb, $classAlias, $fieldName, $joins);
             $classAlias = $joins[$join];
         }
         $this->fieldFilter($qb, $fieldConfig, $classAlias, $fieldName, $parts[$nbParts], $model);
+    }
+
+    protected function joinEntityFromPath(QueryBuilder $qb, string $fieldName, array &$joins): ?string
+    {
+        $parts = explode('_', $fieldName);
+        $nbParts = count($parts)-1;
+        $join = null;
+
+        $classAlias = self::classAlias;
+        for($i = 0; $i < $nbParts ; ++$i) {
+            $join = "{$classAlias}.{$parts[$i]}";
+            $this->joinEntity($qb, $classAlias, $fieldName, $joins);
+            $classAlias = $joins[$join];
+        }
+
+        return $join;
+    }
+
+    /**
+     * Join entity
+     * @param QueryBuilder $qb
+     * @param string $classAlias
+     * @param string $fieldName
+     * @param array $joins
+     */
+    protected function joinEntity(QueryBuilder $qb, string $classAlias, string $fieldName, array &$joins)
+    {
+        $join = "{$classAlias}.{$fieldName}";
+        if(!isset($joins[$join])) {
+            $alias = "{$classAlias}_{$fieldName}";
+            $qb->innerJoin($join, $alias);
+            $joins[$join] = $alias;
+        }
     }
 
     /**
@@ -185,6 +219,7 @@ class ListFilter extends AbstractService
             $strOrders = explode(',', $model->getSort());
             foreach ($strOrders as $order) {
                 $parts = explode(':', $order);
+
                 $qb->addOrderBy("{$classAlias}.{$parts[0]}", $parts[1]);
             }
         } elseif(null !== $model->getDefaultSort()) {
@@ -192,6 +227,11 @@ class ListFilter extends AbstractService
                 $qb->addOrderBy("{$classAlias}.{$field}", $direction);
             }
         }
+    }
+
+    protected function sortByField(QueryBuilder $qb, string $fieldPath, string $direction)
+    {
+        $qb->addOrderBy($this->joinEntityFromPath($qb, $fieldPath), $direction);
     }
 
     /**
