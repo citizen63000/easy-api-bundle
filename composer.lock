@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cfd8e668da547f20d4e0559dbe347de4",
+    "content-hash": "9b426ff22aa7b1eb6b3b9876908f074b",
     "packages": [
         {
             "name": "behat/transliterator",
@@ -2659,23 +2659,23 @@
         },
         {
             "name": "lexik/jwt-authentication-bundle",
-            "version": "v2.10.7",
+            "version": "v2.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lexik/LexikJWTAuthenticationBundle.git",
-                "reference": "79ba5af396c4f4e64fe9c8b9af65f8441fdb44cf"
+                "reference": "1a110dbb8649e3029140a29f02f812d168008e8e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lexik/LexikJWTAuthenticationBundle/zipball/79ba5af396c4f4e64fe9c8b9af65f8441fdb44cf",
-                "reference": "79ba5af396c4f4e64fe9c8b9af65f8441fdb44cf",
+                "url": "https://api.github.com/repos/lexik/LexikJWTAuthenticationBundle/zipball/1a110dbb8649e3029140a29f02f812d168008e8e",
+                "reference": "1a110dbb8649e3029140a29f02f812d168008e8e",
                 "shasum": ""
             },
             "require": {
                 "ext-openssl": "*",
-                "lcobucci/jwt": "^3.2|^4.0",
+                "lcobucci/jwt": "^3.2",
                 "namshi/jose": "^7.2",
-                "php": ">=5.6",
+                "php": "^5.5|^7.0",
                 "symfony/framework-bundle": "^3.4|^4.0|^5.0",
                 "symfony/security-bundle": "^3.4|^4.0|^5.0"
             },
@@ -2755,13 +2755,9 @@
                 {
                     "url": "https://github.com/chalasr",
                     "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/lexik/jwt-authentication-bundle",
-                    "type": "tidelift"
                 }
             ],
-            "time": "2021-05-12T09:32:35+00:00"
+            "time": "2020-05-28T23:36:57+00:00"
         },
         {
             "name": "monolog/monolog",
