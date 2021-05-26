@@ -205,6 +205,8 @@ abstract class AbstractApiType extends AbstractType
                 }
             }
         }
+
+        $event->setData($data);
     }
 
     /**
