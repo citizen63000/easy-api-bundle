@@ -5,6 +5,7 @@ namespace EasyApiBundle\Entity\MediaUploader;
 use Doctrine\ORM\Mapping as ORM;
 use EasyApiBundle\Entity\AbstractBaseEntity;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Vich\UploaderBundle\Naming\OrignameNamer;
@@ -64,9 +65,9 @@ abstract class AbstractMedia extends AbstractBaseEntity
     }
 
     /**
-     * @return Uuid
+     * @return UuidInterface
      */
-    public function getUuid(): Uuid
+    public function getUuid(): UuidInterface
     {
         return $this->uuid;
     }
