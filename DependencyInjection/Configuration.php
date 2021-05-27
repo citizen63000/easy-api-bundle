@@ -70,6 +70,13 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
 
+            ->arrayNode('tests')
+                ->addDefaultsIfNotSet()
+                ->children()
+                    ->booleanNode('debug')->defaultTrue()->end()
+                ->end()
+            ->end()
+
             ->end()
             ;
 
