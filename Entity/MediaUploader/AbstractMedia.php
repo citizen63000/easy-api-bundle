@@ -55,12 +55,6 @@ abstract class AbstractMedia extends AbstractBaseEntity
     protected $containerEntity;
 
     /**
-     * @var bool
-     * @ORM\Column(name="to_delete", type="boolean")
-     */
-    protected $toDelete = false;
-
-    /**
      * AbstractMedia constructor.
      * @throws \Exception
      */
@@ -188,22 +182,6 @@ abstract class AbstractMedia extends AbstractBaseEntity
     public function generateFileName(): string
     {
         return 'you_must_implement_generateFileName_method';
-    }
-
-    /**
-     * @return bool
-     */
-    public function isToDelete(): bool
-    {
-        return $this->toDelete;
-    }
-
-    /**
-     * @param bool $toDelete
-     */
-    public function setToDelete(bool $toDelete): void
-    {
-        $this->toDelete = $toDelete;
     }
 
     /**
