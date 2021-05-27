@@ -143,7 +143,7 @@ trait ApiTestAssertionsTrait
                             }
                         }
                     }
-                } else {
+                } elseif(is_array($result[$key])) {
                     static::assertAssessableContent($expected[$key], $result[$key]);
                 }
             }
