@@ -79,8 +79,11 @@ abstract class AbstractApiTest extends WebTestCase
     /** @var array */
     protected static $additionalAssessableFunctions = [];
 
-    /** @var bool  */
-    private static $debug = null;
+    /**
+     * @var bool
+     * @todo set private in php 7.4
+     */
+    protected static $debug = false;
 
     /** @var int  */
     protected static $debugLevel = self::DEBUG_LEVEL_ADVANCED;
