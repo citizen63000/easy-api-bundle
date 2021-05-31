@@ -31,9 +31,9 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
      * ApiExceptionSubscriber constructor.
      *
      * @param Logger $logger
-     * @param $env
+     * @param string $env
      */
-    public function __construct(Logger $logger, $env)
+    public function __construct(Logger $logger, string $env)
     {
         $this->logger = $logger;
         $this->env = $env;
@@ -48,15 +48,10 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
     {
         $e = $event->getException();
 
-        $apiProblem = ($e instanceof ApiProblemException)
-            ? $e->getApiProblem()
-            : $this->getApiProblem($e)
-        ;
+        $apiProblem = ($e instanceof ApiProblemException) ? $e->getApiProblem() : $this->getApiProblem($e);
 
-        $response = new JsonResponse(
-            $apiProblem->toArray(),
-            $apiProblem->getStatusCode()
-        );
+        $response = new JsonResponse($apiProblem->toArray(), $apiProblem->getStatusCode());
+
         $response->headers->set('Content-Type', 'application/problem+json');
         $event->setResponse($response);
     }
@@ -64,11 +59,9 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
-        return [
-            KernelEvents::EXCEPTION => ['onKernelException', -1],
-        ];
+        return [KernelEvents::EXCEPTION => ['onKernelException', -1]];
     }
 
     /**
@@ -78,7 +71,7 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
      *
      * @return ApiProblem
      */
-    private function getApiProblem(\Exception $e)
+    private function getApiProblem(\Exception $e): ApiProblem
     {
         if ($e instanceof HttpException) {
             return new ApiProblem($e->getStatusCode(), $e->getMessage());

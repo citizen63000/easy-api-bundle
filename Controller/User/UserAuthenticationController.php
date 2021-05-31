@@ -2,7 +2,6 @@
 
 namespace EasyApiBundle\Controller\User;
 
-use FOS\UserBundle\Model\User;
 use EasyApiBundle\Exception\ApiProblemException;
 use EasyApiBundle\Util\ApiProblem;
 use FOS\RestBundle\View\View;
