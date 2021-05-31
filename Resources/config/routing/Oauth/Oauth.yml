@@ -1,9 +1,0 @@
-api_core_oauth_auth:
-  path: /oauth/auth
-  defaults: { _controller: EasyApiBundle:Oauth\Login:auth }
-  methods: POST
-
-api_core_oauth_token:
-  path: /oauth/token
-  defaults: { _controller: EasyApiBundle:Oauth\Login:token }
-  methods: POST

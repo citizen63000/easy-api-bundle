@@ -42,8 +42,6 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
 
-                ->scalarNode('reset_password_mail_template')->defaultValue('@EasyApi/mail/reset_password_mail.html.twig')->end()
-
             ->arrayNode('inheritance')
                 ->addDefaultsIfNotSet()
                 ->children()
