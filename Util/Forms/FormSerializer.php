@@ -314,13 +314,12 @@ class FormSerializer
         $choices = [];
         $primary = self::getPrimaryColumnName($sField, $config);
         $attr = $config->getOption('attr');
-        $nameMethod = $config->getOption('choice_name') ?? null ;
 
         foreach ($entities as $key => $entity) {
 
             $details = [
                 $primary => $entity->getId(),
-                'displayName' => $nameMethod ? $nameMethod($entity) : $entity->__toString(),
+                'displayName' => $entity->__toString(),
             ];
 
             if (null !== $attr && isset($attr['discriminator'])) {
