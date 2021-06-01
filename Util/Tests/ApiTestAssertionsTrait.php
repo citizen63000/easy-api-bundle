@@ -220,6 +220,7 @@ trait ApiTestAssertionsTrait
         $expectedUUID = '[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+';
         $expected = str_replace('{UUID}', $expectedUUID, $expected);
         $expected = str_replace('{UID}', '[a-zA-Z0-9]+', $expected);
+        $expected = str_replace('{uri_prefix}', static::getDomainUrl(), $expected);
         $expected = "/$expected/";
         $errorMessage = "Invalid file url in {$key} field: expected {$expected}, get value {$value}";
         $found = preg_match($expected, $value);
