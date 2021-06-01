@@ -314,11 +314,13 @@ class FormSerializer
         $choices = [];
         $primary = self::getPrimaryColumnName($sField, $config);
         $attr = $config->getOption('attr');
+        $nameMethod = $config->getOption('choice_name') ?? null ;
 
         foreach ($entities as $key => $entity) {
+
             $details = [
                 $primary => $entity->getId(),
-                'displayName' => $entity->__toString(),
+                'displayName' => $nameMethod ? $nameMethod($entity) : $entity->__toString(),
             ];
 
             if (null !== $attr && isset($attr['discriminator'])) {
@@ -420,8 +422,8 @@ class FormSerializer
      */
     private function getFieldConditions(SerializedFormField $sField, array $inheritedConditions = [])
     {
-        $conditions = $result = [];
-        $possibleConstraints = ['blank', 'notblank', 'Blank', 'NotBlank'];
+        $conditions = [];
+        $possibleConstraints = ['blank', 'Blank'];
 
         foreach ($possibleConstraints as $possibleConstraint) {
             $possibleFieldConstraint = "{$sField->getKey()}.{$possibleConstraint}";
@@ -431,8 +433,11 @@ class FormSerializer
                 foreach ($this->groupsConditions[$possibleFieldConstraint] as $condition => $values) {
                     $firstDifIndex = null;
                     $result = [];
+                    // explode path of current field
                     $splitKey = explode('.', $sField->getKey());
+                    // explode condition field.field.field in ... became ['field.field.field', '...']
                     $operator = explode(' ', $condition);
+                    // split field.field.field
                     $splitCondition = explode('.', $operator[0]);
 
                     // count differences and construct the condition path without path
@@ -443,7 +448,7 @@ class FormSerializer
                         }
                     }
 
-                    // count differencies to make relative path (./field or ../field)
+                    // count differences to make relative path (./field or ../field)
                     $nbDifs = count($splitKey) - $firstDifIndex;
                     $originalPath = implode('.', $result);
                     $path = '';
@@ -457,7 +462,7 @@ class FormSerializer
                     }
 
                     // add the condition
-                    $conditions[$path . $originalPath . ' ' . $operator[1]] = $values;
+                    $conditions["{$path}{$originalPath} {$operator[1]}"] = $values;
                 }
             }
         }
