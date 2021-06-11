@@ -352,9 +352,9 @@ class TiCrudGenerator extends AbstractGenerator
                 // Referential ?
                 if ($field->isReferential()) {
                     try {
-                        $values[$field->getTableColumnName()] = $fixtures[$config->getEntityName()][$field->getName()]['value']['code'];
+                        $values[$field->getTableColumnName()] = $fixtures[$config->getEntityName()][$field->getName()]['value']['id'];
                     } catch (\Exception $e) {
-                        $values[$field->getTableColumnName()] = 'REPLACE_BY_REAL_CODE';
+                        $values[$field->getTableColumnName()] = 1;
                     }
                 } else {
                     $field->setRandomValue(1);
