@@ -215,7 +215,8 @@ class TiCrudGenerator extends AbstractGenerator
 
         foreach ($dataFixtures['tables'] as $table) {
             $filePath = str_replace('`', '', "{$path}{$table['tableName']}.csv");
-            $ymlData[] = [ 'filePath' => $filePath, 'tableName' => "{$table['schema']}.{$table['tableName']}"];
+            $tableName = (!empty($table['schema']) ? "{$table['schema']}." : '').$table['tableName'];
+            $ymlData[] = [ 'filePath' => $filePath, 'tableName' => $tableName];
         }
 
         // yml content
