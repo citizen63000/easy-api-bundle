@@ -21,7 +21,8 @@ class SortConstraintValidator extends ConstraintValidator
                 $strOrders = explode(',', $entity->getSort());
                 foreach ($strOrders as $order) {
                     $parts = explode(':', $order);
-                    if (!in_array($parts[0], $entity->getSortFields(), true)) {
+                    $fieldName = str_replace('_', '.', $parts[0]); // for sub entities fields
+                    if (!in_array($fieldName, $entity->getSortFields(), true)) {
                         $this->buildViolation(sprintf(SortConstraint::invalidFieldSort, $parts[0]));
                     }
                 }

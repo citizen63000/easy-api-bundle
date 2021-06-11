@@ -38,12 +38,12 @@ class ListFilter extends AbstractService
 
         // value filters
         foreach ($filterForm->all() as $fieldName => $field) {
-            if(null !== $model->$fieldName && !in_array($fieldName, AbstractFilterType::excluded)) {
+            if (null !== $model->$fieldName && !in_array($fieldName, AbstractFilterType::excluded)) {
                 if (method_exists($this, $method = "apply{$fieldName}")) {
                     $this->$method($qb, $model->$fieldName);
                 } else {
                     // linked entity var
-                    if($pos = strpos($fieldName, '_')) {
+                    if ($pos = strpos($fieldName, '_')) {
                         $this->linkedEntityFilter($qb, $field->getConfig(), $fieldName, $model, $joins);
                     } else {
                         // field itself
@@ -53,10 +53,10 @@ class ListFilter extends AbstractService
             }
         }
 
-        $this->sort($qb, $model);
+        $this->sort($qb, $model, $joins);
 
         $filterResult->setResults(AbstractRepository::paginateResult($qb, $model->getPage(), $model->getLimit()));
-        $filterResult->setNbResults((int) AbstractRepository::paginateResult($qb, $model->getPage(), $model->getLimit(), true));
+        $filterResult->setNbResults((int)AbstractRepository::paginateResult($qb, $model->getPage(), $model->getLimit(), true));
 
         return $filterResult;
     }
@@ -70,36 +70,53 @@ class ListFilter extends AbstractService
      */
     protected function linkedEntityFilter(QueryBuilder $qb, FormConfigBuilderInterface $fieldConfig, string $fieldName, FilterModel $model, array &$joins)
     {
-        $classAlias = self::classAlias;
-        $parts = explode('_', $fieldName);
-        $nbParts = count($parts)-1;
-        for($i = 0; $i < $nbParts ; ++$i) {
-            $join = "{$classAlias}.{$parts[$i]}";
-//            if(!isset($joins[$join])) {
-//                $alias = "{$classAlias}_{$fieldName}";
-//                $qb->innerJoin($join, $alias);
-//                $joins[$join] = $alias;
-//            }
-            $this->joinEntity($qb, $classAlias, $fieldName, $joins);
-            $classAlias = $joins[$join];
-        }
-        $this->fieldFilter($qb, $fieldConfig, $classAlias, $fieldName, $parts[$nbParts], $model);
+//        $classAlias = self::classAlias;
+//        $parts = explode('_', $fieldName);
+//        $nbParts = count($parts) - 1;
+//        for ($i = 0; $i < $nbParts; ++$i) {
+//            $join = "{$classAlias}.{$parts[$i]}";
+////            if(!isset($joins[$join])) {
+////                $alias = "{$classAlias}_{$fieldName}";
+////                $qb->innerJoin($join, $alias);
+////                $joins[$join] = $alias;
+////            }
+//            $this->joinEntity($qb, $classAlias, $fieldName, $joins);
+//            $classAlias = $joins[$join];
+//
+//        }
+        $classAlias = $this->joinEntityFromPath($qb, $fieldName, $joins);
+        $shortFieldName = self::getFieldNameFromPath($fieldName);
+        $this->fieldFilter($qb, $fieldConfig, $classAlias, $fieldName, $shortFieldName, $model);
     }
 
+    /**
+     * @param QueryBuilder $qb
+     * @param string $fieldName
+     * @param array $joins
+     * @return string|null
+     */
     protected function joinEntityFromPath(QueryBuilder $qb, string $fieldName, array &$joins): ?string
     {
         $parts = explode('_', $fieldName);
-        $nbParts = count($parts)-1;
-        $join = null;
+        $nbParts = count($parts) - 1;
 
         $classAlias = self::classAlias;
-        for($i = 0; $i < $nbParts ; ++$i) {
-            $join = "{$classAlias}.{$parts[$i]}";
-            $this->joinEntity($qb, $classAlias, $fieldName, $joins);
-            $classAlias = $joins[$join];
+        for ($i = 0; $i < $nbParts; ++$i) {
+            $classAlias = $this->joinEntity($qb, $classAlias, $parts[$i], $joins);
         }
 
-        return $join;
+        return $classAlias;
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    protected static function getFieldNameFromPath(string $path): string
+    {
+        $parts = explode('_', $path);
+
+        return $parts[count($parts)-1];
     }
 
     /**
@@ -108,15 +125,19 @@ class ListFilter extends AbstractService
      * @param string $classAlias
      * @param string $fieldName
      * @param array $joins
+     * @return string
      */
-    protected function joinEntity(QueryBuilder $qb, string $classAlias, string $fieldName, array &$joins)
+    protected function joinEntity(QueryBuilder $qb, string $classAlias, string $fieldName, array &$joins): string
     {
         $join = "{$classAlias}.{$fieldName}";
-        if(!isset($joins[$join])) {
-            $alias = "{$classAlias}_{$fieldName}";
+        $alias = "{$classAlias}_{$fieldName}";
+
+        if (!isset($joins[$join])) {
             $qb->innerJoin($join, $alias);
             $joins[$join] = $alias;
         }
+
+        return $alias;
     }
 
     /**
@@ -130,15 +151,15 @@ class ListFilter extends AbstractService
     protected function fieldFilter(QueryBuilder $qb, FormConfigBuilderInterface $fieldConfig, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model)
     {
         $fieldType = $fieldConfig->getType()->getInnerType();
-        if($fieldType instanceof EntityType) {
+        if ($fieldType instanceof EntityType) {
             $this->entityTypeFilter($qb, $classAlias, $fieldName, $entityFieldName, $model);
         } else {
-            if($pos = strpos($entityFieldName, '__')) { // interval like fieldName_min or fieldName_max
+            if ($pos = strpos($entityFieldName, '__')) { // interval like fieldName_min or fieldName_max
                 $this->intervalFilter($qb, $classAlias, $fieldName, $entityFieldName, $model, $pos);
             } else { // value
-                if($fieldType instanceof TextType) {
+                if ($fieldType instanceof TextType) {
                     $this->textFilter($qb, $classAlias, $fieldName, $entityFieldName, $model);
-                } else  {
+                } else {
                     $this->defaultFilter($qb, $classAlias, $fieldName, $entityFieldName, $model);
                 }
             }
@@ -172,7 +193,7 @@ class ListFilter extends AbstractService
     protected function intervalFilter(QueryBuilder $qb, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model, int $operatorPosition)
     {
         $realFieldName = substr($entityFieldName, 0, $operatorPosition);
-        $operator = substr($entityFieldName, $operatorPosition+1);
+        $operator = substr($entityFieldName, $operatorPosition + 1);
         $exprOperator = $operator === 'min' ? 'gt' : 'lte';
         $alias = ":{$classAlias}_{$exprOperator}_{$entityFieldName}";
         $qb->andWhere($qb->expr()->$exprOperator("{$classAlias}.{$realFieldName}", $alias));
@@ -208,30 +229,29 @@ class ListFilter extends AbstractService
     }
 
     /**
-     * (field1:asc|desc, field2:asc|desc)
+     * (field1:asc|desc, field2:asc|desc, subEntity_field:asc|desc)
      * @param QueryBuilder $qb
      * @param FilterModel $model
+     * @param array $joins
      */
-    protected function sort(QueryBuilder $qb, FilterModel $model)
+    protected function sort(QueryBuilder $qb, FilterModel $model, array &$joins)
     {
         $classAlias = self::classAlias;
-        if(!empty($model->getSort())) {
+        if (!empty($model->getSort())) {
             $strOrders = explode(',', $model->getSort());
             foreach ($strOrders as $order) {
                 $parts = explode(':', $order);
 
-                $qb->addOrderBy("{$classAlias}.{$parts[0]}", $parts[1]);
+                $fieldClassAlias = $this->joinEntityFromPath($qb, $parts[0], $joins);
+                $fieldName = self::getFieldNameFromPath($parts[0]);
+
+                $qb->addOrderBy("{$fieldClassAlias}.{$fieldName}", $parts[1]);
             }
-        } elseif(null !== $model->getDefaultSort()) {
+        } elseif (null !== $model->getDefaultSort()) {
             foreach ($model->getDefaultSort() as $field => $direction) {
                 $qb->addOrderBy("{$classAlias}.{$field}", $direction);
             }
         }
-    }
-
-    protected function sortByField(QueryBuilder $qb, string $fieldPath, string $direction)
-    {
-        $qb->addOrderBy($this->joinEntityFromPath($qb, $fieldPath), $direction);
     }
 
     /**
