@@ -70,23 +70,9 @@ class ListFilter extends AbstractService
      */
     protected function linkedEntityFilter(QueryBuilder $qb, FormConfigBuilderInterface $fieldConfig, string $fieldName, FilterModel $model, array &$joins)
     {
-//        $classAlias = self::classAlias;
-//        $parts = explode('_', $fieldName);
-//        $nbParts = count($parts) - 1;
-//        for ($i = 0; $i < $nbParts; ++$i) {
-//            $join = "{$classAlias}.{$parts[$i]}";
-////            if(!isset($joins[$join])) {
-////                $alias = "{$classAlias}_{$fieldName}";
-////                $qb->innerJoin($join, $alias);
-////                $joins[$join] = $alias;
-////            }
-//            $this->joinEntity($qb, $classAlias, $fieldName, $joins);
-//            $classAlias = $joins[$join];
-//
-//        }
         $classAlias = $this->joinEntityFromPath($qb, $fieldName, $joins);
-        $shortFieldName = self::getFieldNameFromPath($fieldName);
-        $this->fieldFilter($qb, $fieldConfig, $classAlias, $fieldName, $shortFieldName, $model);
+        $entityFieldName = self::getFieldNameFromPath($fieldName);
+        $this->fieldFilter($qb, $fieldConfig, $classAlias, $fieldName, $entityFieldName, $model);
     }
 
     /**
@@ -243,9 +229,9 @@ class ListFilter extends AbstractService
                 $parts = explode(':', $order);
 
                 $fieldClassAlias = $this->joinEntityFromPath($qb, $parts[0], $joins);
-                $fieldName = self::getFieldNameFromPath($parts[0]);
+                $entityFieldName = self::getFieldNameFromPath($parts[0]);
 
-                $qb->addOrderBy("{$fieldClassAlias}.{$fieldName}", $parts[1]);
+                $qb->addOrderBy("{$fieldClassAlias}.{$entityFieldName}", $parts[1]);
             }
         } elseif (null !== $model->getDefaultSort()) {
             foreach ($model->getDefaultSort() as $field => $direction) {
