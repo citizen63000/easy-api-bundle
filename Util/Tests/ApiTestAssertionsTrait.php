@@ -175,6 +175,7 @@ trait ApiTestAssertionsTrait
     {
         $expectedFormat = $format ?? 'Y-m-d H:i:s';
         $errorMessage = "Invalid date format for {$key} field: expected format {$expectedFormat}, get value {$value}";
+        static::assertTrue(null !== $value, $errorMessage);
         $date = \DateTime::createFromFormat($expectedFormat, $value);
         static::assertTrue($date && ($date->format($expectedFormat) === $value), $errorMessage);
     }
@@ -189,8 +190,9 @@ trait ApiTestAssertionsTrait
     protected static function assertDateTimeNow(string $key, ?string $format, ?string $value)
     {
         $expectedFormat = $format ?? 'Y-m-d H:i:s';
-        $date = \DateTime::createFromFormat($expectedFormat, $value);
         $errorMessage = "Invalid date format for {$key} field: expected format {$expectedFormat}, get value {$value}";
+        static::assertTrue(null !== $value, $errorMessage);
+        $date = \DateTime::createFromFormat($expectedFormat, $value);
         static::assertTrue($date->diff(new \DateTime())->format('%S') <= 1, $errorMessage);
     }
 
