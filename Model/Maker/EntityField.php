@@ -169,7 +169,11 @@ class EntityField
 
         $converter = new CamelCaseToSnakeCaseNameConverter();
 
-        return $converter->normalize($this->getName());
+        if ($this->isNativeType()) {
+            return $converter->normalize($this->getName());
+        }
+
+        return $converter->normalize($this->getName()).'_id';
     }
 
     /**
