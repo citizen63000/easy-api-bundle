@@ -349,17 +349,7 @@ class TiCrudGenerator extends AbstractGenerator
         foreach ($fields as $field) {
             $columns[] = $field->getTableColumnName();
             if (!$field->isNativeType()) {
-                // Referential ?
-                if ($field->isReferential()) {
-                    try {
-                        $values[$field->getTableColumnName()] = $fixtures[$config->getEntityName()][$field->getName()]['value']['id'];
-                    } catch (\Exception $e) {
-                        $values[$field->getTableColumnName()] = 1;
-                    }
-                } else {
-                    $field->setRandomValue(1);
-                    $values[$field->getTableColumnName()] = $field->getRandomValue();
-                }
+                $values[$field->getTableColumnName()] = 1;
             } else {
                 $values[$field->getTableColumnName()] = $fixtures[$config->getEntityName()][$field->getName()]['value'];
             }
