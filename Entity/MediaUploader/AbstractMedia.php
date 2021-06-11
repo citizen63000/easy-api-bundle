@@ -5,6 +5,7 @@ namespace EasyApiBundle\Entity\MediaUploader;
 use Doctrine\ORM\Mapping as ORM;
 use EasyApiBundle\Entity\AbstractBaseEntity;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Vich\UploaderBundle\Naming\OrignameNamer;
@@ -64,9 +65,9 @@ abstract class AbstractMedia extends AbstractBaseEntity
     }
 
     /**
-     * @return Uuid
+     * @return UuidInterface
      */
-    public function getUuid(): Uuid
+    public function getUuid(): UuidInterface
     {
         return $this->uuid;
     }
@@ -88,7 +89,7 @@ abstract class AbstractMedia extends AbstractBaseEntity
     }
 
     /**
-     * @param string $filename
+     * @param string|null $filename
      */
     public function setFilename(?string $filename): void
     {
@@ -104,7 +105,7 @@ abstract class AbstractMedia extends AbstractBaseEntity
     }
 
     /**
-     * @param File $file
+     * @param File|null $file
      */
     public function setFile(?File $file): void
     {

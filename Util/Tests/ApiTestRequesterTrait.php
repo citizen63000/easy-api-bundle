@@ -149,9 +149,7 @@ trait ApiTestRequesterTrait
     {
         if (true === static::$debug && $token = $output->getHeaders()->get('x-debug-token')) {
             return "\e[0m\n\t\t\tProfiler : \e[33m"
-                .self::$container->getParameter('router.request_context.scheme')
-                .'://'
-                .self::$container->getParameter('router.request_context.host')
+                .static::getDomainUrl()
                 .'/app_'
                 .self::$container->getParameter('kernel.environment')
                 .'.php'

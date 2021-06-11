@@ -42,8 +42,6 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
 
-                ->scalarNode('reset_password_mail_template')->defaultValue('@EasyApi/mail/reset_password_mail.html.twig')->end()
-
             ->arrayNode('inheritance')
                 ->addDefaultsIfNotSet()
                 ->children()
@@ -67,6 +65,13 @@ class Configuration implements ConfigurationInterface
                     ->scalarNode('crud_update')->defaultValue('EasyApiBundle\Util\Controller\CrudUpdateControllerTrait')->end()
                     ->scalarNode('crud_delete')->defaultValue('EasyApiBundle\Util\Controller\CrudDeleteControllerTrait')->end()
                     ->scalarNode('crud_describeform')->defaultValue('EasyApiBundle\Util\Controller\CrudDescribeFormControllerTrait')->end()
+                ->end()
+            ->end()
+
+            ->arrayNode('tests')
+                ->addDefaultsIfNotSet()
+                ->children()
+                    ->booleanNode('debug')->defaultTrue()->end()
                 ->end()
             ->end()
 

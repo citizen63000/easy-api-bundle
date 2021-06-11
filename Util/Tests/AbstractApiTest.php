@@ -79,7 +79,10 @@ abstract class AbstractApiTest extends WebTestCase
     /** @var array */
     protected static $additionalAssessableFunctions = [];
 
-    /** @var bool  */
+    /**
+     * @var bool
+     * @todo set private in php 7.4
+     */
     protected static $debug = false;
 
     /** @var int  */
@@ -224,9 +227,7 @@ abstract class AbstractApiTest extends WebTestCase
         self::initializeRequester();
 
         global $argv;
-        if (in_array('--debug', $argv, true)) {
-            static::$debug = true;
-        }
+        static::$debug = self::$container->getParameter('easy_api.tests.debug') || in_array('--debug', $argv, true);
     }
 
     /**

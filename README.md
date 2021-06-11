@@ -46,6 +46,13 @@ easy_api:
     controller: 'AppBundle\Controller\AbstractApiController'
     serialized_form: 'AppBundle\Form\Model\SerializedForm'
 ```
+
+### Form options for frontend apps :
+You can specify some options in attr field of form fields:
+* group : to group fields 
+* discriminator
+* other options you want to pass
+
 ### API-DOC Annotations
 You can use all annotations of the nelmio api bundle.
 The DoctrineAnnorationReader cannot read self and static constants but with this bundle you can use it as strings in two cases as long as the issue isn't closed :
