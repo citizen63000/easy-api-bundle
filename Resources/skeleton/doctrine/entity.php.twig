@@ -17,7 +17,7 @@ class {{ classname }}{% if parent != '' %} extends {{ parent }} {% endif %}
 {% for field in fields %}
 
     /**
-     * @var {{ field.type }}
+     * @var {{ field.type }}|null
 {% for annotation in field.annotations %}
      * {{ annotation|raw }}
 {% endfor %}
@@ -47,8 +47,8 @@ class {{ classname }}{% if parent != '' %} extends {{ parent }} {% endif %}
 {% for field in fields %}
 
     /**
-    * @return {{ field.type }}|null
-    */
+     * @return {{ field.type }}|null
+     */
     public function {{ field.getter }}(): ?{{ field.type }}
     {
         return $this->{{ field.name }};
@@ -56,8 +56,8 @@ class {{ classname }}{% if parent != '' %} extends {{ parent }} {% endif %}
 
 {% if field.adder != '' %}
     /**
-    * @param array ${{ field.name }}
-    */
+     * @param array ${{ field.name }}
+     */
     public function {{ field.setter }}(array ${{ field.name }}): void
     {
         $this->{{ field.name }} = new ArrayCollection();
@@ -69,10 +69,10 @@ class {{ classname }}{% if parent != '' %} extends {{ parent }} {% endif %}
     }
 
     /**
-    * @param {{ field.entityClassName }} ${{ field.entityVarName }}
-    *
-    * @return {{ classname }}
-    */
+     * @param {{ field.entityClassName }} ${{ field.entityVarName }}
+     *
+     * @return {{ classname }}
+     */
     public function {{ field.adder }}({{ field.entityClassName }} ${{ field.entityVarName }}): {{ classname }}
     {
         // ${{ field.entityVarName }}->set{{ classname }}($this); TODO remove or uncomment
@@ -82,8 +82,8 @@ class {{ classname }}{% if parent != '' %} extends {{ parent }} {% endif %}
     }
 {% else %}
     /**
-    * @param {{ field.type }}|null ${{ field.name }}
-    */
+     * @param {{ field.type }}|null ${{ field.name }}
+     */
     public function {{ field.setter }}({{ field.type }} ${{ field.name }} = null): void
     {
         $this->{{ field.name }} = ${{ field.name }};
@@ -92,10 +92,10 @@ class {{ classname }}{% if parent != '' %} extends {{ parent }} {% endif %}
 {% if field.remover != '' %}
 
     /**
-    * @param {{ field.entityClassName }} ${{ field.entityVarName }}
-    *
-    * @return {{ classname }}
-    */
+     * @param {{ field.entityClassName }} ${{ field.entityVarName }}
+     *
+     * @return {{ classname }}
+     */
     public function {{ field.remover }}({{ field.entityClassName }} ${{ field.entityVarName }}): {{ classname }}
     {
         $this->{{ field.name }}->removeElement(${{ field.entityVarName }});

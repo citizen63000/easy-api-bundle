@@ -229,6 +229,9 @@ class EntityGenerator extends AbstractGenerator
             $this->generateContent()
         );
 
+        // clean code
+        $fileContent = str_replace(["{\n\n", ";\n\n", "}\n\n\n", "}\n\n}"], ["{\n", ";\n", "}\n\n", "}\n}"], $fileContent);
+
         return $this->writeFile($destinationDir, $filename, $fileContent, $dumpExistingFiles);
     }
 }
