@@ -198,6 +198,11 @@ class FormSerializer
         // Validation groups
         $sField->setValidationGroups($this->getValidationGroups($form, $config, $sField));
 
+        // attr
+        if (null !== $config->getOption('attr')) {
+            $sField->setAttr($config->getOption('attr'));
+        }
+
         // if form type is not builtin in Form component => subform
         if (!$builtinFormType = self::getBuiltinFormType($type)) {
 
@@ -221,11 +226,6 @@ class FormSerializer
             // Group
             if (null !== $config->getOption('attr') && isset($config->getOption('attr')['group'])) {
                 $sField->setGroup("form.{$config->getOption('attr')['group']}.group");
-            }
-
-            // attr
-            if (null !== $config->getOption('attr')) {
-                $sField->setAttr($config->getOption('attr'));
             }
 
             // Default value
