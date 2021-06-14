@@ -233,8 +233,7 @@ abstract class AbstractApiController extends FOSRestController
 
     /**
      * @param Request $request
-     *
-     * @return mixed
+     * @return Response
      */
     protected function getDescribeFormAction(Request $request)
     {
@@ -242,7 +241,7 @@ abstract class AbstractApiController extends FOSRestController
 
         $form = 'POST' === $method ? static::entityCreateTypeClass : static::entityUpdateTypeClass;
 
-        return $this->renderEntityResponse($this->describeForm($form), ['public']);
+        return $this->renderEntityResponse($this->serializeForm($form), ['public']);
     }
 
     /**
@@ -250,12 +249,12 @@ abstract class AbstractApiController extends FOSRestController
      *
      * @return SerializedForm
      */
-    protected function serializeForm(string $class)
+    protected function serializeForm(string $class): SerializedForm
     {
         $describer = new FormSerializer(
-            $this->getDoctrine(),
             $this->container->get('form.factory'),
-            $this->container->get('router')
+            $this->container->get('router'),
+            $this->getDoctrine()
         );
 
         return $describer->normalize($this->createForm($class));
