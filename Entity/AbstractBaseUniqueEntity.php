@@ -24,7 +24,7 @@ abstract class AbstractBaseUniqueEntity extends AbstractBaseEntity
     }
 
     /**
-     * @return UuidInterface|null
+     * @return Uuid|null
      */
     public function getUuid(): ?UuidInterface
     {

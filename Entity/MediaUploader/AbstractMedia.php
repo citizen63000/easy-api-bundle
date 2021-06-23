@@ -65,7 +65,7 @@ abstract class AbstractMedia extends AbstractBaseEntity
     }
 
     /**
-     * @return UuidInterface
+     * @return Uuid
      */
     public function getUuid(): UuidInterface
     {
