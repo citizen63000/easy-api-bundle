@@ -2,8 +2,11 @@
 
 namespace EasyApiBundle\Controller;
 
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Form\Type\FilterType;
+use EasyApiBundle\Model\FilterResult;
 use EasyApiBundle\Services\ListFilter;
 use EasyApiBundle\Util\Forms\FormSerializer;
 use EasyApiBundle\Util\Forms\SerializedForm;
@@ -12,7 +15,7 @@ use FOS\UserBundle\Model\User;
 use EasyApiBundle\Exception\ApiProblemException;
 use EasyApiBundle\Util\ApiProblem;
 use EasyApiBundle\Util\CoreUtilsTrait;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
@@ -64,9 +67,9 @@ abstract class AbstractApiController extends AbstractFOSRestController
     public const defaultFilterSort = null;
 
     /**
-     * @return ContainerInterface
+     * @return ServiceLocator
      */
-    protected function getContainer(): ContainerInterface
+    protected function getContainer(): ServiceLocator
     {
         return $this->container;
     }
@@ -163,7 +166,11 @@ abstract class AbstractApiController extends AbstractFOSRestController
 
         if ($form->isValid()) {
 
-            $result = $this->get(static::filterService)->filter($form, $entityClass);
+            try {
+                $result = $this->get(static::filterService)->filter($form, $entityClass);
+            } catch (NoResultException | NonUniqueResultException $e) {
+                $result = new FilterResult();
+            }
 
             return $this->createPaginateResponse($result->getResults(), $result->getNbResults(), $serializationGroups);
         }
@@ -224,7 +231,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
      *
      * @return Response
      */
-    protected function deleteEntityAction($entity)
+    protected function deleteEntityAction($entity): Response
     {
         $this->removeAndFlush($entity);
 
@@ -235,7 +242,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
      * @param Request $request
      * @return Response
      */
-    protected function getDescribeFormAction(Request $request)
+    protected function getDescribeFormAction(Request $request): Response
     {
         $method = strtoupper($request->query->get('method', 'POST'));
 
@@ -268,7 +275,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
      *
      * @return Response
      */
-    protected function createPaginateResponse(array $results, int $nbResults, array $serializationGroups = ['Default'], array $headers = [])
+    protected function createPaginateResponse(array $results, int $nbResults, array $serializationGroups = ['Default'], array $headers = []): Response
     {
         $serializer = $this->container->get('serializer');
         $data = $serializer->serialize($results, 'json', ['groups' => $serializationGroups]);
@@ -307,7 +314,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
      *
      * @return Response
      */
-    protected function renderResponse(?string $content, int $status = 200, array $headers = [])
+    protected function renderResponse(?string $content, int $status = 200, array $headers = []): Response
     {
         return (new Response($content, $status, $headers));
     }
@@ -321,7 +328,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
      *
      * @return Response
      */
-    protected function renderEntityResponse($entity, array $serializationGroups = null, int $status = 200, array $headers = [])
+    protected function renderEntityResponse($entity, array $serializationGroups = null, int $status = 200, array $headers = []): Response
     {
         $serializer = $this->container->get('serializer');
         $data = $serializer->serialize($entity, 'json', (null !== $serializationGroups ? ['groups' => $serializationGroups] : []));
@@ -333,7 +340,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
      * Add dynamically Filter service
      * @return string[]
      */
-    public static function getSubscribedServices()
+    public static function getSubscribedServices(): array
     {
         return array_merge(parent::getSubscribedServices(), [static::filterService => static::filterService]);
     }

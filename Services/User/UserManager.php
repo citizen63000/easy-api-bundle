@@ -2,34 +2,52 @@
 
 namespace EasyApiBundle\Services\User;
 
+use EasyApiBundle\EventListener\JWTAuthenticatedListener;
 use EasyApiBundle\Services\AbstractService;
 use FOS\UserBundle\Model\User;
+use Gesdinet\JWTRefreshTokenBundle\EventListener\AttachRefreshTokenOnSuccessListener;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationSuccessEvent;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class UserManager extends AbstractService
 {
+    protected AttachRefreshTokenOnSuccessListener $sendTokenService;
+
+    protected JWTAuthenticatedListener $JWTAuthenticatedListener;
+
+    public function __construct(ContainerInterface $container, TokenStorageInterface $tokenStorage, AttachRefreshTokenOnSuccessListener $sendTokenService, JWTAuthenticatedListener $JWTAuthenticatedListener)
+    {
+        parent::__construct($container, $tokenStorage);
+        $this->sendTokenService = $sendTokenService;
+        $this->JWTAuthenticatedListener = $JWTAuthenticatedListener;
+    }
+
     /**
      * Generate token and refresh token for a user.
      *
-     * @param $user
+     * @param User $user
      *
      * @return array
      *
      * @throws \Exception
      */
-    public function generateToken(User $user)
+    public function generateToken(User $user): array
     {
         // Generate new Token
-        $jwtManager = $this->get('app.jwt_authentication.jws_provider');
-        $token = $jwtManager->generateTokenByUser($user);
+        $token = $this->get('app.jwt_authentication.jws_provider')->generateTokenByUser($user);
 
         // Generate Refresh token
         $event = new AuthenticationSuccessEvent(['token' => $token->getToken()], $user, new Response());
-        $refreshToken = $this->get('gesdinet.jwtrefreshtoken.refresh_token_manager')->getLastFromUsername($user->getUsername())->getRefreshToken();
-        $this->get('gesdinet.jwtrefreshtoken.send_token')->attachRefreshToken($event);
-        $this->get('app.event.jwt_authentication_success_listener')->onAuthenticationSuccessResponse($event);
+        $this->sendTokenService->attachRefreshToken($event);
+        $this->JWTAuthenticatedListener->onAuthenticationSuccessResponse($event);
 
         return $event->getData();
+    }
+
+    public static function getSubscribedServices(): array
+    {
+        return parent::getSubscribedServices() + ['gesdinet.jwtrefreshtoken.send_token' => AttachRefreshTokenOnSuccessListener::class];
     }
 }

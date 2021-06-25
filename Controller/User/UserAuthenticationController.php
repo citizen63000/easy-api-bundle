@@ -3,6 +3,7 @@
 namespace EasyApiBundle\Controller\User;
 
 use EasyApiBundle\Exception\ApiProblemException;
+use EasyApiBundle\Services\User\UserManager;
 use EasyApiBundle\Util\ApiProblem;
 use FOS\RestBundle\View\View;
 use Gesdinet\JWTRefreshTokenBundle\Entity\RefreshToken;
@@ -77,5 +78,14 @@ class UserAuthenticationController extends AbstractApiController
         $this->get('session')->invalidate();
 
         return $this->view(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Add dynamically Filter service
+     * @return string[]
+     */
+    public static function getSubscribedServices(): array
+    {
+        return array_merge(parent::getSubscribedServices(), ['app.user.manager' => UserManager::class]);
     }
 }
