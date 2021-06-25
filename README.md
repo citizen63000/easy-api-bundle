@@ -35,6 +35,8 @@ api_my_path:
 easy_api:
   authentication: true
   user_class: AppBundle\Entity\User\User
+  normalization:
+    datetime_format: 'Y-m-d H:i:s' # DateTimeInterface::ATOM format by default
   user_tracking :
     enable: false
     connection_history_class: AppBundle\Entity\User\ConnectionHistory
