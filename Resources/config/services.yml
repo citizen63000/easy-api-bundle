@@ -30,6 +30,7 @@ services:
 
   app.jwt_authentication.jws_provider:
     class: EasyApiBundle\Services\JWS\JWSProvider
+    public: true
     arguments:
       - '@lexik_jwt_authentication.key_loader'
       - '%lexik_jwt_authentication.encoder.crypto_engine%'

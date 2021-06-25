@@ -7,7 +7,7 @@ use EasyApiBundle\Form\Type\FilterType;
 use EasyApiBundle\Services\ListFilter;
 use EasyApiBundle\Util\Forms\FormSerializer;
 use EasyApiBundle\Util\Forms\SerializedForm;
-use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\UserBundle\Model\User;
 use EasyApiBundle\Exception\ApiProblemException;
 use EasyApiBundle\Util\ApiProblem;
@@ -23,7 +23,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @package EasyApiBundle\Controller
  * @method User|null getUser() Gets the current User.
  */
-abstract class AbstractApiController extends FOSRestController
+abstract class AbstractApiController extends AbstractFOSRestController
 {
     use CoreUtilsTrait;
 
@@ -329,4 +329,12 @@ abstract class AbstractApiController extends FOSRestController
         return $this->renderResponse($data, $status, $headers);
     }
 
+    /**
+     * Add dynamically Filter service
+     * @return string[]
+     */
+    public static function getSubscribedServices()
+    {
+        return array_merge(parent::getSubscribedServices(), [static::filterService => static::filterService]);
+    }
 }
