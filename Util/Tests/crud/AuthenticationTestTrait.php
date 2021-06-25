@@ -11,6 +11,7 @@ trait AuthenticationTestTrait
 
     protected static $authenticateRouteName = 'fos_user_security_check';
     protected static $refreshTokenRouteName = 'gesdinet_jwt_refresh_token';
+    protected static $logoutRouteName = 'api_logout';
 
     protected static function initExecuteSetupOnAllTest()
     {
@@ -64,5 +65,11 @@ trait AuthenticationTestTrait
         $apiOutput = self::httpPost(['name' => static::$refreshTokenRouteName], ['refreshToken' => 'imfakerefreshtoken'], false);
         static::assertEquals(Response::HTTP_NOT_FOUND, $apiOutput->getStatusCode());
         static::assertEquals(['errors' => ['core.error.token.not_found']], $apiOutput->getData());
+    }
+
+    public function testLogout()
+    {
+        $apiOutput = self::httpPost(['name' => static::$logoutRouteName]);
+        static::assertEquals(Response::HTTP_NO_CONTENT, $apiOutput->getStatusCode());
     }
 }
