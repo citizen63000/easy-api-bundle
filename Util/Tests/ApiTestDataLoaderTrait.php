@@ -218,7 +218,7 @@ trait ApiTestDataLoaderTrait
      */
     final protected static function executeSQLQuery(string $query, bool $debugNewLine = false, bool $showQuery = false, string $managerName = null) :void
     {
-        $em = null === $managerName ? self::$entityManager : self::$container->get('doctrine')->getManager($managerName);
+        $em = null === $managerName ? static::$entityManager : static::getContainerInstance()->get('doctrine')->getManager($managerName);
 
         if (static::$debug && $showQuery) {
             self::logDebug("\e[32m[SQL]\e[0m ▶ \e[32m{$query}\e[0m");

@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 abstract class AbstractApiTest extends WebTestCase
@@ -228,6 +229,15 @@ abstract class AbstractApiTest extends WebTestCase
 
         global $argv;
         static::$debug = self::$container->getParameter('easy_api.tests.debug') || in_array('--debug', $argv, true);
+    }
+
+    /**
+     * sf3 polyfill for sf4
+     * @return Container|ContainerInterface|null
+     */
+    protected static function getContainerInstance(): ?ContainerInterface
+    {
+        return static::$container ?? self::createClient(['debug' => false])->getContainer();
     }
 
     /**
