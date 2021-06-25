@@ -113,3 +113,6 @@ protected static function assertMyAssertion($key, $parameter, $value): void
     static::assertTrue($expected === $value, $errorMessage);
 }
 ```
+## Performance optimization
+* Implement the Symfony\Component\Serializer\Normalizer\CacheableSupportsMethodInterface on normalizers (see https://symfony.com/doc/current/serializer/custom_normalizer.html)
+* see https://symfony.com/doc/4.4/performance.html
