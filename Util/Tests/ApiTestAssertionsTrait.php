@@ -173,7 +173,7 @@ trait ApiTestAssertionsTrait
      */
     protected static function assertDateTime($key, $format, $value): void
     {
-        $expectedFormat = $format ?? 'Y-m-d H:i:s';
+        $expectedFormat = $format ?? self::$container->getParameter('easy_api.normalization.datetime_format');
         $errorMessage = "Invalid date format for {$key} field: expected format {$expectedFormat}, get value '{$value}'";
         static::assertTrue(!empty($value), $errorMessage);
         $date = \DateTime::createFromFormat($expectedFormat, $value);
@@ -189,7 +189,7 @@ trait ApiTestAssertionsTrait
      */
     protected static function assertDateTimeNow(string $key, ?string $format, ?string $value)
     {
-        $expectedFormat = $format ?? 'Y-m-d H:i:s';
+        $expectedFormat = $format ?? self::$container->getParameter('easy_api.normalization.datetime_format');
         $errorMessage = "Invalid date format for {$key} field: expected format {$expectedFormat}, get value '{$value}'";
         static::assertTrue(!empty($value), $errorMessage);
         $date = \DateTime::createFromFormat($expectedFormat, $value);

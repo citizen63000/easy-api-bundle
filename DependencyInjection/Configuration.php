@@ -30,6 +30,13 @@ class Configuration implements ConfigurationInterface
 
                 ->scalarNode('user_class')->isRequired()->cannotBeEmpty()->end()
 
+                ->arrayNode('normalization')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('datetime_format')->defaultValue(\DateTimeInterface::ATOM)->end()
+                    ->end()
+                ->end()
+
                 ->arrayNode('user_tracking')
                     ->addDefaultsIfNotSet()
                     ->children()
