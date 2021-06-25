@@ -1,16 +1,16 @@
 <?php
 
-
 namespace EasyApiBundle;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Config\Loader\LoaderInterface;
 
 class ApiKernel extends Kernel
 {
     /**
-     * @return array|iterable|\Symfony\Component\HttpKernel\Bundle\BundleInterface[]
+     * @return array|iterable|BundleInterface[]
      */
     public function registerBundles()
     {
@@ -37,7 +37,6 @@ class ApiKernel extends Kernel
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
             $bundles[] = new \Symfony\Bundle\DebugBundle\DebugBundle();
-            $bundles[] = new \Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
             $bundles[] = new \Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
         }
 
@@ -47,7 +46,7 @@ class ApiKernel extends Kernel
     /**
      * @return string
      */
-    public function getCacheDir()
+    public function getCacheDir(): string
     {
         return dirname($this->getRootDir()).'/var/cache/'.$this->getEnvironment();
     }
@@ -55,7 +54,7 @@ class ApiKernel extends Kernel
     /**
      * @return string
      */
-    public function getLogDir()
+    public function getLogDir(): string
     {
         return dirname($this->getRootDir()).'/var/logs';
     }
