@@ -2,8 +2,6 @@
 
 namespace EasyApiBundle\Services\User;
 
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use EasyApiBundle\Entity\User\AbstractUser as User;
 use EasyApiBundle\Entity\User\AbstractConnectionHistory as ConnectionHistory;
 use EasyApiBundle\Services\AbstractService;
@@ -21,7 +19,7 @@ class Tracking extends AbstractService
     /**
      * @return array
      */
-    protected function getProviders()
+    protected function getProviders(): array
     {
         return [new WhichBrowser()];
     }
@@ -34,10 +32,9 @@ class Tracking extends AbstractService
      *
      * @return ConnectionHistory
      *
-     * @throws PackageNotLoadedException
-     * @throws ORMException
+     * @throws PackageNotLoadedException|\Exception
      */
-    public function logConnection(User $user, Request $request, string $token, bool $isSSO = false)
+    public function logConnection(User $user, Request $request, string $token, bool $isSSO = false): ConnectionHistory
     {
         $connectionHistoryClass = $this->getParameter(self::CONNECTION_HISTORY_CLASS_PARAMETER);
 
@@ -67,8 +64,7 @@ class Tracking extends AbstractService
      * @param Request $request
      * @param string $token
      *
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * @throws PackageNotLoadedException
      */
     public function updateLastAction(User $user, Request $request, string $token)
     {
@@ -94,10 +90,8 @@ class Tracking extends AbstractService
      * @param ConnectionHistory $connectionHistory
      *
      * @return ConnectionHistory
-     *
-     * @throws PackageNotLoadedException
      */
-    public function updateConnectionFromUserAgent(ConnectionHistory $connectionHistory)
+    public function updateConnectionFromUserAgent(ConnectionHistory $connectionHistory): ConnectionHistory
     {
         $results = $this->parseUserAgent($connectionHistory->getUserAgent());
 
@@ -114,10 +108,8 @@ class Tracking extends AbstractService
      * @param string $userAgent
      *
      * @return array
-     *
-     * @throws PackageNotLoadedException
      */
-    protected function parseUserAgent(string $userAgent)
+    protected function parseUserAgent(string $userAgent): array
     {
         $results = [];
 
@@ -141,7 +133,7 @@ class Tracking extends AbstractService
      *
      * @return ConnectionHistory
      */
-    protected function updateBrowser(UserAgent $result, ConnectionHistory $connectionHistory)
+    protected function updateBrowser(UserAgent $result, ConnectionHistory $connectionHistory): ConnectionHistory
     {
         $browser = $result->getBrowser();
         $browserEngine = $result->getRenderingEngine();
