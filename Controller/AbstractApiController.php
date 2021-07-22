@@ -15,7 +15,7 @@ use FOS\UserBundle\Model\User;
 use EasyApiBundle\Exception\ApiProblemException;
 use EasyApiBundle\Util\ApiProblem;
 use EasyApiBundle\Util\CoreUtilsTrait;
-use Symfony\Component\DependencyInjection\ServiceLocator;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
@@ -67,9 +67,9 @@ abstract class AbstractApiController extends AbstractFOSRestController
     public const defaultFilterSort = null;
 
     /**
-     * @return ServiceLocator
+     * @return ContainerInterface
      */
-    protected function getContainer(): ServiceLocator
+    protected function getContainer(): ContainerInterface
     {
         return $this->container;
     }
