@@ -391,7 +391,7 @@ abstract class AbstractApiTest extends WebTestCase
             static::loadData();
         }
 
-        if (true === static::$executeSetupOnAllTest && true === static::$launchFirstSetup) {
+        if (false === static::isInitialized() || (true === static::$executeSetupOnAllTest && true === static::$launchFirstSetup)) {
             self::doSetup();
         } elseif (true === static::$launchFirstSetup) {
             // If no reset rollback user test & its rights
