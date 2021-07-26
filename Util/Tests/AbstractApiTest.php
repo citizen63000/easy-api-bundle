@@ -424,7 +424,6 @@ abstract class AbstractApiTest extends WebTestCase
         }
         self::$executeSetupOnAllTest = true;
         self::$executeCleanupOnAllTest = true;
-
         self::$token = null;
     }
 
@@ -438,17 +437,6 @@ abstract class AbstractApiTest extends WebTestCase
             self::initialize();
         } else {
             self::$entityManager = self::$container->get('doctrine.orm.entity_manager');
-        }
-    }
-
-    /**
-     * Performs cleanup operations.
-     */
-    final protected static function doCleanup(): void
-    {
-        self::logStep();
-        if (self::isInitialized()) {
-            self::loadYaml('reset-all.yml');
         }
     }
 
