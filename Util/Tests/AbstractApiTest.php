@@ -388,6 +388,17 @@ abstract class AbstractApiTest extends WebTestCase
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public static function tearDownAfterClass()
+    {
+        self::logStep();
+        static::initExecuteSetupOnAllTest();
+//        static::$executeSetupOnAllTest = null;
+        self::$token = null;
+    }
+
+    /**
      * Performs setup operations.
      */
     final protected function doSetup(): void
