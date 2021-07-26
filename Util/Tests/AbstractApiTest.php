@@ -119,20 +119,6 @@ abstract class AbstractApiTest extends WebTestCase
     protected static $loadDataOnSetup = null;
 
     /**
-     * Indicates if you want launch cleanup on all tests in your test class.
-     *
-     * @var bool
-     */
-    protected static $executeCleanupOnAllTest = true;
-
-    /**
-     * Indicates if you want launch cleanup on all tests in your test class.
-     *
-     * @var bool
-     */
-    protected static $executeCleanupAfterEachTest = false;
-
-    /**
      * Indicates if the first launch need to launch.
      *
      * @var bool
@@ -399,32 +385,6 @@ abstract class AbstractApiTest extends WebTestCase
         }
 
         static::$launchFirstSetup = true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function tearDown()
-    {
-        self::logStep();
-        if (true === static::$executeCleanupAfterEachTest) {
-            self::doCleanup();
-        }
-        parent::tearDown();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function tearDownAfterClass()
-    {
-        self::logStep();
-        if (false === static::$executeCleanupOnAllTest) {
-            self::doCleanup();
-        }
-        self::$executeSetupOnAllTest = true;
-        self::$executeCleanupOnAllTest = true;
-        self::$token = null;
     }
 
     /**
