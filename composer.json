@@ -9,7 +9,7 @@
     }
   ],
   "require": {
-    "php": "^7.4",
+    "php": ">=7.4.3",
     "symfony/symfony": "^4.4",
     "symfony/monolog-bundle": "^3.3",
     "symfony/swiftmailer-bundle": "^3.2",
@@ -45,7 +45,7 @@
   "config": {
     "discard-changes": true,
     "platform": {
-      "php": "7.4"
+      "php": "7.4.3"
     },
     "sort-packages": true
   },
