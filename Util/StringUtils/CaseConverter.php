@@ -1,11 +1,7 @@
 <?php
 
-
 namespace EasyApiBundle\Util\StringUtils;
 
-
-use PhpParser\Node\Scalar\String_;
-use Symfony\Bundle\MakerBundle\Str;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 class CaseConverter
