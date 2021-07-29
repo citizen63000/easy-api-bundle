@@ -20,6 +20,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Class AbstractApiController
@@ -196,7 +198,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
 
             $entity = $this->persistAndFlush($form->getData());
 
-            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, Response::HTTP_CREATED);
+            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [],Response::HTTP_CREATED);
         }
 
         $this->throwUnprocessableEntity($form);
@@ -220,7 +222,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
 
             $entity = $this->persistAndFlush($entity);
 
-            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, Response::HTTP_OK);
+            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [],Response::HTTP_OK);
         }
 
         $this->throwUnprocessableEntity($form);
@@ -278,7 +280,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
     protected function createPaginateResponse(array $results, int $nbResults, array $serializationGroups = ['Default'], array $headers = []): Response
     {
         $serializer = $this->container->get('serializer');
-        $data = $serializer->serialize($results, 'json', ['groups' => $serializationGroups]);
+        $data = $serializer->serialize($results, 'json', [AbstractNormalizer::GROUPS => $serializationGroups]);
         $headers['X-Total-Results'] = $nbResults;
 
         $response = new Response($data);
@@ -320,20 +322,31 @@ abstract class AbstractApiController extends AbstractFOSRestController
     }
 
     /**
-     * @todo add "attributes" parameter for serialization by fields names
      * @param $entity
      * @param array|null $serializationGroups
+     * @param array|null $context Additional context like AbstractNormalizer::IGNORED_ATTRIBUTES list or AbstractNormalizer::ATTRIBUTES list
      * @param int $status
      * @param array $headers
      *
      * @return Response
      */
-    protected function renderEntityResponse($entity, array $serializationGroups = null, int $status = 200, array $headers = []): Response
+    protected function renderEntityResponse($entity, array $serializationGroups = null, array $context = null, int $status = 200, array $headers = []): Response
     {
-        $serializer = $this->container->get('serializer');
-        $data = $serializer->serialize($entity, 'json', (null !== $serializationGroups ? ['groups' => $serializationGroups] : []));
+        $context = $context ?? [];
 
-        return $this->renderResponse($data, $status, $headers);
+        if (null !== $serializationGroups) {
+            $context [AbstractNormalizer::GROUPS] = $serializationGroups;
+        }
+
+        return $this->renderResponse($this->getSerializer()->serialize($entity, 'json', $context), $status, $headers);
+    }
+
+    /**
+     * @return SerializerInterface
+     */
+    public function getSerializer(): SerializerInterface
+    {
+        return $this->container->get('serializer');
     }
 
     /**
