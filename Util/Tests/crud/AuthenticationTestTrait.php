@@ -63,8 +63,8 @@ trait AuthenticationTestTrait
     {
         // Request
         $apiOutput = self::httpPost(['name' => static::$refreshTokenRouteName], ['refreshToken' => 'imfakerefreshtoken'], false);
-        static::assertEquals(Response::HTTP_NOT_FOUND, $apiOutput->getStatusCode());
-        static::assertEquals(['errors' => ['core.error.token.not_found']], $apiOutput->getData());
+        static::assertEquals(Response::HTTP_UNAUTHORIZED, $apiOutput->getStatusCode());
+        static::assertEquals(['errors' => ['core.error.bad_credentials']], $apiOutput->getData());
     }
 
     public function testLogout()

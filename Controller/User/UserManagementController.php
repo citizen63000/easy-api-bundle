@@ -7,13 +7,13 @@ use EasyApiBundle\Controller\AbstractApiController;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 /**
  * @Route("/user", name="api_user")
  */
 class UserManagementController extends AbstractApiController
 {
-    public const serializationGroups = ['user_short'];
     public const serializationAttributes = ['id', 'username', 'email', 'createdAt', 'updatedAt'];
 
     /**
@@ -24,7 +24,7 @@ class UserManagementController extends AbstractApiController
      * @SWG\Response(
      *     response=200,
      *     description="Successful operation",
-     *     @SWG\Schema(ref=@Model(type="static::entityClass", groups={}))
+     *     @SWG\Schema(ref=@Model(type="static::entityClass", groups={"static::serializationGroups"}))
      * ),
      *
      * @SWG\Response(response="401", ref="#/definitions/401"),
@@ -37,9 +37,6 @@ class UserManagementController extends AbstractApiController
      */
     public function getMeAction(): Response
     {
-        $serializer = $this->container->get('serializer');
-        $data = $serializer->serialize($this->getUser(), 'json', ['attributes' => static::serializationAttributes]);
-
-        return $this->renderResponse($data, Response::HTTP_OK);
+        return $this->renderEntityResponse($this->getUser(), static::serializationGroups, [AbstractNormalizer::ATTRIBUTES => static::serializationAttributes]);
     }
 }
