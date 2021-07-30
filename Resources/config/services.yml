@@ -47,7 +47,7 @@ services:
     autowire: false
     autoconfigure: false
     public: false
-    parent: 'lexik_jwt_authentication.encoder.abstract'
+    parent: 'lexik_jwt_authentication.encoder.default'
     arguments: ['@app.jwt_authentication.jws_provider']
 
   Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface:

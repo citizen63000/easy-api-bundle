@@ -83,7 +83,7 @@ class JWSProvider implements JWSProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function create(array $payload)
+    public function create(array $payload, array $header = [])
     {
         $jws = new JWS([
             'alg' => $this->signatureAlgorithm,
