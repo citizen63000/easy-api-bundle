@@ -14,31 +14,31 @@ use Namshi\JOSE\JWS;
 class JWSProvider implements JWSProviderInterface
 {
     /** @var KeyLoaderInterface */
-    private $keyLoader;
+    protected $keyLoader;
 
     /** @var string */
-    private $cryptoEngine;
+    protected $cryptoEngine;
 
     /** @var string */
-    private $signatureAlgorithm;
+    protected $signatureAlgorithm;
 
     /** @var int */
-    private $ttl;
+    protected $ttl;
 
     /** @var string */
-    private $authorizationHeaderPrefix;
+    protected $authorizationHeaderPrefix;
 
     /** @var TokenStorageInterface */
-    private $tokenStorage;
+    protected $tokenStorage;
 
     /** @var EntityManager */
-    private $em;
+    protected $em;
 
     /** @var string */
-    private $userClass;
+    protected $userClass;
 
     /** @var string */
-    private $userIdentityField;
+    protected $userIdentityField;
 
     /**
      * @param KeyLoaderInterface    $keyLoader
