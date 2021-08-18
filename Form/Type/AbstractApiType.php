@@ -11,11 +11,8 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-
 abstract class AbstractApiType extends AbstractType
 {
-    private $valuesToSetNull = [];
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
@@ -100,10 +97,6 @@ abstract class AbstractApiType extends AbstractType
      */
     protected function getValidationGroups($pEntity)
     {
-        if (null !== $this->validationGroups) {
-            return $this->validationGroups;
-        }
-
         $this->validationGroups = ['Default'];
         foreach (static::$groupsConditions as $group => $conditions) {
             foreach ($conditions as $condition => $values) {
