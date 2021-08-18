@@ -13,13 +13,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 abstract class AbstractApiType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
-    {
-        parent::buildForm($builder, $options);
-
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, [$this, 'managePreSubmitAbstractMediaFiles']);
-        $builder->addEventListener(FormEvents::POST_SUBMIT, [$this, 'manageAbstractMediaFiles']);
-    }
+    private $valuesToSetNull = [];
 
     /**
      * @var string
@@ -43,6 +37,18 @@ abstract class AbstractApiType extends AbstractType
      * @var array
      */
     protected $validationGroups;
+
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array $options
+     */
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        parent::buildForm($builder, $options);
+
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, [$this, 'managePreSubmitAbstractMediaFiles']);
+        $builder->addEventListener(FormEvents::POST_SUBMIT, [$this, 'manageAbstractMediaFiles']);
+    }
 
     /**
      * @return array
