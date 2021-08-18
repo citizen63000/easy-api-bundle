@@ -10,6 +10,8 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 abstract class AbstractApiType extends AbstractType
 {
@@ -97,6 +99,10 @@ abstract class AbstractApiType extends AbstractType
      */
     protected function getValidationGroups($pEntity)
     {
+//        if (null !== $this->validationGroups) {
+//            return $this->validationGroups;
+//        }
+
         $this->validationGroups = ['Default'];
         foreach (static::$groupsConditions as $group => $conditions) {
             foreach ($conditions as $condition => $values) {
@@ -146,7 +152,46 @@ abstract class AbstractApiType extends AbstractType
             'validation_groups' => function (FormInterface $form) {
                 return $this->getValidationGroups($form->getData());
             },
+//            'constraints' => function (FormInterface $form) {
+//                return [new BlankConstraint($form->getData())];
+//            },
+//            'constraints' => $this->getBlankNotBlankConstraints(),
+//            'constraints' => [
+//                new Assert\Callback(
+//                // l'array $data contient les valeurs des différents champs du formulaire
+//                    ['callback' => function (array $data, ExecutionContextInterface $context) {
+//                        $this->checkBlankNotBlankFields($data, $context);
+//                    }]
+//                )
+//            ] + static::getConstraints()
         ]);
+//        $resolver->setDefault('groups', $this->validationGroups);
+//        $resolver->setDefault('constraints', $this->getBlankNotBlankConstraints() );
+    }
+
+    protected function checkBlankNotBlankFields(array $data, ExecutionContextInterface $context)
+    {
+        $validationGroups = $this->getValidationGroups($data);
+
+
+    }
+
+//    /**
+//     * @return array
+//     */
+//    protected function getConstraints(): array
+//    {
+//        return [];
+//    }
+
+    /**
+     * @return array
+     */
+    protected function getBlankNotBlankConstraints(): array
+    {
+        return [
+            new BlankConstraint($this->validationGroups),
+        ];
     }
 
     /**
