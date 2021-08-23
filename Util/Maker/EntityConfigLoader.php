@@ -6,6 +6,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Embedded;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\InheritanceType;
@@ -294,6 +295,7 @@ class EntityConfigLoader
     }
 
     /**
+     * @todo finish it by adding all annotations options
      * @param string $fullName
      * @return EntityConfiguration
      * @throws \ReflectionException
@@ -405,6 +407,10 @@ class EntityConfigLoader
                         //                }
                         //
                         //            }
+                        break;
+                    case Embedded::class:
+                        $field->setEntityType($annotation->class);
+                        $field->setIsNativeType(false);
                         break;
                 }
             }
