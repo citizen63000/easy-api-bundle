@@ -177,4 +177,12 @@ abstract class AbstractUser extends FosUser implements EncoderAwareInterface
     {
         return $this->encoder;
     }
+
+    /**
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(self::ROLE_ADMIN) || $this->isSuperAdmin();
+    }
 }
