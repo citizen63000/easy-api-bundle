@@ -104,7 +104,7 @@ trait ApiTestRequesterTrait
         }
 
         $body = null !== $content && !($content instanceof FileBag) ? Format::writeData($content, $formatIn) : null;
-        $files = ($content instanceof FileBag) ? $content->getData() : [];
+        $files = ($content instanceof FileBag) ? $content->getFiles() : [];
         $url = \is_string($route) && 0 === mb_strpos($route, 'http') ? $route : self::getUrl($route);
 
         $client = self::createClient(['debug' => static::$useProfiler]);

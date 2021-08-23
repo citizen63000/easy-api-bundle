@@ -447,7 +447,7 @@ abstract class AbstractApiTest extends WebTestCase
         $fileDir = self::$container->getParameter('kernel.project_dir') . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'artifacts';
         $fileBag = new FileBag();
         foreach ($filenames as $field => $filename) {
-            $fileBag->addFile($field, $fileDir.DIRECTORY_SEPARATOR.$filename, true, $filename);
+            $fileBag->addFile($field, $fileDir.DIRECTORY_SEPARATOR.$filename, $filename);
         }
 
         return $fileBag;

@@ -2,34 +2,32 @@
 
 namespace EasyApiBundle\Util\Tests;
 
+use Symfony\Component\HttpFoundation\File\MimeType\FileinfoMimeTypeGuesser;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+
 class FileBag
 {
-    /**
-     * @var array
-     */
-    protected $data = [];
+    protected array $data = [];
 
     /**
      * Add a file.
      *
      * @param string $fieldName  The field form name
-     * @param string $contents   Contents : a file path or directly the contents of the file
-     * @param bool   $asResource True if $contents is a file path
+     * @param string $filePath
      * @param null   $fileName   The filename to the file
      * @param array  $headers    Additional headers
      */
-    public function addFile(string $fieldName, string $contents, bool $asResource = true, $fileName = null, $headers = [])
+    public function addFile(string $fieldName, string $filePath, $fileName = null, array $headers = [])
     {
+        $mimeTypeGuesser         = new FileinfoMimeTypeGuesser();
+        $uploadedFile            = new UploadedFile($filePath, $fileName, $mimeTypeGuesser->guess($filePath), null, null, true);
+
         $file = [
             'name' => $fieldName,
-            'contents' => ($asResource ? fopen($contents, 'r') : $contents),
+            'file' => $uploadedFile,
+            'headers' => $headers,
+            'filename' => $fileName
         ];
-        if (null !== $fileName) {
-            $file['filename'] = $fileName;
-        }
-        if (null !== $headers && !empty($headers)) {
-            $file['headers'] = $headers;
-        }
 
         $this->data[] = $file;
     }
@@ -39,8 +37,21 @@ class FileBag
      *
      * @return array
      */
-    public function getData()
+    public function getData(): array
     {
         return $this->data;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFiles(): array
+    {
+        $files = [];
+        foreach ($this->data as $fileData) {
+            $files[$fileData['name']] = $fileData['file'];
+        }
+
+        return $files;
     }
 }
