@@ -241,6 +241,18 @@ abstract class AbstractApiController extends AbstractFOSRestController
     }
 
     /**
+     * @param $entity
+     * @param array|null $serializationGroups
+     * @return Response
+     */
+    protected function cloneEntityAction($entity, array $serializationGroups = null): Response
+    {
+        $entity = $this->persistAndFlush(clone $entity);
+
+        return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [],Response::HTTP_CREATED);
+    }
+
+    /**
      * @param Request $request
      * @return Response
      */

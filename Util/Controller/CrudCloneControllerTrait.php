@@ -5,15 +5,12 @@ namespace EasyApiBundle\Util\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @WIP
- */
 trait CrudCloneControllerTrait
 {
     /**
      * Clone entity.
      *
-     * @Symfony\Component\Routing\Annotation\Route("/{id}", methods={"POST"}, name="_clone")
+     * @Symfony\Component\Routing\Annotation\Route("/clone/{id}", methods={"POST"}, name="_clone")
      *
      * @Swagger\Annotations\Response(
      *     response=201,
@@ -35,6 +32,6 @@ trait CrudCloneControllerTrait
      */
     public function cloneAction(Request $request)
     {
-        return $this->cloneEntityAction($request);
+        return $this->cloneEntityAction($this->getEntityOfRequest($request));
     }
 }

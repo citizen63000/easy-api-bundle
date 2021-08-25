@@ -27,7 +27,7 @@ trait CloneTestFunctionsTrait
         // Assert result
         static::assertEquals(Response::HTTP_CREATED, $apiOutput->getStatusCode());
         $result = $apiOutput->getData();
-        $expectedResult = $this->getExpectedResponse($filename, 'Create', $result, true);
+        $expectedResult = $this->getExpectedResponse($filename, static::$cloneActionType, $result, true);
         static::assertAssessableContent($expectedResult, $result);
         static::assertEquals($expectedResult, $result, "Assert failed for file {$filename}");
 

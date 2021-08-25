@@ -10,6 +10,7 @@ trait crudFunctionsTestTrait
     protected static $getActionType = 'Get';
     protected static $getListActionType = 'GetList';
     protected static $createActionType = 'Create';
+    protected static $cloneActionType = 'Clone';
     protected static $updateActionType = 'Update';
 
     /**
@@ -44,7 +45,7 @@ trait crudFunctionsTestTrait
 
             // created_at / updated_at fields
             if($dateProtection) {
-                if(self::$createActionType === $type) {
+                if(self::$createActionType === $type || self::$cloneActionType === $type) {
                     if(array_key_exists('createdAt', $result)) {
                         $result['createdAt'] = '\assertDateTime()';
                     }
