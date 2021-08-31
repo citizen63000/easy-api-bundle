@@ -10,6 +10,11 @@ services:
   EasyApiBundle\Serializer\:
     resource: '../../Serializer'
 
+  EasyApiBundle\Serializer\PrivateMediaSerializer:
+    bind:
+      $routerContextScheme: '%router.request_context.scheme%'
+      $routerContextHost: '%router.request_context.host%'
+
   EasyApiBundle\Services\MediaUploader\MediaUploaderDirectoryNamer:
     public: true
 

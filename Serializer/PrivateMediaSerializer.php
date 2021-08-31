@@ -13,15 +13,22 @@ class PrivateMediaSerializer extends AbstractObjectSerializer
 {
     private RouterInterface $router;
 
+    private string $routerContextScheme;
+    private string $routerContextHost;
+
     /**
      * SerializationListenerFeature constructor.
      * @param ContainerInterface $container
      * @param RouterInterface $router
+     * @param string $routerContextScheme
+     * @param string $routerContextHost
      */
-    public function __construct(ContainerInterface $container, RouterInterface $router)
+    public function __construct(ContainerInterface $container, RouterInterface $router, string $routerContextScheme, string $routerContextHost)
     {
         parent::__construct($container);
         $this->router = $router;
+        $this->routerContextScheme = $routerContextScheme;
+        $this->routerContextHost = $routerContextHost;
     }
 
     /**
@@ -36,10 +43,8 @@ class PrivateMediaSerializer extends AbstractObjectSerializer
         $data = parent::normalize($object, $format, $context);
 
         if ($object->getFilename() && !empty($route = $object::getDownloadRouteName())) {
-//            $scheme = $this->container->getParameter('router.request_context.scheme');
-//            $host = $this->container->getParameter('router.request_context.host');
-//            $domain = "{$scheme}://{$host}";
-            $data['fileUrl'] = $this->router->generate($route, ['id' => $object->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+            $domain = "{$this->routerContextScheme}://{$this->routerContextHost}";
+            $data['fileUrl'] = $domain.$this->router->generate($route, ['id' => $object->getId()], UrlGeneratorInterface::ABSOLUTE_PATH);
         }
 
         return $data;
