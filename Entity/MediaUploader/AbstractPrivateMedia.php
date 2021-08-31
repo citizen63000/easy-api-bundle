@@ -12,10 +12,20 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  */
 abstract class AbstractPrivateMedia extends AbstractMedia
 {
+    protected const downloadRouteName = null;
+
     /**
      * @Vich\UploadableField(mapping="private_media_uploader", fileNameProperty="filename")
      *
      * @var File|string
      */
     private $file;
+
+    /**
+     * @return string
+     */
+    public static function getDownloadRouteName(): string
+    {
+        return static::downloadRouteName.'_download';
+    }
 }

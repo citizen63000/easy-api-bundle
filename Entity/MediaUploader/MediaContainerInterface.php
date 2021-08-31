@@ -11,5 +11,5 @@ interface MediaContainerInterface
      * Return Uuid of entity
      * @return Uuid
      */
-    public function getUuid() :UuidInterface;
+    public function getUuid() :?UuidInterface;
 }

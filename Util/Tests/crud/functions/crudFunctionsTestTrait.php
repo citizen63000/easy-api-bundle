@@ -12,6 +12,7 @@ trait crudFunctionsTestTrait
     protected static $createActionType = 'Create';
     protected static $cloneActionType = 'Clone';
     protected static $updateActionType = 'Update';
+    protected static $downloadActionType = 'Download';
 
     /**
      * @return false|string|string[]
@@ -215,6 +216,14 @@ trait crudFunctionsTestTrait
     protected static function getDeleteRouteName()
     {
         return static::baseRouteName.'_delete';
+    }
+
+    /**
+     * @return string
+     */
+    protected static function getDownloadRouteName()
+    {
+        return static::baseRouteName.'_download';
     }
 
     /**
