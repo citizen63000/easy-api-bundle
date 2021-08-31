@@ -2,54 +2,49 @@
 
 namespace EasyApiBundle\Serializer;
 
-use EasyApiBundle\Entity\MediaUploader\AbstractPrivateMedia;
 use Psr\Container\ContainerInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\Router;
-use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class AbstractObjectSerializer extends AbstractSerializer
+abstract class AbstractObjectSerializer implements NormalizerInterface, ServiceSubscriberInterface
 {
-    private RouterInterface $router;
+    /** @var ContainerInterface */
+    protected $container;
 
-    /**
-     * SerializationListenerFeature constructor.
-     * @param ContainerInterface $container
-     * @param RouterInterface $router
-     */
-    public function __construct(ContainerInterface $container, RouterInterface $router)
+    public function __construct(ContainerInterface $container)
     {
-        parent::__construct($container);
-        $this->router = $router;
+        $this->container = $container;
     }
 
     /**
-     * @param AbstractPrivateMedia $object
+     * @return NormalizerInterface
+     */
+    public function getObjectNormalizer(): NormalizerInterface
+    {
+        return $this->container->get(ObjectNormalizer::class);
+    }
+
+    /**
+     * @param mixed $object
      * @param string|null $format
      * @param array $context
-     * @return array
+     * @return array|\ArrayObject|bool|float|int|string|null
      * @throws ExceptionInterface
      */
-    public function normalize($object, $format = null, array $context = []): array
+    public function normalize($object, $format = null, array $context = [])
     {
-        $data = parent::normalize($object, $format, $context);
-
-        if ($object->getFilename() && !empty($route = $object::getDownloadRouteName())) {
-//            $scheme = $this->container->getParameter('router.request_context.scheme');
-//            $host = $this->container->getParameter('router.request_context.host');
-//            $domain = "{$scheme}://{$host}";
-            $data['fileUrl'] = $this->router->generate($route, ['id' => $object->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
-        }
-
-        return $data;
+        return $this->getObjectNormalizer()->normalize($object, null, $context);
     }
 
+    abstract public function supportsNormalization($data, $format = null);
+
     /**
-     * @inheritDoc
+     * @return array|string[]
      */
-    public function supportsNormalization($data, $format = null): bool
+    public static function getSubscribedServices()
     {
-        return $data instanceof AbstractPrivateMedia;
+        return [ObjectNormalizer::class];
     }
 }
