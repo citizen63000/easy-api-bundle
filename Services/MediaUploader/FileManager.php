@@ -20,6 +20,7 @@ class FileManager
 
     /**
      * @param string $path
+     * @param string $filename
      * @return Response
      */
     public function getFileStreamedResponse(string $path, string $filename): Response

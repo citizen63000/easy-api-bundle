@@ -35,12 +35,25 @@ trait DownloadTestFunctionsTrait
         $result = $apiOutput->getData();
 
         if(null !== $filename) {
-            $expectedResult = $this->getExpectedFileResponse($filename, $result);
+
             $path = "{$this->getCurrentDir()}/Responses/".self::$downloadActionType."/$filename";
-//            static::assertEquals(mime_content_type($path), $apiOutput->getHeader('Content-Type'));
-//            static::assertEquals('binary', $apiOutput->getHeader('Content-Transfer-Encoding'));
-//            static::assertEquals(filesize($path), $apiOutput->getHeader('Content-Length'));
+
+            $expectedHeaders = [
+                'Content-Transfer-Encoding' => 'binary',
+//                'Content-Type' => mime_content_type($path),
+//                'Content-Type' => finfo_buffer(finfo_open(), file_get_contents($path), FILEINFO_MIME_TYPE),
+                'Content-Disposition' => "attachment; filename=\"$filename\"",
+            ];
+
+            // check file content
+            $expectedResult = $this->getExpectedFileResponse($filename, $result);
             static::assertEquals($expectedResult, $result, "Assert content failed for file {$filename}");
+
+            // check headers
+            foreach ($expectedHeaders as $key => $expectedValue) {
+                static::assertEquals($expectedValue, $apiOutput->getHeaderLine($key), "Assert failed for header line '$key'");
+            }
+
         } else {
             static::assertTrue(!empty($result) > 0,'Empty response, no data returned.');
         }
