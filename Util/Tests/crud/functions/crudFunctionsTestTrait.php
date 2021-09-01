@@ -21,7 +21,7 @@ trait crudFunctionsTestTrait
     {
         try {
             $rc = new \ReflectionClass($this);
-            return str_replace('/'.$rc->getShortName().'.php', '', $rc->getFilename());
+            return str_replace("/{$rc->getShortName()}.php", '', $rc->getFilename());
         } catch (\Exception $e) {
             echo $e->getMessage();
         }
@@ -36,7 +36,7 @@ trait crudFunctionsTestTrait
      */
     protected function getExpectedResponse(string $filename, string $type, array $result, bool $dateProtection = false): array
     {
-        $dir = $this->getCurrentDir()."/Responses/{$type}";
+        $dir = "{$this->getCurrentDir()}/Responses/{$type}";
         $filePath = "{$dir}/{$filename}";
 
         if(!file_exists($filePath)) {
@@ -46,13 +46,13 @@ trait crudFunctionsTestTrait
 
             // created_at / updated_at fields
             if($dateProtection) {
-                if(self::$createActionType === $type || self::$cloneActionType === $type) {
+                if(self::$createActionType === $type || self::$updateActionType === $type || self::$cloneActionType === $type) {
                     if(array_key_exists('createdAt', $result)) {
                         $result['createdAt'] = '\assertDateTime()';
                     }
-                }
-                if(array_key_exists('updatedAt', $result)) {
-                    $result['updatedAt'] = '\assertDateTime()';
+                    if(array_key_exists('updatedAt', $result)) {
+                        $result['updatedAt'] = '\assertDateTime()';
+                    }
                 }
             }
 
@@ -60,6 +60,28 @@ trait crudFunctionsTestTrait
         }
 
         return json_decode(file_get_contents($filePath), true);
+    }
+
+    /**
+     * @param string $filename
+     * @param string $result
+     * @return false|string
+     */
+    protected function getExpectedFileResponse(string $filename, string $result)
+    {
+        $dir = "{$this->getCurrentDir()}/Responses/".self::$downloadActionType;
+        $filePath = "{$dir}/{$filename}";
+
+        if(!file_exists($filePath)) {
+
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+
+            file_put_contents($filePath, $result);
+        }
+
+        return file_get_contents($filePath);
     }
 
     /**

@@ -260,7 +260,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
      */
     protected function downloadMediaAction(AbstractMedia $entity): Response
     {
-        return $this->renderFileStreamedResponse($this->container->get(FileManager::class)->getFileSystemPath($entity));
+        return $this->renderFileStreamedResponse($this->container->get(FileManager::class)->getFileSystemPath($entity), $entity->getFilename());
     }
 
     /**
@@ -366,11 +366,12 @@ abstract class AbstractApiController extends AbstractFOSRestController
 
     /**
      * @param string $path
+     * @param string $filename
      * @return Response
      */
-    protected function renderFileStreamedResponse(string $path): Response
+    protected function renderFileStreamedResponse(string $path, string $filename): Response
     {
-        return $this->container->get(FileManager::class)->getFileStreamedResponse($path);
+        return $this->container->get(FileManager::class)->getFileStreamedResponse($path, $filename);
     }
 
     /**

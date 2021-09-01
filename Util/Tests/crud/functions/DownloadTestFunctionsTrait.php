@@ -33,10 +33,16 @@ trait DownloadTestFunctionsTrait
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
         $result = $apiOutput->getData();
-//        $expectedResult = $this->getExpectedResponse($filename, static::$downloadActionType, $result);
 
-//        static::assertAssessableContent($expectedResult, $result);
-//        static::assertEquals($expectedResult, $result, "Assert failed for file {$filename}");
+        if(null !== $filename) {
+            $expectedResult = $this->getExpectedFileResponse($filename, $result);
+            $path = "{$this->getCurrentDir()}/Responses/".self::$downloadActionType."/$filename";
+//            static::assertEquals(mime_content_type($path), $apiOutput->getHeader('Content-Type'));
+//            static::assertEquals('binary', $apiOutput->getHeader('Content-Transfer-Encoding'));
+//            static::assertEquals(filesize($path), $apiOutput->getHeader('Content-Length'));
+            static::assertEquals($expectedResult, $result, "Assert content failed for file {$filename}");
+        } else {
+            static::assertTrue(!empty($result) > 0,'Empty response, no data returned.');
+        }
     }
-
 }
