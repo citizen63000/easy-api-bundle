@@ -10,16 +10,14 @@ services:
   EasyApiBundle\Serializer\:
     resource: '../../Serializer'
 
+  EasyApiBundle\Services\MediaUploader\:
+    public: true
+    resource: '../../Services/MediaUploader'
+
   EasyApiBundle\Serializer\PrivateMediaSerializer:
     bind:
       $routerContextScheme: '%router.request_context.scheme%'
       $routerContextHost: '%router.request_context.host%'
-
-  EasyApiBundle\Services\MediaUploader\MediaUploaderDirectoryNamer:
-    public: true
-
-  EasyApiBundle\Services\MediaUploader\MediaUploaderFileNamer:
-    public: true
 
   EasyApiBundle\Services\ApiDoc\GetFormParameterRouteDescriber:
     tags:

@@ -4,10 +4,12 @@ namespace EasyApiBundle\Controller;
 
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Form\Type\FilterType;
 use EasyApiBundle\Model\FilterResult;
 use EasyApiBundle\Services\ListFilter;
+use EasyApiBundle\Services\MediaUploader\FileManager;
 use EasyApiBundle\Util\Forms\FormSerializer;
 use EasyApiBundle\Util\Forms\SerializedForm;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -19,7 +21,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -257,9 +258,9 @@ abstract class AbstractApiController extends AbstractFOSRestController
      * @param $entity
      * @return Response
      */
-    protected function downloadMediaAction($entity): Response
+    protected function downloadMediaAction(AbstractMedia $entity): Response
     {
-        return $this->renderFileStreamedResponse($this->getMediaUploader()->getFileSystemPath($entity, 'file'));
+        return $this->renderFileStreamedResponse($this->container->get(FileManager::class)->getFileSystemPath($entity));
     }
 
     /**
@@ -369,18 +370,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
      */
     protected function renderFileStreamedResponse(string $path): Response
     {
-        // stream opening
-        $stream = fopen($path, 'r');
-
-        $response = new StreamedResponse(function () use ($stream) {
-            stream_copy_to_stream($stream, fopen('php://output', 'w'));
-        });
-
-        $response->headers->set('Content-Type', mime_content_type($path));
-        $response->headers->set('Content-Transfer-Encoding', 'binary');
-        $response->headers->set('Content-Length', filesize($path));
-
-        return $response;
+        return $this->container->get(FileManager::class)->getFileStreamedResponse($path);
     }
 
     /**
@@ -397,6 +387,6 @@ abstract class AbstractApiController extends AbstractFOSRestController
      */
     public static function getSubscribedServices(): array
     {
-        return array_merge(parent::getSubscribedServices(), [static::filterService => static::filterService]);
+        return array_merge(parent::getSubscribedServices(), [static::filterService => static::filterService, FileManager::class => FileManager::class]);
     }
 }

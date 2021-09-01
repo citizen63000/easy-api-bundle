@@ -22,10 +22,10 @@ abstract class AbstractPrivateMedia extends AbstractMedia
     private $file;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public static function getDownloadRouteName(): string
+    public static function getDownloadRouteName(): ?string
     {
-        return static::downloadRouteName.'_download';
+        return !empty(static::downloadRouteName) ? static::downloadRouteName.'_download' : null;
     }
 }
