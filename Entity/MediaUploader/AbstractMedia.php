@@ -3,7 +3,7 @@
 namespace EasyApiBundle\Entity\MediaUploader;
 
 use Doctrine\ORM\Mapping as ORM;
-use EasyApiBundle\Entity\AbstractBaseEntity;
+use EasyApiBundle\Entity\AbstractBaseUniqueEntity;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\File\File;
@@ -13,7 +13,7 @@ use Vich\UploaderBundle\Naming\OrignameNamer;
 /**
  * @ORM\MappedSuperclass
  */
-abstract class AbstractMedia extends AbstractBaseEntity
+abstract class AbstractMedia extends AbstractBaseUniqueEntity
 {
     /** @var string directory namer service to use */
     protected const directoryNamer = null;
@@ -30,7 +30,7 @@ abstract class AbstractMedia extends AbstractBaseEntity
      * @ORM\Column(name="uuid", type="uuid", length=255, nullable=false)
      * @Groups({"abstract_media_full", "abstract_media_short", "abstract_media_uuid"})
      */
-    private $uuid;
+    protected $uuid;
 
     /**
      * @var string
@@ -54,31 +54,6 @@ abstract class AbstractMedia extends AbstractBaseEntity
      * @Groups({"abstract_media_full", "abstract_media_container_entity"})
      */
     protected $containerEntity;
-
-    /**
-     * AbstractMedia constructor.
-     * @throws \Exception
-     */
-    public function __construct()
-    {
-        $this->uuid = Uuid::uuid4();
-    }
-
-    /**
-     * @return Uuid
-     */
-    public function getUuid(): UuidInterface
-    {
-        return $this->uuid;
-    }
-
-    /**
-     * @param Uuid $uuid
-     */
-    public function setUuid(Uuid $uuid): void
-    {
-        $this->uuid = $uuid;
-    }
 
     /**
      * @return string
