@@ -14,11 +14,6 @@ services:
     public: true
     resource: '../../Services/MediaUploader'
 
-  EasyApiBundle\Serializer\PrivateMediaSerializer:
-    bind:
-      $routerContextScheme: '%router.request_context.scheme%'
-      $routerContextHost: '%router.request_context.host%'
-
   EasyApiBundle\Services\ApiDoc\GetFormParameterRouteDescriber:
     tags:
       - 'nelmio_api_doc.route_describer'
