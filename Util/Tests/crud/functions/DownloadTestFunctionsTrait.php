@@ -3,6 +3,7 @@
 namespace EasyApiBundle\Util\Tests\crud\functions;
 
 use EasyApiBundle\Util\ApiProblem;
+use EasyApiBundle\Util\Tests\ApiOutput;
 use Symfony\Component\HttpFoundation\Response;
 
 trait DownloadTestFunctionsTrait
@@ -22,6 +23,7 @@ trait DownloadTestFunctionsTrait
     }
 
     /**
+     * @todo dev comment lines
      * @param array $params
      * @param string|null $filename
      * @param string|null $userLogin
@@ -29,10 +31,11 @@ trait DownloadTestFunctionsTrait
      */
     public function doTestGenericDownload(array $params = [], string $filename = null, string $userLogin = null, string $userPassword = null)
     {
+        /** @var ApiOutput $apiOutput */
         $apiOutput = self::httpGetWithLogin(['name' => static::getDownloadRouteName(), 'params' => $params], $userLogin, $userPassword);
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
-        $result = $apiOutput->getData();
+//        $result = $apiOutput->getData();
 
         if(null !== $filename) {
 
@@ -46,16 +49,16 @@ trait DownloadTestFunctionsTrait
             ];
 
             // check file content
-            $expectedResult = $this->getExpectedFileResponse($filename, $result);
-            static::assertEquals($expectedResult, $result, "Assert content failed for file {$filename}");
+//            $expectedResult = $this->getExpectedFileResponse($filename, $result);
+//            static::assertEquals($expectedResult, $result, "Assert content failed for file {$filename}");
 
             // check headers
             foreach ($expectedHeaders as $key => $expectedValue) {
                 static::assertEquals($expectedValue, $apiOutput->getHeaderLine($key), "Assert failed for header line '$key'");
             }
 
-        } else {
-            static::assertTrue(!empty($result) > 0,'Empty response, no data returned.');
-        }
+        } /*else {
+            static::assertTrue(!empty($result),'Empty response, no data returned.');
+        }*/
     }
 }
