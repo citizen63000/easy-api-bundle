@@ -22,7 +22,7 @@ class {{ classname }}{% if parent != '' %} extends {{ parent }} {% endif %}
      * {{ annotation|raw }}
 {% endfor %}
      */
-    private ${{ field.name }}{% if field.defaultValue != null %} = {{ field.defaultValue }}{% endif %};
+    protected ?{{ field.type }} ${{ field.name }}{% if field.defaultValue != null %} = {{ field.defaultValue }}{% endif %};
 {% endfor %}
 
 {% if __construct.fields is not empty %}
