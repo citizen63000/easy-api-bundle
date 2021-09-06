@@ -5,7 +5,7 @@ namespace EasyApiBundle\Entity\User;
 use EasyApiBundle\Entity\AbstractBaseUniqueEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use EasyApiBundle\Entity\MagicGettersSettersTrait;
+use \Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\MappedSuperclass
@@ -14,48 +14,34 @@ use EasyApiBundle\Entity\MagicGettersSettersTrait;
  */
 abstract class AbstractBaseUser extends AbstractBaseUniqueEntity implements UserInterface
 {
-    const ROLE_BASIC_USER = 'ROLE_BASIC_USER';
-    const ROLE_ADMIN = 'ROLE_ADMIN';
-    const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
-    const ROLE_DEFAULT = 'ROLE_USER';
-
-    use MagicGettersSettersTrait;
-
-    /**
-     * @var bool
-     * @ORM\Column(type="boolean")
-     */
-    protected $anonymous = false;
+    public const ROLE_BASIC_USER = 'ROLE_BASIC_USER';
+    public const ROLE_DEFAULT = 'ROLE_USER';
+    public const ROLE_ADMIN = 'ROLE_ADMIN';
+    public const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
 
     /**
      * @var string
      * @ORM\Column(type="string")
      */
-    protected $username;
+    protected string $username;
 
     /**
      * @var string
      * @ORM\Column(type="string")
      */
-    protected $email;
+    protected string $email;
 
     /**
      * @var bool
      * @ORM\Column(type="boolean")
      */
-    protected $enabled;
-
-    /**
-     * @var \DateTime|null
-     * @ORM\Column(type="date")
-     */
-    protected $lastLogin;
+    protected bool $enabled = false;
 
     /**
      * @var array
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="JsonType")
      */
-    protected $roles;
+    protected array $roles;
 
     /**
      * User constructor.
@@ -67,12 +53,69 @@ abstract class AbstractBaseUser extends AbstractBaseUniqueEntity implements User
         $this->roles = [];
     }
 
+    /** Implement it if necessary */
+    public function getPassword(){}
+
+    /** Implement it if necessary */
+    public function getSalt(){}
+
+    /** Implement it if necessary */
+    public function eraseCredentials(){}
+
     /**
      * @return string
      */
     public function __toString()
     {
         return (string) $this->getUsername();
+    }
+
+    /**
+     * @return string
+     */
+    public function getUsername(): string
+    {
+        return $this->username;
+    }
+
+    /**
+     * @param string|null $username
+     */
+    public function setUsername(?string $username): void
+    {
+        $this->username = $username;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param string|null $email
+     */
+    public function setEmail(?string $email): void
+    {
+        $this->email = $email;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRoles(): array
+    {
+        return $this->roles;
+    }
+
+    /**
+     * @param array $roles
+     */
+    public function setRoles(array $roles): void
+    {
+        $this->roles = $roles;
     }
 
     /**
@@ -118,5 +161,29 @@ abstract class AbstractBaseUser extends AbstractBaseUniqueEntity implements User
     public function isEnabled(): bool
     {
         return $this->enabled;
+    }
+
+    /**
+     * @param bool $enabled
+     */
+    public function setEnabled(bool $enabled = false): void
+    {
+        $this->enabled = $enabled;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isAdmin()
+    {
+        return $this->hasRole(static::ROLE_ADMIN) || $this->hasRole(static::ROLE_SUPER_ADMIN);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isSuperAdmin()
+    {
+        return $this->hasRole(static::ROLE_SUPER_ADMIN);
     }
 }

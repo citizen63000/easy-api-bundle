@@ -3,7 +3,6 @@
 namespace EasyApiBundle\Controller\User;
 
 use EasyApiBundle\Services\User\UserManager;
-use FOS\RestBundle\View\View;
 use EasyApiBundle\Controller\AbstractApiController;
 use Symfony\Component\HttpFoundation\Response;
 use Swagger\Annotations as SWG;
@@ -22,14 +21,14 @@ class UserAuthenticationController extends AbstractApiController
      * @SWG\Response(response="415", ref="#/definitions/415"),
      * @SWG\Response(response="422", ref="#/definitions/422")
      *
-     * @return View
+     * @return Response
      */
-    public function logoutAction()
+    public function logoutAction(): Response
     {
         $this->get('security.token_storage')->setToken();
         $this->get('session')->invalidate();
 
-        return $this->view(null, Response::HTTP_NO_CONTENT);
+        return $this->renderResponse(null, Response::HTTP_NO_CONTENT);
     }
 
     /**

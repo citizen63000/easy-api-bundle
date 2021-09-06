@@ -46,13 +46,13 @@ abstract class AbstractUser extends FosUser implements EncoderAwareInterface
      * @var bool
      * @ORM\Column(type="boolean")
      */
-    private $anonymous = false;
+    protected $anonymous = false;
 
     /**
      * @var string
      * @ORM\Column(type="string")
      */
-    private $encoder = '1';
+    protected $encoder = '1';
 
     /**
      * @param FOSUser $fosUser
