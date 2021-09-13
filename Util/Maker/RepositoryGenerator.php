@@ -63,8 +63,6 @@ class RepositoryGenerator extends AbstractGenerator
         switch ($type){
             case 'annotations':
                 return $this->updateEntityClass($dumpExistingFiles);
-            case 'yaml':
-                return $this->updateYamlConfig($dumpExistingFiles);
         }
     }
 
@@ -72,20 +70,17 @@ class RepositoryGenerator extends AbstractGenerator
      * @param bool $dumpExistingFiles
      * @return string
      */
-    protected function updateEntityClass(bool $dumpExistingFiles = false)
+    protected function updateEntityClass(bool $dumpExistingFiles = false): string
     {
-        $file = '';
         $content = file_get_contents($this->config->getEntityFileClassPath());
         $repositoryClass = $this->config->getRepositoryClass();
 
         if(preg_match('/@ORM\\\Entity\(\)/', $content)) {
             $content = str_replace('@ORM\\Entity()', "@ORM\Entity(repositoryClass=\"{$repositoryClass}\")", $content);
-            $file = $this->writeFile($this->config->getEntityFileClassDirectory(), $this->config->getEntityFileClassName(), $content, $dumpExistingFiles);
         } elseif(preg_match('/@ORM\\\Entity\(.*repositoryClass="(.+)"\)/', $content, $matches)) {
             $content = str_replace($matches[1], $repositoryClass, $content);
-            $file = $this->writeFile($this->config->getEntityFileClassDirectory(), $this->config->getEntityFileClassName(), $content, $dumpExistingFiles);
         }
 
-        return $this->container->getParameter('kernel.project_dir').'/'.$file;
+        return $this->writeFile($this->config->getEntityFileClassDirectory(), $this->config->getEntityFileClassName(), $content, $dumpExistingFiles);;
     }
 }
