@@ -412,6 +412,8 @@ class EntityField
     {
         if ('boolean' === $this->getType()) {
             return (bool) $this->getDefault();
+        } elseif ('datetime' === $this->getType()) {
+            return null;
         }
 
         return $this->getDefault();
@@ -643,12 +645,8 @@ class EntityField
             $this->setType('float');
             $this->setPrecision($matches[1]);
             $this->setScale($matches[2]);
-        } elseif (0 === strpos($dbType, 'date')) {
-            $this->setType('\\DateTime');
-        } elseif (0 === strpos($dbType, 'datetime')) {
-            $this->setType('\\DateTime');
-        } elseif (0 === strpos($dbType, 'bool')) {
-            $this->setType('\\DateTime');
+        } elseif (in_array(strtolower($dbType), ['date', 'datetime'])) {
+            $this->setType('datetime');
         } else {
             $this->setType('string');
             $this->setLength(255);
