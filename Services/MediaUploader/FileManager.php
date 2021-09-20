@@ -25,8 +25,13 @@ class FileManager
      */
     public function getFileStreamedResponse(string $path, string $filename): Response
     {
-        // stream opening
-        $stream = fopen($path, 'r');
+        try {
+            $stream = fopen($path, 'r');
+        } catch (\Exception $e) {
+            throw new ApiProblemException(
+                new ApiProblem(Response::HTTP_NOT_FOUND, sprintf(ApiProblem::ENTITY_NOT_FOUND, $filename))
+            );
+        }
 
         $response = new StreamedResponse(function () use ($stream) {
             stream_copy_to_stream($stream, fopen('php://output', 'w'));
