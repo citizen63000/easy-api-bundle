@@ -276,7 +276,11 @@ class FormSerializer
         // force widget
         if ($attr && array_key_exists('widget', $attr) && $attr['widget']) {
             $sField->setWidget($attr['widget']);
+            if('media' === $sField->getWidget()) {
+                $sField->setLabel(self::getFieldLabel($config, $sField));
+            }
         }
+
 
         return $sField->getType() ? $sField : null;
     }
