@@ -176,12 +176,13 @@ abstract class AbstractFilterType extends AbstractApiType
      * @param $type
      * @return string
      */
-    protected static function convertEntityNativeTypeToFormFieldMethod($type)
+    protected static function convertEntityNativeTypeToFormFieldMethod($type): string
     {
         switch (strtolower($type)) {
             case 'integer':
                 return 'addIntegerFilter';
             case 'bool':
+            case 'boolean':
                 return 'addBoolFilter';
             case 'float':
                 return 'addNumberFilter';
