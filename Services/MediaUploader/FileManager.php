@@ -2,6 +2,8 @@
 
 namespace EasyApiBundle\Services\MediaUploader;
 
+use EasyApiBundle\Exception\ApiProblemException;
+use EasyApiBundle\Util\ApiProblem;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Vich\UploaderBundle\Storage\FlysystemStorage;
