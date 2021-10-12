@@ -30,7 +30,7 @@ abstract class AbstractMediaType extends AbstractApiType
                 TextType::class,
                 [
                     'label' => false,
-                    'required' => false,
+                    'required' => $options['required'],
                     'constraints' => $this->getConstraints('filename', $options),
                     'attr' => [
                         'widget' => 'filename',
@@ -101,6 +101,17 @@ abstract class AbstractMediaType extends AbstractApiType
 
         if(isset($groups['Blank'])) {
             $constraints[] =  new Assert\Blank(['groups' => $this->getGroupsForField($fieldName, $groups['Blank'])]);
+        }
+
+        // form constraints passed in parent form
+        if('filename' === $fieldName && is_array($options['constraints'])) {
+            foreach ($options['constraints'] as $constraint) {
+                if(is_string($constraint)) {
+                    $constraints[] = new $constraint();
+                } elseif(is_object($constraint)) {
+                    $constraints[] = $constraint;
+                }
+            }
         }
 
         return $constraints;
