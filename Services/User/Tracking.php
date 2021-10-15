@@ -2,12 +2,12 @@
 
 namespace EasyApiBundle\Services\User;
 
-use EasyApiBundle\Entity\User\AbstractUser as User;
+use EasyApiBundle\Entity\User\AbstractConnectionHistory;
 use EasyApiBundle\Entity\User\AbstractConnectionHistory as ConnectionHistory;
 use EasyApiBundle\Services\AbstractService;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\User\UserInterface;
 use UserAgentParser\Exception\NoResultFoundException;
-use UserAgentParser\Exception\PackageNotLoadedException;
 use UserAgentParser\Model\UserAgent;
 use UserAgentParser\Provider\WhichBrowser;
 
@@ -25,30 +25,32 @@ class Tracking extends AbstractService
     }
 
     /**
-     * @param User    $user
+     * @param UserInterface $user
      * @param Request $request
-     * @param string  $token
-     * @param bool    $isSSO
+     * @param string $token
+     * @param bool $isSSO
      *
      * @return ConnectionHistory
      *
-     * @throws PackageNotLoadedException|\Exception
+     * @throws \Exception
      */
-    public function logConnection(User $user, Request $request, string $token, bool $isSSO = false): ConnectionHistory
+    public function logConnection(UserInterface $user, Request $request, string $token, bool $isSSO = false): ConnectionHistory
     {
         $connectionHistoryClass = $this->getParameter(self::CONNECTION_HISTORY_CLASS_PARAMETER);
 
-        if(null === $connectionHistoryClass) {
+        if (null === $connectionHistoryClass) {
             throw new \Exception(self::CONNECTION_HISTORY_CLASS_PARAMETER.' must be defined to log connection');
         }
 
+        /** @var AbstractConnectionHistory $connectionHistory */
         $connectionHistory = new $connectionHistoryClass();
         $connectionHistory->setUser($user);
         $connectionHistory->setIsSSO($isSSO);
         $connectionHistory->setIp($request->getClientIp());
         $connectionHistory->setUserAgent($request->headers->get('User-Agent'));
-        $connectionHistory->setTokenValue($token); // @todo hash token
+        $connectionHistory->setTokenValue($token);
         $connectionHistory->setLoginDate(new \DateTime());
+        $connectionHistory->setLastActionDate($connectionHistory->getLoginDate());
 
         $this->updateConnectionFromUserAgent($connectionHistory);
 
@@ -60,30 +62,40 @@ class Tracking extends AbstractService
     /**
      * Update date when user execute action.
      *
-     * @param User $user
+     * @param UserInterface $user
      * @param Request $request
      * @param string $token
      *
-     * @throws PackageNotLoadedException
+     * @throws \Exception
      */
-    public function updateLastAction(User $user, Request $request, string $token)
+    public function updateLastAction(UserInterface $user, Request $request, string $token)
     {
         $connectionHistoryClass = $this->getParameter(self::CONNECTION_HISTORY_CLASS_PARAMETER);
 
-        if(null === $connectionHistoryClass) {
+        if (null === $connectionHistoryClass) {
             throw new \Exception(self::CONNECTION_HISTORY_CLASS_PARAMETER.' must be defined to log connection');
         }
 
+        $tokenId = $this->getTokenIdentifier($token);
         /** @var ConnectionHistory $connectionHistory */
-        $connectionHistory = $this->getRepository($connectionHistoryClass)->findOneBy(['user' => $user->getId(), 'tokenValue' => $token]);
+        $connectionHistory = $this->getRepository($connectionHistoryClass)->findOneBy(['user' => $user->getId(), 'tokenValue' => $tokenId]);
 
-        if(null == $connectionHistory) {
-            $connectionHistory = $this->logConnection($user, $request, $token);
+        if (null == $connectionHistory) {
+            $this->logConnection($user, $request, $tokenId);
+        } else {
+            $connectionHistory->setLastActionDate(new \DateTime());
+            $this->persistAndFlush($connectionHistory);
         }
+    }
 
-        $connectionHistory->setLastActionDate(new \DateTime());
-
-        $this->persistAndFlush($connectionHistory);
+    /**
+     * take JTI (token identifier) if exist in payload, if not exists use payload as identifier
+     * @param string $token
+     * @return mixed|string
+     */
+    private function getTokenIdentifier(string $token)
+    {
+        return explode('.', $token)[1];
     }
 
     /**

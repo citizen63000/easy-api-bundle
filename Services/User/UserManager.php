@@ -15,13 +15,10 @@ class UserManager extends AbstractService
 {
     protected AttachRefreshTokenOnSuccessListener $sendTokenService;
 
-    protected JWTAuthenticatedListener $JWTAuthenticatedListener;
-
-    public function __construct(ContainerInterface $container, TokenStorageInterface $tokenStorage, AttachRefreshTokenOnSuccessListener $sendTokenService, JWTAuthenticatedListener $JWTAuthenticatedListener)
+    public function __construct(ContainerInterface $container, TokenStorageInterface $tokenStorage, AttachRefreshTokenOnSuccessListener $sendTokenService)
     {
         parent::__construct($container, $tokenStorage);
         $this->sendTokenService = $sendTokenService;
-        $this->JWTAuthenticatedListener = $JWTAuthenticatedListener;
     }
 
     /**
@@ -41,7 +38,6 @@ class UserManager extends AbstractService
         // Generate Refresh token
         $event = new AuthenticationSuccessEvent(['token' => $token->getToken()], $user, new Response());
         $this->sendTokenService->attachRefreshToken($event);
-        $this->JWTAuthenticatedListener->onAuthenticationSuccessResponse($event);
 
         return $event->getData();
     }
