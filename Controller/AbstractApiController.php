@@ -89,7 +89,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
     {
         $entity = $this->getRepository(static::entityClass)->find($request->get('id'));
 
-        if(null === $entity) {
+        if (null === $entity) {
             throw new NotFoundHttpException(sprintf(ApiProblem::ENTITY_NOT_FOUND, 'entity'));
         }
         
@@ -144,13 +144,15 @@ abstract class AbstractApiController extends AbstractFOSRestController
      *
      * @return Response|null
      */
-    protected function getEntityFilteredListAction(Request $request,
-                                                   string $entityFilterTypeClass = null,
-                                                   string $entityClass = null,
-                                                   array $fields = null,
-                                                   array $sortFields = null,
-                                                   array $serializationGroups = null,
-                                                   FilterModel $entityFilterModel = null): Response
+    protected function getEntityFilteredListAction(
+        Request $request,
+        string $entityFilterTypeClass = null,
+        string $entityClass = null,
+        array $fields = null,
+        array $sortFields = null,
+        array $serializationGroups = null,
+        FilterModel $entityFilterModel = null
+    ): Response
     {
         // type & model
         $entityFilterTypeClass = $entityFilterTypeClass ?? static::entityFilterTypeClass;
@@ -169,7 +171,6 @@ abstract class AbstractApiController extends AbstractFOSRestController
         $form->submit($request->query->all());
 
         if ($form->isValid()) {
-
             try {
                 $result = $this->get(static::filterService)->filter($form, $entityClass);
             } catch (NoResultException | NonUniqueResultException $e) {
@@ -197,10 +198,9 @@ abstract class AbstractApiController extends AbstractFOSRestController
         $form->submit($request->request->all());
 
         if ($form->isValid()) {
-
             $entity = $this->persistAndFlush($form->getData());
 
-            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [],Response::HTTP_CREATED);
+            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [], Response::HTTP_CREATED);
         }
 
         $this->throwUnprocessableEntity($form);
@@ -221,10 +221,9 @@ abstract class AbstractApiController extends AbstractFOSRestController
         $form->submit($request->request->all(), false);
 
         if ($form->isValid()) {
-
             $entity = $this->persistAndFlush($entity);
 
-            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [],Response::HTTP_OK);
+            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [], Response::HTTP_OK);
         }
 
         $this->throwUnprocessableEntity($form);
@@ -251,7 +250,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
     {
         $entity = $this->persistAndFlush(clone $entity);
 
-        return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [],Response::HTTP_CREATED);
+        return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [], Response::HTTP_CREATED);
     }
 
     /**
