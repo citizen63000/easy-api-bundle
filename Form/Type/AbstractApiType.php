@@ -217,9 +217,13 @@ abstract class AbstractApiType extends AbstractType
     {
         $data = $event->getData();
 
+        // set media entity to null on container entity
         foreach ($this->valuesToSetNull as $fieldName) {
             $data->{'set'.ucfirst($fieldName)}(null);
             $event->setData($data);
         }
+
+        // clean for the next form
+        $this->valuesToSetNull = [];
     }
 }
