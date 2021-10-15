@@ -178,7 +178,6 @@ abstract class AbstractApiType extends AbstractType
      */
     public function managePreSubmitAbstractMediaFiles(FormEvent $event)
     {
-
         $data = $event->getData();
         $form = $event->getForm();
 
@@ -189,12 +188,12 @@ abstract class AbstractApiType extends AbstractType
         foreach ($form as $name => $child) {
             $config = $child->getConfig();
             $type = $config->getType();
-            if($type->getInnerType() instanceof AbstractMediaType) {
-                if(array_key_exists($name, $data)) {
-                    if(is_array($data[$name])) {
+            if ($type->getInnerType() instanceof AbstractMediaType) {
+                if (array_key_exists($name, $data)) {
+                    if (is_array($data[$name])) {
                         $filename = $data[$name]['filename'] ?? null;
                         $file = $data[$name]['file'] ?? null;
-                        if(null === $filename && null === $file) {
+                        if (null === $filename && null === $file) {
                             $data[$name] = null;
                             $this->valuesToSetNull[] = $name;
                         }
