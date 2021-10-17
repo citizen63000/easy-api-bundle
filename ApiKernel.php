@@ -24,7 +24,6 @@ class ApiKernel extends Kernel
             new \Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new \Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new \Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
-            new \Gesdinet\JWTRefreshTokenBundle\GesdinetJWTRefreshTokenBundle(),
             new \FOS\RestBundle\FOSRestBundle(),
             new \Nelmio\CorsBundle\NelmioCorsBundle(),
             new \FOS\UserBundle\FOSUserBundle(),
