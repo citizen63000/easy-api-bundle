@@ -41,15 +41,16 @@ class JWSProvider implements JWSProviderInterface
     protected $userIdentityField;
 
     /**
-     * @param KeyLoaderInterface    $keyLoader
-     * @param string                $cryptoEngine
-     * @param string                $signatureAlgorithm
-     * @param int                   $ttl
-     * @param string                $authorizationHeaderPrefix
+     * @param KeyLoaderInterface $keyLoader
+     * @param string $cryptoEngine
+     * @param string $signatureAlgorithm
+     * @param int $ttl
+     * @param string $authorizationHeaderPrefix
      * @param TokenStorageInterface $tokenStorage
-     * @param EntityManager         $entityManager
-     *
-     * @throws \InvalidArgumentException If the given algorithm is not supported
+     * @param EntityManager $entityManager
+     * @param string $userClass
+     * @param string $userIdentityField
+     * @todo remove fields used for token generation
      */
     public function __construct(KeyLoaderInterface $keyLoader, $cryptoEngine, $signatureAlgorithm, $ttl, $authorizationHeaderPrefix, TokenStorageInterface $tokenStorage, EntityManager $entityManager, string $userClass, string $userIdentityField)
     {
@@ -71,16 +72,18 @@ class JWSProvider implements JWSProviderInterface
     }
 
     /**
+     * @todo remove it
      * @param User $user
      * @return CreatedJWS
      */
-    public function generateTokenByUser(User $user)
+    public function generateTokenByUser(User $user): CreatedJWS
     {
         $identityGetter = 'get'.ucfirst($this->userIdentityField);
         return $this->create(['roles' => $user->getRoles(), $this->userIdentityField => $user->$identityGetter()]);
     }
 
     /**
+     * @todo remove it
      * {@inheritdoc}
      */
     public function create(array $payload, array $header = [])
@@ -114,7 +117,7 @@ class JWSProvider implements JWSProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function load($token)
+    public function load($token): LoadedJWS
     {
         $jws = JWS::load($token, false, null, $this->cryptoEngine);
 
@@ -130,7 +133,7 @@ class JWSProvider implements JWSProviderInterface
      *
      * @return bool
      */
-    private function isAlgorithmSupportedForEngine($cryptoEngine, $signatureAlgorithm)
+    private function isAlgorithmSupportedForEngine(string $cryptoEngine, string $signatureAlgorithm): bool
     {
         return class_exists("Namshi\\JOSE\\Signer\\{$cryptoEngine}\\{$signatureAlgorithm}");
     }
