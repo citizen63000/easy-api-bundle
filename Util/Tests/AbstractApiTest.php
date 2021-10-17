@@ -43,7 +43,7 @@ abstract class AbstractApiTest extends WebTestCase
     public const USER_NORULES_TEST_EMAIL = 'api-tests-no-rules@example.com';
     public const USER_NORULES_TEST_PASSWORD = 'u-norules-pwd';
 
-    public const TOKEN_ROUTE_NAME = 'fos_user_security_check';
+    public const TOKEN_ROUTE_NAME = 'api_login';
 
     public const DEBUG_LEVEL_SIMPLE = 1;
     public const DEBUG_LEVEL_ADVANCED = 2;

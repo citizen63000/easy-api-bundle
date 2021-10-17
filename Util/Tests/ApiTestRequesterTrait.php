@@ -212,7 +212,7 @@ trait ApiTestRequesterTrait
             $credentials = ['username' => $username, 'password' => $password];
 
             self::logDebug("\e[32m[USR]\e[0m🔑 Log in with : \e[32m{$username}\e[0m // \e[32m{$password}\e[0m", self::DEBUG_LEVEL_ADVANCED);
-            $response = self::executeRequest('POST', ['name' => 'fos_user_security_check'], $credentials, false);
+            $response = self::executeRequest('POST', ['name' => static::TOKEN_ROUTE_NAME], $credentials, false);
             $tokenAuth = $response->getData();
 
             if (null === $tokenAuth) {

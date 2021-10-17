@@ -13,17 +13,18 @@ class UserProvider implements UserProviderInterface
     /** @var EntityManagerInterface  */
     protected EntityManagerInterface $entityManager;
 
-    protected UserManagerInterface $userManager;
+    /** @var string  */
+    protected string $userClass;
 
     /**
      * UserProvider constructor.
      * @param EntityManagerInterface $entityManager
-     * @param UserManagerInterface $userManager
+     * @param string $userClass
      */
-    public function __construct(EntityManagerInterface $entityManager, UserManagerInterface $userManager)
+    public function __construct(EntityManagerInterface $entityManager, string $userClass)
     {
         $this->entityManager = $entityManager;
-        $this->userManager = $userManager;
+        $this->userClass = $userClass;
     }
 
     /**
@@ -31,7 +32,7 @@ class UserProvider implements UserProviderInterface
      */
     protected function getUserClass(): ?string
     {
-        return $this->userManager->getClass();
+        return $this->userClass;
     }
 
     /**
