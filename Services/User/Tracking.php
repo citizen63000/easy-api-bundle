@@ -83,8 +83,11 @@ class Tracking extends AbstractService
         if (null == $connectionHistory) {
             $this->logConnection($user, $request, $tokenId);
         } else {
-            $connectionHistory->setLastActionDate(new \DateTime());
-            $this->persistAndFlush($connectionHistory);
+            $currentDate = new \DateTime();
+            if ($currentDate->format('Y-m-d H:i:s') !== $connectionHistory->getLastActionDate()->format('Y-m-d H:i:s')) {
+                $connectionHistory->setLastActionDate($currentDate);
+                $this->persistAndFlush($connectionHistory);
+            }
         }
     }
 
@@ -93,7 +96,7 @@ class Tracking extends AbstractService
      * @param string $token
      * @return mixed|string
      */
-    private function getTokenIdentifier(string $token)
+    public function getTokenIdentifier(string $token)
     {
         return explode('.', $token)[1];
     }
