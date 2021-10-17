@@ -2,11 +2,9 @@
 
 namespace EasyApiBundle\Services\JWS;
 
-use Doctrine\ORM\EntityManager;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWSProvider\JWSProviderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\KeyLoader\KeyLoaderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Signature\LoadedJWS;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Namshi\JOSE\JWS;
 
 class JWSProvider implements JWSProviderInterface
@@ -20,36 +18,16 @@ class JWSProvider implements JWSProviderInterface
     /** @var string */
     protected string $signatureAlgorithm;
 
-    /** @var int */
-    protected int $ttl;
-
     /** @var string */
     protected string $authorizationHeaderPrefix;
-
-    /** @var TokenStorageInterface */
-    protected TokenStorageInterface $tokenStorage;
-
-    /** @var EntityManager */
-    protected EntityManager $em;
-
-    /** @var string */
-    protected string $userClass;
-
-    /** @var string */
-    protected string $userIdentityField;
 
     /**
      * @param KeyLoaderInterface $keyLoader
      * @param string $cryptoEngine
      * @param string $signatureAlgorithm
-     * @param int $ttl
      * @param string $authorizationHeaderPrefix
-     * @param TokenStorageInterface $tokenStorage
-     * @param EntityManager $entityManager
-     * @param string $userClass
-     * @param string $userIdentityField
      */
-    public function __construct(KeyLoaderInterface $keyLoader, string $cryptoEngine, string $signatureAlgorithm, int $ttl, string $authorizationHeaderPrefix, TokenStorageInterface $tokenStorage, EntityManager $entityManager, string $userClass, string $userIdentityField)
+    public function __construct(KeyLoaderInterface $keyLoader, string $cryptoEngine, string $signatureAlgorithm, string $authorizationHeaderPrefix)
     {
         $cryptoEngine = 'openssl' === $cryptoEngine ? 'OpenSSL' : 'SecLib';
 
@@ -60,12 +38,7 @@ class JWSProvider implements JWSProviderInterface
         $this->keyLoader = $keyLoader;
         $this->cryptoEngine = $cryptoEngine;
         $this->signatureAlgorithm = $signatureAlgorithm;
-        $this->ttl = $ttl;
         $this->authorizationHeaderPrefix = $authorizationHeaderPrefix;
-        $this->tokenStorage = $tokenStorage;
-        $this->em = $entityManager;
-        $this->userClass = $userClass;
-        $this->userIdentityField = $userIdentityField;
     }
 
     /**
