@@ -48,7 +48,7 @@ class ApiKernel extends Kernel
      */
     public function getCacheDir(): string
     {
-        return dirname($this->getRootDir()).'/var/cache/'.$this->getEnvironment();
+        return dirname($this->getRootDir())."/var/cache/{$this->getEnvironment()}";
     }
 
     /**
@@ -71,6 +71,6 @@ class ApiKernel extends Kernel
 
             $container->addObjectResource($this);
         });
-        $loader->load($this->getRootDir().'/config/config_'.$this->getEnvironment().'.yml');
+        $loader->load($this->getRootDir()."/config/config_{$this->getEnvironment()}.yml");
     }
 }
