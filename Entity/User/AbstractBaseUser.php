@@ -39,7 +39,7 @@ abstract class AbstractBaseUser extends AbstractBaseUniqueEntity implements User
 
     /**
      * @var array
-     * @ORM\Column(type="JsonType")
+     * @ORM\Column(type="array")
      */
     protected array $roles;
 
@@ -54,13 +54,19 @@ abstract class AbstractBaseUser extends AbstractBaseUniqueEntity implements User
     }
 
     /** Implement it if necessary */
-    public function getPassword(){}
+    public function getPassword()
+    {
+    }
 
     /** Implement it if necessary */
-    public function getSalt(){}
+    public function getSalt()
+    {
+    }
 
     /** Implement it if necessary */
-    public function eraseCredentials(){}
+    public function eraseCredentials()
+    {
+    }
 
     /**
      * @return string
