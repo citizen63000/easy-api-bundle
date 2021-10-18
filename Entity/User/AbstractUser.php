@@ -170,7 +170,7 @@ abstract class AbstractUser extends AbstractBaseUniqueEntity implements UserInte
     /**
      * {@inheritdoc}
      */
-    public function isAdmin()
+    public function isAdmin(): bool
     {
         return $this->hasRole(static::ROLE_ADMIN) || $this->hasRole(static::ROLE_SUPER_ADMIN);
     }
@@ -178,7 +178,7 @@ abstract class AbstractUser extends AbstractBaseUniqueEntity implements UserInte
     /**
      * {@inheritdoc}
      */
-    public function isSuperAdmin()
+    public function isSuperAdmin(): bool
     {
         return $this->hasRole(static::ROLE_SUPER_ADMIN);
     }
