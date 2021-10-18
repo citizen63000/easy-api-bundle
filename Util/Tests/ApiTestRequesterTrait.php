@@ -3,7 +3,6 @@
 namespace EasyApiBundle\Util\Tests;
 
 use EasyApiBundle\Services\JWS\JWSProvider;
-use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -53,17 +52,16 @@ trait ApiTestRequesterTrait
      *
      * @param string $method HTTP method
      * @param string|array $route Route to call
-     * @param array|string $content Content body if needed
+     * @param null $content Content body if needed
      * @param bool $withToken Defines if a token is required or not (need to login first)
-     * @param string $formatIn Input data format <=> Content-type header, see {@link Format} (Default : JSON)
-     * @param string $formatOut Output data format <=> Accept header, see {@link Format} (Default : JSON)
-     * @param array $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
+     * @param string|null $formatIn Input data format <=> Content-type header, see {@link Format} (Default : JSON)
+     * @param string|null $formatOut Output data format <=> Accept header, see {@link Format} (Default : JSON)
+     * @param array|null $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
      *                                       defined by formatIn and formatOut if necessary)
      *
      * @return ApiOutput
      *
      * @throws \Exception
-     *
      * @see https://github.com/DarwinOnLine/symfony-flex-api/blob/master/symfony/tests/AbstractApiTest.php
      * @see https://github.com/DarwinOnLine/symfony-flex-api/blob/master/symfony/src/Utils/ApiOutput.php
      */
