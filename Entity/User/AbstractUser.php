@@ -12,7 +12,7 @@ use \Symfony\Component\Security\Core\User\UserInterface;
  * @UniqueEntity(fields="username", message=EasyApiBundle\Util\ApiProblem::USER_USERNAME_ALREADY_EXISTS)
  * @UniqueEntity(fields="email", message=EasyApiBundle\Util\ApiProblem::USER_EMAIL_ALREADY_EXISTS)
  */
-abstract class AbstractBaseUser extends AbstractBaseUniqueEntity implements UserInterface
+abstract class AbstractUser extends AbstractBaseUniqueEntity implements UserInterface
 {
     public const ROLE_BASIC_USER = 'ROLE_BASIC_USER';
     public const ROLE_DEFAULT = 'ROLE_USER';
@@ -20,16 +20,16 @@ abstract class AbstractBaseUser extends AbstractBaseUniqueEntity implements User
     public const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string")
      */
-    protected string $username;
+    protected ?string $username = null;
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string")
      */
-    protected string $email;
+    protected ?string $email = null;
 
     /**
      * @var bool
@@ -41,17 +41,7 @@ abstract class AbstractBaseUser extends AbstractBaseUniqueEntity implements User
      * @var array
      * @ORM\Column(type="array")
      */
-    protected array $roles;
-
-    /**
-     * User constructor.
-     */
-    public function __construct()
-    {
-        parent::__construct();
-        $this->enabled = false;
-        $this->roles = [];
-    }
+    protected array $roles = [];
 
     /** Implement it if necessary */
     public function getPassword()
