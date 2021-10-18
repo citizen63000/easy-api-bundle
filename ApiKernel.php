@@ -9,6 +9,10 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 
 class ApiKernel extends Kernel
 {
+    protected const PROD_ENVIRONMENT_NAME = 'prod';
+    protected const DEV_ENVIRONMENT_NAME = 'dev';
+    protected const TEST_ENVIRONMENT_NAME = 'test';
+
     /**
      * @return array|iterable|BundleInterface[]
      */
@@ -33,7 +37,7 @@ class ApiKernel extends Kernel
             new \Oneup\FlysystemBundle\OneupFlysystemBundle(),
         ];
 
-        if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
+        if (static::TEST_ENVIRONMENT_NAME === $this->environment || static::DEV_ENVIRONMENT_NAME === $this->environment) {
             $bundles[] = new \Symfony\Bundle\DebugBundle\DebugBundle();
             $bundles[] = new \Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
         }
@@ -66,9 +70,8 @@ class ApiKernel extends Kernel
         $loader->load(function (ContainerBuilder $container) {
             $container->setParameter('container.autowiring.strict_mode', true);
             $container->setParameter('container.dumper.inline_class_loader', true);
-
             $container->addObjectResource($this);
         });
-        $loader->load($this->getRootDir()."/config/config_{$this->getEnvironment()}.yml");
+        $loader->load("{$this->getRootDir()}/config/config_{$this->getEnvironment()}.yml");
     }
 }
