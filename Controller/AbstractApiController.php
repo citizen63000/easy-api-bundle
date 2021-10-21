@@ -6,6 +6,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use EasyApiBundle\Form\Model\FilterModel;
+use EasyApiBundle\Form\Serializer\FormErrorsSerializer;
 use EasyApiBundle\Form\Type\FilterType;
 use EasyApiBundle\Model\FilterResult;
 use EasyApiBundle\Services\ListFilter;
@@ -13,7 +14,6 @@ use EasyApiBundle\Services\MediaUploader\FileManager;
 use EasyApiBundle\Util\Forms\FormSerializer;
 use EasyApiBundle\Util\Forms\SerializedForm;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
-use FOS\UserBundle\Model\User;
 use EasyApiBundle\Exception\ApiProblemException;
 use EasyApiBundle\Util\ApiProblem;
 use EasyApiBundle\Util\CoreUtilsTrait;
@@ -22,13 +22,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Class AbstractApiController
  * @package EasyApiBundle\Controller
- * @method User|null getUser() Gets the current User.
+ * @method UserInterface|null getUser() Gets the current User.
  */
 abstract class AbstractApiController extends AbstractFOSRestController
 {
@@ -326,7 +327,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
         throw new ApiProblemException(
             new ApiProblem(
                 Response::HTTP_UNPROCESSABLE_ENTITY,
-                $this->get('app.form_errors_serializer')->serializeFormErrors($form, true, true)
+                $this->get(FormErrorsSerializer::class)->serializeFormErrors($form, true, true)
             )
         );
     }
@@ -382,11 +383,15 @@ abstract class AbstractApiController extends AbstractFOSRestController
     }
 
     /**
-     * Add dynamically Filter service
+     * Add dynamically needed services
      * @return string[]
      */
     public static function getSubscribedServices(): array
     {
-        return array_merge(parent::getSubscribedServices(), [static::filterService => static::filterService, FileManager::class => FileManager::class]);
+        return array_merge(parent::getSubscribedServices(), [
+            static::filterService => static::filterService
+            , FileManager::class => FileManager::class
+            , FormErrorsSerializer::class => FormErrorsSerializer::class
+        ]);
     }
 }

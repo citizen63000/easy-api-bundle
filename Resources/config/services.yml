@@ -87,8 +87,7 @@ services:
     arguments: ['@doctrine.orm.entity_manager', '%easy_api.user_class%']
 
   # Form errors serializer
-  app.form_errors_serializer:
-    class: EasyApiBundle\Form\Serializer\FormErrorsSerializer
+  EasyApiBundle\Form\Serializer\FormErrorsSerializer:
     arguments: ['@logger']
     public: true
 #
@@ -108,13 +107,7 @@ services:
     tags:
       - { name: kernel.event_subscriber }
 
-  # Manage users
-  EasyApiBundle\Services\User\UserManager:
-    public: true
-    arguments: ['@service_container', '@security.token_storage', '@gesdinet.jwtrefreshtoken.send_token']
-
-  app.user.tracking:
-    class: EasyApiBundle\Services\User\Tracking
+  EasyApiBundle\Services\User\Tracking:
     public: true
     arguments: ['@service_container', '@security.token_storage']
 
