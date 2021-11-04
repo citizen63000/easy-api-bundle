@@ -8,6 +8,7 @@ use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Form\Type\FilterType;
 use EasyApiBundle\Model\FilterResult;
+use EasyApiBundle\Services\EntitySerializer;
 use EasyApiBundle\Services\ListFilter;
 use EasyApiBundle\Services\MediaUploader\FileManager;
 use EasyApiBundle\Util\Forms\FormSerializer;
@@ -23,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -387,24 +389,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
      */
     protected function serializeEntity($entity, array $context, bool $useCache = false, bool $forceCacheReload = false): string
     {
-        try {
-            if ($useCache && is_object($entity)) {
-                $cachedContent = $this->getCache()->getItem(static::getSerializerCacheName($entity));
-                if (!$cachedContent->isHit() || $forceCacheReload) {
-                    $serializedEntity = $this->getSerializer()->serialize($entity, 'json', $context);
-                    $cachedContent->set($serializedEntity);
-                    $this->getCache()->save($cachedContent);
-                } else {
-                    $serializedEntity = $cachedContent->get();
-                }
-            } else {
-                $serializedEntity = $this->getSerializer()->serialize($entity, 'json', $context);
-            }
-        } catch (\Exception | InvalidArgumentException $e) {
-            $serializedEntity = $this->getSerializer()->serialize($entity, 'json', $context);
-        }
-
-        return $serializedEntity;
+        return $this->get(EntitySerializer::class)->serializeEntity($entity, $context, JsonEncoder::FORMAT, $useCache, $forceCacheReload);
     }
 
     /**
@@ -414,19 +399,10 @@ abstract class AbstractApiController extends AbstractFOSRestController
     {
         if (static::useSerializerCache) {
             try {
-                $this->getCache()->deleteItem(static::getSerializerCacheName($entity));
+                $this->get(EntitySerializer::class)->clearCache($entity);
             } catch (\Exception | InvalidArgumentException $e) {
             }
         }
-    }
-
-    /**
-     * @param $entity
-     * @return string
-     */
-    protected static function getSerializerCacheName($entity): string
-    {
-        return 'easySerializerCache.'.str_replace('\\', '_', get_class($entity)).".{$entity->getId()}";
     }
 
     /**
@@ -453,6 +429,10 @@ abstract class AbstractApiController extends AbstractFOSRestController
      */
     public static function getSubscribedServices(): array
     {
-        return array_merge(parent::getSubscribedServices(), [static::filterService => static::filterService, FileManager::class => FileManager::class]);
+        return array_merge(parent::getSubscribedServices(), [
+            static::filterService => static::filterService,
+            FileManager::class => FileManager::class,
+            EntitySerializer::class => EntitySerializer::class,
+        ]);
     }
 }

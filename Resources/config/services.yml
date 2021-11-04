@@ -26,6 +26,9 @@ services:
     public: true
     arguments: ['@service_container', '@security.token_storage']
 
+  EasyApiBundle\Services\EntitySerializer:
+    public: true
+
   app.jwt_authentication.jws_provider:
     class: EasyApiBundle\Services\JWS\JWSProvider
     public: true
