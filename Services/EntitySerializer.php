@@ -10,6 +10,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class EntitySerializer
 {
+    protected const CACHE_NAME_PREFIX = 'easySerializerCache.';
     protected SerializerInterface $serializer;
     protected AdapterInterface $cache;
 
@@ -58,7 +59,7 @@ class EntitySerializer
      */
     public static function getSerializerCacheName(object $entity): string
     {
-        return 'easySerializerCache.'.str_replace('\\', '_', get_class($entity)).".{$entity->getId()}";
+        return self::CACHE_NAME_PREFIX.str_replace('\\', '_', get_class($entity)).".{$entity->getId()}";
     }
 
     /**
@@ -86,5 +87,13 @@ class EntitySerializer
     public function clearCache(object $entity)
     {
         $this->cache->deleteItem(static::getSerializerCacheName($entity));
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function clearAllCaches()
+    {
+        $this->cache->deleteItem(self::CACHE_NAME_PREFIX.'*');
     }
 }
