@@ -51,15 +51,13 @@ abstract class AbstractMediaType extends AbstractApiType
             )
         ;
 
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
-
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
             $data = $event->getData();
 
-            if(null !== $data && isset($data['file']) && isset($data['filename'])) {
+            if (null !== $data && isset($data['file']) && isset($data['filename'])) {
                 $data['file'] = self::convertBase64ToUploadedFile($data['file'], $data['filename']);
                 $event->setData($data);
             }
-
         });
     }
 
@@ -95,20 +93,20 @@ abstract class AbstractMediaType extends AbstractApiType
         $groups = is_array($options['validation_groups']) ? $options['validation_groups'] : [];
         $constraints = [];
 
-        if(isset($groups['NotBlank'])) {
+        if (isset($groups['NotBlank'])) {
             $constraints[] =  new Assert\NotBlank(['groups' => $this->getGroupsForField($fieldName, $groups['NotBlank'])]);
         }
 
-        if(isset($groups['Blank'])) {
+        if (isset($groups['Blank'])) {
             $constraints[] =  new Assert\Blank(['groups' => $this->getGroupsForField($fieldName, $groups['Blank'])]);
         }
 
         // form constraints passed in parent form
-        if('filename' === $fieldName && is_array($options['constraints'])) {
+        if ('filename' === $fieldName && is_array($options['constraints'])) {
             foreach ($options['constraints'] as $constraint) {
-                if(is_string($constraint)) {
+                if (is_string($constraint)) {
                     $constraints[] = new $constraint();
-                } elseif(is_object($constraint)) {
+                } elseif (is_object($constraint)) {
                     $constraints[] = $constraint;
                 }
             }
@@ -126,15 +124,14 @@ abstract class AbstractMediaType extends AbstractApiType
      */
     private function getGroupsForField(string $fieldName, array $groups)
     {
-        if(count($groups)) {
-
-            if(isset($groups[$fieldName])) {
+        if (count($groups)) {
+            if (isset($groups[$fieldName])) {
                 return $groups[$fieldName];
             }
 
             $fields = ['filename', 'file'];
             foreach ($groups as $key => $group) {
-                if(!in_array($key, $fields, true) && !is_int($key)) {
+                if (!in_array($key, $fields, true) && !is_int($key)) {
                     throw new \Exception("{$this->getBlockPrefix()}.options.validation_groups.{$key}.invalid");
                 }
             }
