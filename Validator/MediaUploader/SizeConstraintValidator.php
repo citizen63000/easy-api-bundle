@@ -6,7 +6,7 @@ use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
-class MimeConstraintValidator extends ConstraintValidator
+class SizeConstraintValidator extends ConstraintValidator
 {
     /**
      * @param AbstractMedia $entity
@@ -14,10 +14,9 @@ class MimeConstraintValidator extends ConstraintValidator
      */
     public function validate($entity, Constraint $constraint)
     {
-        $mimeTypes = $entity->getMimeTypes();
-        if ($file = $entity->getFile() && !empty($mimeTypes)) {
-            if (!in_array($file->getMimeType(), $mimeTypes)) {
-                $this->context->buildViolation(MimeConstraint::forbidden)->atPath('file')->addViolation();
+        if ($file = $entity->getFile()) {
+            if ($file->getSize() > $entity->getMaxSize()) {
+                $this->context->buildViolation(SizeConstraint::INVALID_MAX_SIZE)->atPath('file')->addViolation();
             }
         }
     }

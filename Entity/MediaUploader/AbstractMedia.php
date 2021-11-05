@@ -18,7 +18,11 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     /** @var string directory namer service to use */
     protected const directoryNamer = null;
 
-    public static $mimeTypes = [];
+    /** @var array  */
+    public static array $mimeTypes = [];
+
+    /** @var int|null  */
+    public static ?int $maxsize = null;
 
     /**
      * File namer to use : custom service or Vich namer
@@ -168,5 +172,13 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     public function getMimeTypes(): array
     {
         return static::$mimeTypes;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getMaxSize(): ?int
+    {
+        return static::$maxsize;
     }
 }
