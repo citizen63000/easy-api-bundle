@@ -2,6 +2,7 @@
 
 namespace EasyApiBundle\Services;
 
+use EasyApiBundle\Entity\AbstractBaseEntity;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\CacheItem;
@@ -26,14 +27,14 @@ class EntitySerializer
     }
 
     /**
-     * @param object $entity
+     * @param AbstractBaseEntity $entity
      * @param array $context
      * @param string $format
      * @param bool $useCache
      * @param bool $forceCacheReload
      * @return string
      */
-    public function serializeEntity(object $entity, array $context, string $format = JsonEncoder::FORMAT, bool $useCache = false, bool $forceCacheReload = false): string
+    public function serializeEntity(AbstractBaseEntity $entity, array $context, string $format = JsonEncoder::FORMAT, bool $useCache = false, bool $forceCacheReload = false): string
     {
         try {
             if ($useCache && is_object($entity)) {
@@ -54,23 +55,23 @@ class EntitySerializer
     }
 
     /**
-     * @param object $entity
+     * @param AbstractBaseEntity $entity
      * @return string
      */
-    public static function getSerializerCacheName(object $entity): string
+    public static function getSerializerCacheName(AbstractBaseEntity $entity): string
     {
         return self::CACHE_NAME_PREFIX.str_replace('\\', '_', get_class($entity)).".{$entity->getId()}";
     }
 
     /**
-     * @param object $entity
+     * @param AbstractBaseEntity $entity
      * @param array $context
      * @param string|null $format
      * @param CacheItem|null $item
      * @return string
      * @throws InvalidArgumentException
      */
-    public function initCache(object $entity, array $context, string $format = JsonEncoder::FORMAT, CacheItem $item = null): string
+    public function initCache(AbstractBaseEntity $entity, array $context, string $format = JsonEncoder::FORMAT, CacheItem $item = null): string
     {
         $item = $item ?? $this->cache->getItem(static::getSerializerCacheName($entity));
         $serializedEntity = $this->serializer->serialize($entity, $format, $context);
@@ -81,10 +82,10 @@ class EntitySerializer
     }
 
     /**
-     * @param object $entity
+     * @param AbstractBaseEntity $entity
      * @throws InvalidArgumentException
      */
-    public function clearCache(object $entity)
+    public function clearCache(AbstractBaseEntity $entity)
     {
         $this->cache->deleteItem(static::getSerializerCacheName($entity));
     }

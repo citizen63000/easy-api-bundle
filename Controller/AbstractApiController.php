@@ -4,6 +4,7 @@ namespace EasyApiBundle\Controller;
 
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use EasyApiBundle\Entity\AbstractBaseEntity;
 use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Form\Type\FilterType;
@@ -389,7 +390,11 @@ abstract class AbstractApiController extends AbstractFOSRestController
      */
     protected function serializeEntity($entity, array $context, bool $useCache = false, bool $forceCacheReload = false): string
     {
-        return $this->get(EntitySerializer::class)->serializeEntity($entity, $context, JsonEncoder::FORMAT, $useCache, $forceCacheReload);
+        if ($entity instanceof AbstractBaseEntity) {
+            return $this->get(EntitySerializer::class)->serializeEntity($entity, $context, JsonEncoder::FORMAT, $useCache, $forceCacheReload);
+        } else {
+            return $this->getSerializer()->serialize($entity, JsonEncoder::FORMAT, $context);
+        }
     }
 
     /**
