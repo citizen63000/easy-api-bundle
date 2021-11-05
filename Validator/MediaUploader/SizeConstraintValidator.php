@@ -14,8 +14,9 @@ class SizeConstraintValidator extends ConstraintValidator
      */
     public function validate($entity, Constraint $constraint)
     {
-        if ($file = $entity->getFile()) {
-            if ($file->getSize() > $entity->getMaxSize()) {
+        $maxSize = $entity->getMaxSize();
+        if ($file = $entity->getFile() && null !== $maxSize) {
+            if ($file->getSize() > $maxSize) {
                 $this->context->buildViolation(SizeConstraint::INVALID_MAX_SIZE)->atPath('file')->addViolation();
             }
         }
