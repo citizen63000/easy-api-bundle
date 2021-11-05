@@ -3,6 +3,8 @@
 namespace EasyApiBundle\Form\Type\MediaUploader;
 
 use EasyApiBundle\Form\Type\AbstractApiType;
+use EasyApiBundle\Validator\MediaUploader\MimeConstraint;
+use EasyApiBundle\Validator\MediaUploader\SizeConstraint;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -10,6 +12,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -59,6 +62,16 @@ abstract class AbstractMediaType extends AbstractApiType
                 $event->setData($data);
             }
         });
+    }
+
+    /**
+     * @param OptionsResolver $resolver
+     */
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        parent::configureOptions($resolver);
+
+        $resolver->setDefault('constraints', [new MimeConstraint(), new SizeConstraint()]);
     }
 
     /**
