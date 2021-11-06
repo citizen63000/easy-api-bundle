@@ -4,8 +4,7 @@ namespace EasyApiBundle\Form\Type\MediaUploader;
 
 use EasyApiBundle\Form\Type\AbstractApiType;
 use EasyApiBundle\Util\FileUtils\MimeUtil;
-use EasyApiBundle\Validator\MediaUploader\MimeConstraint;
-use EasyApiBundle\Validator\MediaUploader\SizeConstraint;
+use EasyApiBundle\Util\StringUtils\CaseConverter;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -13,7 +12,6 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -36,9 +34,7 @@ abstract class AbstractMediaType extends AbstractApiType
                     'label' => false,
                     'required' => $options['required'],
                     'constraints' => $this->getConstraints('filename', $options),
-                    'attr' => [
-                        'widget' => 'filename',
-                    ],
+                    'attr' => ['widget' => 'filename'],
                 ]
             )
             ->add(
@@ -48,12 +44,7 @@ abstract class AbstractMediaType extends AbstractApiType
                     'label' => false,
                     'required' => false,
                     'constraints' => $this->getConstraints('file', $options),
-                    'attr' => [
-                        'widget' => 'file',
-                        'mime_types' => static::$dataClass::getMimeTypes(),
-                        'extensions' => MimeUtil::getMimesExtentions(static::$dataClass::getMimeTypes()),
-                        'max_size' => static::$dataClass::getMaxSize(),
-                    ],
+                    'attr' => static::getFileAttr()
                 ]
             )
         ;
@@ -67,16 +58,6 @@ abstract class AbstractMediaType extends AbstractApiType
             }
         });
     }
-
-//    /**
-//     * @param OptionsResolver $resolver
-//     */
-//    public function configureOptions(OptionsResolver $resolver)
-//    {
-//        parent::configureOptions($resolver);
-//
-//        $resolver->setDefault('constraints', [new MimeConstraint(), new SizeConstraint()]);
-//    }
 
     /**
      * transform the base64 to uploadedFile
@@ -128,33 +109,60 @@ abstract class AbstractMediaType extends AbstractApiType
                 }
             }
         } elseif ('file' === $fieldName) {
-            $assertOptions = [];
-
-            $mimeTypes = static::$dataClass::getMimeTypes();
-            if (!empty($mimeTypes)) {
-                $assertOptions['mimeTypes'] = $mimeTypes;
-            }
-            if ($maxSize = static::$dataClass::getMaxSize()) {
-                $assertOptions['maxSize'] = $maxSize;
-            }
-
-            if (static::$dataClass::isImage()) {
-                $optionNames = ['minWidth', 'maxWidth', 'minHeight', 'maxHeight', 'minRatio', 'maxRatio'];
-                foreach ($optionNames as $optionName) {
-                    $method = 'get'.ucfirst($optionName);
-                    $value = static::$dataClass::$method();
-                    if (null !== $value) {
-                        $assertOptions[$optionName] = $value;
-                    }
-                }
-            }
-
+            $assertOptions = static::getFileValidationOptions();
             if (!empty($assertOptions)) {
                 $constraints[] = static::$dataClass::isImage() ? new Assert\Image($assertOptions) : new Assert\File($assertOptions);
             }
         }
 
         return $constraints;
+    }
+
+    /**
+     * @return array
+     */
+    protected static function getFileValidationOptions(): array
+    {
+        $assertOptions = [];
+
+        $mimeTypes = static::$dataClass::getMimeTypes();
+        if (!empty($mimeTypes)) {
+            $assertOptions['mimeTypes'] = $mimeTypes;
+        }
+        if ($maxSize = static::$dataClass::getMaxSize()) {
+            $assertOptions['maxSize'] = $maxSize;
+        }
+
+        if (static::$dataClass::isImage()) {
+            $optionNames = ['minWidth', 'maxWidth', 'minHeight', 'maxHeight', 'minRatio', 'maxRatio'];
+            foreach ($optionNames as $optionName) {
+                $method = 'get'.ucfirst($optionName);
+                $value = static::$dataClass::$method();
+                if (null !== $value) {
+                    $assertOptions[$optionName] = $value;
+                }
+            }
+        }
+
+        return $assertOptions;
+    }
+
+    /**
+     * @return array
+     */
+    protected static function getFileAttr(): array
+    {
+        $assertOptions = static::getFileValidationOptions();
+        $attr = ['widget' => 'file'];
+
+        foreach ($assertOptions as $key => $value) {
+            $attr[CaseConverter::convertCamelCaseToSnakeCase($key)] = $value;
+            if ('mimeTypes' === $key) {
+                $attr['extensions'] = MimeUtil::getMimesExtentions($value);
+            }
+        }
+
+        return $attr;
     }
 
 
