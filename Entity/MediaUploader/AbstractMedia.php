@@ -27,25 +27,25 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     public static ?string $maxsize = null;
 
     /** @var bool */
-    public static ?bool $isImage = false;
+    public static bool $isImage = false;
 
-    /** @var bool|null  */
-    public static ?bool $minWidth = null;
+    /** @var int|null  */
+    public static ?int $minWidth = null;
 
-    /** @var bool|null  */
-    public static ?bool $minHeight = null;
+    /** @var int|null  */
+    public static ?int $minHeight = null;
 
-    /** @var bool|null  */
-    public static ?bool $maxWidth = null;
+    /** @var int|null  */
+    public static ?int $maxWidth = null;
 
-    /** @var bool|null  */
-    public static ?bool $maxHeight = null;
+    /** @var int|null  */
+    public static ?int $maxHeight = null;
 
-    /** @var bool|null  */
-    public static ?bool $minRatio = null;
+    /** @var int|null  */
+    public static ?int $minRatio = null;
 
-    /** @var bool|null  */
-    public static ?bool $maxRatio = null;
+    /** @var int|null  */
+    public static ?int $maxRatio = null;
 
 
     /**
@@ -215,49 +215,49 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     }
 
     /**
-     * @return bool|null
+     * @return int|null
      */
-    public static function getMinWidth(): ?bool
+    public static function getMinWidth(): ?int
     {
         return self::$minWidth;
     }
 
     /**
-     * @return bool|null
+     * @return int|null
      */
-    public static function getMinHeight(): ?bool
+    public static function getMinHeight(): ?int
     {
         return self::$minHeight;
     }
 
     /**
-     * @return bool|null
+     * @return int|null
      */
-    public static function getMaxWidth(): ?bool
+    public static function getMaxWidth(): ?int
     {
         return self::$maxWidth;
     }
 
     /**
-     * @return bool|null
+     * @return int|null
      */
-    public static function getMaxHeight(): ?bool
+    public static function getMaxHeight(): ?int
     {
         return self::$maxHeight;
     }
 
     /**
-     * @return bool|null
+     * @return int|null
      */
-    public static function getMinRatio(): ?bool
+    public static function getMinRatio(): ?int
     {
         return self::$minRatio;
     }
 
     /**
-     * @return bool|null
+     * @return int|null
      */
-    public static function getMaxRatio(): ?bool
+    public static function getMaxRatio(): ?int
     {
         return self::$maxRatio;
     }
