@@ -3,6 +3,7 @@
 namespace EasyApiBundle\Form\Type\MediaUploader;
 
 use EasyApiBundle\Form\Type\AbstractApiType;
+use EasyApiBundle\Util\FileUtils\MimeUtil;
 use EasyApiBundle\Validator\MediaUploader\MimeConstraint;
 use EasyApiBundle\Validator\MediaUploader\SizeConstraint;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -50,7 +51,8 @@ abstract class AbstractMediaType extends AbstractApiType
                     'attr' => [
                         'widget' => 'file',
                         'mime_types' => $builder->getData()->getMimeStypes(),
-                        'max_size' => $builder->getData()->getMaxSize()
+                        'extensions' => MimeUtil::getMimesExtentions($builder->getData()->getMimeStypes()),
+                        'max_size' => $builder->getData()->getMaxSize(),
                     ],
                 ]
             )

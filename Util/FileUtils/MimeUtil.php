@@ -2,7 +2,7 @@
 
 namespace EasyApiBundle\Util\FileUtils;
 
-class MimeTypesUtil
+class MimeUtil
 {
     public const MIMES_IMAGE = [
         self::MIME_IMAGE_BMP, self::MIME_IMAGE_CDR, self::MIME_IMAGE_GIF, self::MIME_IMAGE_JP2, self::MIME_IMAGE_JPEG,
@@ -228,6 +228,20 @@ class MimeTypesUtil
     public const MIME_APPLICATION_S_COMPRESSED = 'application/s-compressed';
     public const MIME_MULTIPART_X_ZIP = 'multipart/x-zip';
     public const MIME_TEXT_X_SCRIPTZSH = 'text/x-scriptzsh';
+
+    /**
+     * @param array $mimes
+     * @return array
+     */
+    public static function getMimesExtentions(array $mimes): array
+    {
+        $extensions = [];
+        foreach ($mimes as $mime) {
+            $extensions[] = static::mimeToExtension($mime);
+        }
+
+        return $extensions;
+    }
 
     /**
      * @param string $mime
