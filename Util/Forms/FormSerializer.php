@@ -71,7 +71,6 @@ class FormSerializer
     {
         /** @var SerializedFormField $field */
         foreach ($form->getFields() as $field) {
-
             $conditions = $this->getFieldConditions($field, $inheritedConditions);
 
             if (count($conditions) > 0) {
@@ -205,7 +204,6 @@ class FormSerializer
 
         // if form type is not builtin in Form component => subform
         if (!$builtinFormType = self::getBuiltinFormType($type)) {
-
             $class = get_class($type->getInnerType());
             $subForm = $this->formFactory->create($class, $config->getData(), $config->getOptions());
             $sField->setType('form');
@@ -259,10 +257,8 @@ class FormSerializer
 
             // fields types
             do {
-
                 $sField = $this->setFieldConfiguration($config, $builtinFormType->getBlockPrefix(), $sField);
                 break;
-
             } while ($builtinFormType = $builtinFormType->getParent());
         }
 
@@ -276,7 +272,7 @@ class FormSerializer
         // force widget
         if ($attr && array_key_exists('widget', $attr) && $attr['widget']) {
             $sField->setWidget($attr['widget']);
-            if('media' === $sField->getWidget()) {
+            if ('media' === $sField->getWidget()) {
                 $sField->setLabel(self::getFieldLabel($config, $sField));
             }
         }
@@ -320,7 +316,6 @@ class FormSerializer
         $attr = $config->getOption('attr');
 
         foreach ($entities as $key => $entity) {
-
             $details = [
                 $primary => $entity->getId(),
                 'displayName' => $entity->__toString(),
@@ -330,7 +325,7 @@ class FormSerializer
                 $details['discriminator'] = $this->getDiscriminator($sField, $entity, $attr['discriminator']);
             }
 
-            if($sField->isReferential() && !isset($details['code'])) {
+            if ($sField->isReferential() && !isset($details['code'])) {
                 $details['code'] = $entity->getCode();
             }
 

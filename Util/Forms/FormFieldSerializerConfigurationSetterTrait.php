@@ -22,14 +22,13 @@ trait FormFieldSerializerConfigurationSetterTrait
      */
     protected function setFieldConfiguration(FormConfigBuilderInterface $config, string $blockPrefix, SerializedFormField $field): SerializedFormField
     {
-        if(in_array($blockPrefix, static::getAuthorizedBlockPrefixes())) {
-
+        if (in_array($blockPrefix, static::getAuthorizedBlockPrefixes())) {
             $method = 'set'.strtoupper($blockPrefix).'FieldConfiguration';
 
             return $this->$method($config, $field);
         }
 
-        if(null === $field->getType()) {
+        if (null === $field->getType()) {
             $field->setType($blockPrefix);
         }
 
@@ -37,6 +36,7 @@ trait FormFieldSerializerConfigurationSetterTrait
     }
 
     /**
+     * @param FormConfigBuilderInterface $config
      * @param SerializedFormField $field
      * @return SerializedFormField
      */
