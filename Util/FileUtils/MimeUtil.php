@@ -14,6 +14,12 @@ class MimeUtil
         self::MIME_APPLICATION_X_BMP, self::MIME_APPLICATION_X_WIN_BITMAP
     ];
 
+    public const MIMES_IMAGE_WEB = [
+        self::MIME_IMAGE_GIF, self::MIME_IMAGE_JP2, self::MIME_IMAGE_JPEG, self::MIME_IMAGE_PJPEG, self::MIME_IMAGE_PNG,
+        self::MIME_IMAGE_X_PNG, self::MIME_IMAGE_VND_MICROSOFT_ICON, self::MIME_IMAGE_SVG_XML, self::MIME_IMAGE_TIFF,
+        self::MIME_IMAGE_X_CDR, self::MIME_IMAGE_X_ICO, self::MIME_IMAGE_X_ICON
+    ];
+
     public const MIMES_AUDIO = [
         self::MIME_AUDIO_AC3, self::MIME_AUDIO_AIFF, self::MIME_AUDIO_MIDI, self::MIME_AUDIO_MP3, self::MIME_AUDIO_MPEG,
         self::MIME_AUDIO_MPEG3, self::MIME_AUDIO_MPG, self::MIME_AUDIO_OGG, self::MIME_AUDIO_WAV, self::MIME_AUDIO_WAVE,
