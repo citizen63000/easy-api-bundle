@@ -261,35 +261,4 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     {
         return self::$maxRatio;
     }
-
-    /**
-     * @param ClassMetadata $metadata
-     */
-    public static function loadValidatorMetadata(ClassMetadata $metadata)
-    {
-        $assertOptions = [];
-
-        $mimeTypes = static::getMimeTypes();
-        if (!empty($mimeTypes)) {
-            $assertOptions['mimeTypes'] = $mimeTypes;
-        }
-        if ($maxSize = static::getMaxSize()) {
-            $assertOptions['maxSize'] = $maxSize;
-        }
-
-        if (static::$isImage) {
-            $optionNames = ['minWidth', 'maxWidth', 'minHeight', 'maxHeight'];
-            foreach ($optionNames as $optionName) {
-                $method = 'get'.ucfirst($optionName);
-                $value = static::$method();
-                if (null !== $value) {
-                    $assertOptions[$optionName] = $value;
-                }
-            }
-        }
-
-        if (!empty($assertOptions)) {
-            $metadata->addPropertyConstraint('file', new Assert\File($assertOptions));
-        }
-    }
 }

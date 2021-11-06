@@ -139,7 +139,7 @@ abstract class AbstractMediaType extends AbstractApiType
             }
 
             if (static::$dataClass::isImage()) {
-                $optionNames = ['minWidth', 'maxWidth', 'minHeight', 'maxHeight'];
+                $optionNames = ['minWidth', 'maxWidth', 'minHeight', 'maxHeight', 'minRatio', 'maxRatio'];
                 foreach ($optionNames as $optionName) {
                     $method = 'get'.ucfirst($optionName);
                     $value = static::$dataClass::$method();
