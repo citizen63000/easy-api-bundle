@@ -127,20 +127,32 @@ abstract class AbstractMediaType extends AbstractApiType
                     $constraints[] = $constraint;
                 }
             }
-        } /*elseif ('file' === $fieldName) {
+        } elseif ('file' === $fieldName) {
             $assertOptions = [];
+
             $mimeTypes = static::$dataClass::getMimeTypes();
-            $maxSize = static::$dataClass::getMaxSize();
             if (!empty($mimeTypes)) {
                 $assertOptions['mimeTypes'] = $mimeTypes;
             }
-            if (!empty($maxSize)) {
+            if ($maxSize = static::$dataClass::getMaxSize()) {
                 $assertOptions['maxSize'] = $maxSize;
             }
-            if (!empty($assertOptions)) {
-                $constraints[] = new Assert\File($assertOptions);
+
+            if (static::$dataClass::isImage()) {
+                $optionNames = ['minWidth', 'maxWidth', 'minHeight', 'maxHeight'];
+                foreach ($optionNames as $optionName) {
+                    $method = 'get'.ucfirst($optionName);
+                    $value = static::$dataClass::$method();
+                    if (null !== $value) {
+                        $assertOptions[$optionName] = $value;
+                    }
+                }
             }
-        }*/
+
+            if (!empty($assertOptions)) {
+                $constraints[] = static::$dataClass::isImage() ? new Assert\Image($assertOptions) : new Assert\File($assertOptions);
+            }
+        }
 
         return $constraints;
     }
