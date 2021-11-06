@@ -68,15 +68,15 @@ abstract class AbstractMediaType extends AbstractApiType
         });
     }
 
-    /**
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        parent::configureOptions($resolver);
-
-        $resolver->setDefault('constraints', [new MimeConstraint(), new SizeConstraint()]);
-    }
+//    /**
+//     * @param OptionsResolver $resolver
+//     */
+//    public function configureOptions(OptionsResolver $resolver)
+//    {
+//        parent::configureOptions($resolver);
+//
+//        $resolver->setDefault('constraints', [new MimeConstraint(), new SizeConstraint()]);
+//    }
 
     /**
      * transform the base64 to uploadedFile
@@ -127,7 +127,20 @@ abstract class AbstractMediaType extends AbstractApiType
                     $constraints[] = $constraint;
                 }
             }
-        }
+        } /*elseif ('file' === $fieldName) {
+            $assertOptions = [];
+            $mimeTypes = static::$dataClass::getMimeTypes();
+            $maxSize = static::$dataClass::getMaxSize();
+            if (!empty($mimeTypes)) {
+                $assertOptions['mimeTypes'] = $mimeTypes;
+            }
+            if (!empty($maxSize)) {
+                $assertOptions['maxSize'] = $maxSize;
+            }
+            if (!empty($assertOptions)) {
+                $constraints[] = new Assert\File($assertOptions);
+            }
+        }*/
 
         return $constraints;
     }

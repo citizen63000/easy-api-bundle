@@ -8,7 +8,9 @@ use EasyApiBundle\Entity\AbstractBaseUniqueEntity;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Vich\UploaderBundle\Naming\OrignameNamer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\MappedSuperclass
@@ -23,6 +25,28 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
 
     /** @var int|null  */
     public static ?int $maxsize = null;
+
+    /** @var bool */
+    public static ?bool $isImage = false;
+
+    /** @var bool|null  */
+    public static ?bool $minWidth = null;
+
+    /** @var bool|null  */
+    public static ?bool $minHeight = null;
+
+    /** @var bool|null  */
+    public static ?bool $maxWidth = null;
+
+    /** @var bool|null  */
+    public static ?bool $maxHeight = null;
+
+    /** @var bool|null  */
+    public static ?bool $minRatio = null;
+
+    /** @var bool|null  */
+    public static ?bool $maxRatio = null;
+
 
     /**
      * File namer to use : custom service or Vich namer
@@ -180,5 +204,92 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     public static function getMaxSize(): ?int
     {
         return static::$maxsize;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isImage(): ?bool
+    {
+        return self::$isImage;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public static function getMinWidth(): ?bool
+    {
+        return self::$minWidth;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public static function getMinHeight(): ?bool
+    {
+        return self::$minHeight;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public static function getMaxWidth(): ?bool
+    {
+        return self::$maxWidth;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public static function getMaxHeight(): ?bool
+    {
+        return self::$maxHeight;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public static function getMinRatio(): ?bool
+    {
+        return self::$minRatio;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public static function getMaxRatio(): ?bool
+    {
+        return self::$maxRatio;
+    }
+
+    /**
+     * @param ClassMetadata $metadata
+     */
+    public static function loadValidatorMetadata(ClassMetadata $metadata)
+    {
+        $assertOptions = [];
+
+        $mimeTypes = static::getMimeTypes();
+        if (!empty($mimeTypes)) {
+            $assertOptions['mimeTypes'] = $mimeTypes;
+        }
+        if ($maxSize = static::getMaxSize()) {
+            $assertOptions['maxSize'] = $maxSize;
+        }
+
+        if (static::$isImage) {
+            $optionNames = ['minWidth', 'maxWidth', 'minHeight', 'maxHeight'];
+            foreach ($optionNames as $optionName) {
+                $method = 'get'.ucfirst($optionName);
+                $value = static::$method();
+                if (null !== $value) {
+                    $assertOptions[$optionName] = $value;
+                }
+            }
+        }
+
+        if (!empty($assertOptions)) {
+            $metadata->addPropertyConstraint(static::$isImage ? 'headshot' : 'bioFile', new Assert\File($assertOptions));
+        }
     }
 }
