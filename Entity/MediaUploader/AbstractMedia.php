@@ -23,8 +23,8 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     /** @var array  */
     public static array $mimeTypes = [];
 
-    /** @var int|null  */
-    public static ?int $maxsize = null;
+    /** @var string|null  */
+    public static ?string $maxsize = null;
 
     /** @var bool */
     public static ?bool $isImage = false;
@@ -199,9 +199,9 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     }
 
     /**
-     * @return int|null
+     * @return string|null
      */
-    public static function getMaxSize(): ?int
+    public static function getMaxSize(): ?string
     {
         return static::$maxsize;
     }
