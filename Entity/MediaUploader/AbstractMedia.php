@@ -169,7 +169,7 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     /**
      * @return array
      */
-    public function getMimeTypes(): array
+    public static function getMimeTypes(): array
     {
         return static::$mimeTypes;
     }
@@ -177,7 +177,7 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     /**
      * @return int|null
      */
-    public function getMaxSize(): ?int
+    public static function getMaxSize(): ?int
     {
         return static::$maxsize;
     }

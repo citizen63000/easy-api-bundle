@@ -50,9 +50,9 @@ abstract class AbstractMediaType extends AbstractApiType
                     'constraints' => $this->getConstraints('file', $options),
                     'attr' => [
                         'widget' => 'file',
-                        'mime_types' => (new $builder->getDataClass())->getMimeStypes(),
-                        'extensions' => MimeUtil::getMimesExtentions((new $builder->getDataClass())->getMimeStypes()),
-                        'max_size' => (new $builder->getDataClass())->getMaxSize(),
+                        'mime_types' => static::$dataClass::getMimeStypes(),
+                        'extensions' => MimeUtil::getMimesExtentions(static::$dataClass::getMimeStypes()),
+                        'max_size' => static::$dataClass::getMaxSize(),
                     ],
                 ]
             )
