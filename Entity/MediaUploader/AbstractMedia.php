@@ -8,9 +8,7 @@ use EasyApiBundle\Entity\AbstractBaseUniqueEntity;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Vich\UploaderBundle\Naming\OrignameNamer;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\MappedSuperclass
