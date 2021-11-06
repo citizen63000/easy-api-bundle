@@ -289,7 +289,7 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
         }
 
         if (!empty($assertOptions)) {
-            $metadata->addPropertyConstraint(static::$isImage ? 'headshot' : 'bioFile', new Assert\File($assertOptions));
+            $metadata->addPropertyConstraint('file', new Assert\File($assertOptions));
         }
     }
 }
