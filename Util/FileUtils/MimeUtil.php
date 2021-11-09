@@ -243,7 +243,10 @@ class MimeUtil
     {
         $extensions = [];
         foreach ($mimes as $mime) {
-            $extensions[] = static::mimeToExtension($mime);
+            $extension = static::mimeToExtension($mime);
+            if (!in_array($extension, $extensions)) {
+                $extensions[] = $extension;
+            }
         }
 
         return $extensions;
