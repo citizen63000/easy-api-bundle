@@ -20,6 +20,10 @@ class MimeUtil
         self::MIME_IMAGE_X_CDR, self::MIME_IMAGE_X_ICO, self::MIME_IMAGE_X_ICON
     ];
 
+    public const MIMES_IMAGE_WEB_MINIMAL = [
+        self::MIME_IMAGE_JPEG, self::MIME_IMAGE_PNG, self::MIME_IMAGE_X_PNG, self::MIME_IMAGE_SVG_XML
+    ];
+
     public const MIMES_AUDIO = [
         self::MIME_AUDIO_AC3, self::MIME_AUDIO_AIFF, self::MIME_AUDIO_MIDI, self::MIME_AUDIO_MP3, self::MIME_AUDIO_MPEG,
         self::MIME_AUDIO_MPEG3, self::MIME_AUDIO_MPG, self::MIME_AUDIO_OGG, self::MIME_AUDIO_WAV, self::MIME_AUDIO_WAVE,
@@ -243,9 +247,11 @@ class MimeUtil
     {
         $extensions = [];
         foreach ($mimes as $mime) {
-            $xtensions = static::mimeToExtensions($mime);
-            foreach ($xtensions as $extension) {
-                $extensions[] = $extension;
+            $mimeExtensions = static::mimeToExtensions($mime);
+            foreach ($mimeExtensions as $extension) {
+                if(!in_array($extension, $extensions)) {
+                    $extensions[] = $extension;
+                }
             }
         }
 
