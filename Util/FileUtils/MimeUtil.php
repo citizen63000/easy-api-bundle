@@ -243,7 +243,10 @@ class MimeUtil
     {
         $extensions = [];
         foreach ($mimes as $mime) {
-            $extensions[] = static::mimeToExtension($mime);
+            $mimeExtensions = static::mimeToExtensions($mime);
+            foreach ($mimeExtensions as $mimeExtension) {
+                $extensions[] = $mimeExtension;
+            }
         }
 
         return $extensions;
@@ -251,9 +254,9 @@ class MimeUtil
 
     /**
      * @param string $mime
-     * @return string
+     * @return string[]|null
      */
-    public static function mimeToExtension(string $mime): ?string
+    public static function mimeToExtensions(string $mime): ?array
     {
         $mime_map = [
             'video/3gpp2' => '3g2',
@@ -329,7 +332,7 @@ class MimeUtil
             'video/mj2' => 'jp2',
             'image/jpx' => 'jp2',
             'image/jpm' => 'jp2',
-            'image/jpeg' => 'jpeg',
+            'image/jpeg' => ['jpeg', 'jpg'],
             'image/pjpeg' => 'jpeg',
             'application/x-javascript' => 'js',
             'application/json' => 'json',
@@ -436,6 +439,6 @@ class MimeUtil
             'text/x-scriptzsh' => 'zsh',
         ];
 
-        return $mime_map[$mime] ?? null;
+        return isset($mime_map[$mime]) ? (is_array($mime_map[$mime]) ? $mime_map[$mime] : [$mime_map[$mime]]) : null;
     }
 }
