@@ -199,10 +199,10 @@ class Tracking extends AbstractService
             $connectionHistory->setDeviceType($result->getDevice()->getType());
         }
         if (empty($connectionHistory->isMobile())) {
-            $connectionHistory->setIsMobile($result->getDevice()->getIsMobile());
+            $connectionHistory->setIsMobile($result->getDevice()->getIsMobile() === true);
         }
         if (empty($connectionHistory->isTouch())) {
-            $connectionHistory->setIsTouch($result->getDevice()->getIsTouch());
+            $connectionHistory->setIsTouch($result->getDevice()->getIsTouch() === true);
         }
     }
 }
