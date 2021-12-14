@@ -60,7 +60,7 @@ class EntitySerializer
      */
     public static function getSerializerCacheName(AbstractBaseEntity $entity): string
     {
-        return self::CACHE_NAME_PREFIX.str_replace('\\', '_', get_class($entity)).".{$entity->getId()}";
+        return self::CACHE_NAME_PREFIX.str_replace(['\\', 'Proxies___CG___'], ['_', ''], get_class($entity)).".{$entity->getId()}";
     }
 
     /**
