@@ -4,6 +4,11 @@ namespace EasyApiBundle\Form\DataTransformer;
 
 use Symfony\Component\Form\DataTransformerInterface;
 
+/**
+ * Class IntToBooleanTransformer
+ * @package EasyApiBundle\Form\DataTransformer
+ * @deprecated
+ */
 class IntToBooleanTransformer implements DataTransformerInterface
 {
     /**
