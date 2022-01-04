@@ -177,7 +177,7 @@ trait ApiTestAssertionsTrait
         $errorMessage = "Invalid date format for {$key} field: expected format {$expectedFormat}, get value '{$value}'";
         static::assertTrue(!empty($value), $errorMessage);
         $date = \DateTime::createFromFormat($expectedFormat, $value);
-        static::assertTrue($date && ($date->format($expectedFormat) === $value), $errorMessage);
+        static::assertTrue($date && (string) ($date->format($expectedFormat) === (string) $value), $errorMessage);
     }
 
     /**
