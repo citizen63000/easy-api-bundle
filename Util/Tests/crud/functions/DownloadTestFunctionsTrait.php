@@ -2,7 +2,6 @@
 
 namespace EasyApiBundle\Util\Tests\crud\functions;
 
-use EasyApiBundle\Util\ApiProblem;
 use EasyApiBundle\Util\Tests\ApiOutput;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -14,32 +13,42 @@ trait DownloadTestFunctionsTrait
      * GET - Nominal case.
      * @param int|null $id
      * @param string|null $filename
+     * @param string|null $folder
      * @param string|null $userLogin
      * @param string|null $userPassword
      */
-    public function doTestDownload(int $id = null, string $filename = null, string $userLogin = null, string $userPassword = null): void
+    public function doTestDownload(int $id = null, string $filename = null, string $folder = null, string $userLogin = null, string $userPassword = null): void
     {
-        self::doTestGenericDownload(['id' => $id ?? static::defaultEntityId], $filename, $userLogin, $userPassword);
+        self::doTestGenericDownload(['id' => $id ?? static::defaultEntityId], $filename, $folder, $userLogin, $userPassword);
     }
 
     /**
-     * @todo dev comment lines
      * @param array $params
      * @param string|null $filename
+     * @param string|null $folder
      * @param string|null $userLogin
      * @param string|null $userPassword
+     * @todo dev comment lines
      */
-    public function doTestGenericDownload(array $params = [], string $filename = null, string $userLogin = null, string $userPassword = null)
+    public function doTestGenericDownload(array $params = [], string $filename = null, string $folder = null, string $userLogin = null, string $userPassword = null)
     {
+        if(null !== $filename && null !== $folder) {
+            $src = self::$projectDir."/tests/artifacts/$folder/$filename";
+            $destDir = self::$projectDir."/$folder";
+            if(!file_exists($destDir)) {
+                mkdir($destDir, 0755, true);
+            }
+            copy($src, "$destDir/$filename");
+        }
+
         /** @var ApiOutput $apiOutput */
         $apiOutput = self::httpGetWithLogin(['name' => static::getDownloadRouteName(), 'params' => $params], $userLogin, $userPassword);
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
 //        $result = $apiOutput->getData();
-
         if(null !== $filename) {
 
-            $path = "{$this->getCurrentDir()}/Responses/".self::$downloadActionType."/$filename";
+//            $path = "{$this->getCurrentDir()}/Responses/".self::$downloadActionType."/$filename";
 
             $expectedHeaders = [
                 'Content-Transfer-Encoding' => 'binary',
