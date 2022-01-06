@@ -5,8 +5,11 @@ namespace EasyApiBundle\Entity\MediaUploader;
 use Doctrine\ORM\Mapping as ORM;
 use EasyApiBundle\Entity\AbstractBaseEntity;
 use EasyApiBundle\Entity\AbstractBaseUniqueEntity;
+use EasyApiBundle\Services\MediaUploader\FileManager;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Vich\UploaderBundle\Naming\OrignameNamer;
 
@@ -45,7 +48,6 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     /** @var int|null  */
     public static ?int $maxRatio = null;
 
-
     /**
      * File namer to use : custom service or Vich namer
      * @see Vich namers : https://github.com/dustin10/VichUploaderBundle/blob/master/docs/namers.md
@@ -82,6 +84,44 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
      * @Groups({"abstract_media_full", "abstract_media_container_entity"})
      */
     protected $containerEntity;
+
+    /**
+     * @var FileManager|null
+     */
+    protected ?FileManager $fileManager = null;
+
+    /**
+     * @param FileManager $fileManager
+     */
+    public function setFileManager(FileManager $fileManager) {
+        $this->fileManager = $fileManager;
+    }
+
+    /**
+     * Clone entity by cloning file too.
+     */
+    public function __clone()
+    {
+        parent::__clone();
+
+        if(null !== $this->fileManager) {
+
+            $tmpFilePath = '/tmp/'.md5(uniqid());
+            $fileData = file_get_contents($this->fileManager->getFileSystemPath($this));
+            (new Filesystem())->dumpFile($tmpFilePath, $fileData);
+            $mimeType = finfo_buffer(finfo_open(), $fileData, FILEINFO_MIME_TYPE);
+
+            $this->setFile(new UploadedFile($tmpFilePath, $this->getClonedFilename(), $mimeType, null, null, true));
+        }
+    }
+
+    /**
+     * @return string|null
+     */
+    protected function getClonedFilename(): ?string
+    {
+        return $this->getFilename();
+    }
 
     /**
      * @return string
