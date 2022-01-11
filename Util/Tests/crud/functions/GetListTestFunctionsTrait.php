@@ -24,9 +24,10 @@ trait GetListTestFunctionsTrait
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
 
+        $result = $apiOutput->getData();
         $expectedResult = $this->getExpectedResponse($filename, self::$getListActionType, $apiOutput->getData());
-
-        static::assertEquals($expectedResult, $apiOutput->getData(), "Assert failed for file {$filename}");
+        static::assertAssessableContent($expectedResult, $result);
+        static::assertEquals($expectedResult, $result, "Assert failed for file {$filename}");
 
         return $apiOutput;
     }

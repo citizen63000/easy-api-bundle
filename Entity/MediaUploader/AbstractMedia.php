@@ -118,13 +118,14 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     }
 
     /**
+     * @todo
      * @return string|null
      */
     protected function getClonedFilename(): ?string
     {
-        if(OrignameNamer::class === static::fileNamer) {
-            preg_replace('//');
-        }
+//        if(OrignameNamer::class === static::fileNamer) {
+//            preg_replace('//');
+//        }
 
         return $this->getFilename();
     }
