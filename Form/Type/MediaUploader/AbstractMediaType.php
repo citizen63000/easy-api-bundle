@@ -2,6 +2,7 @@
 
 namespace EasyApiBundle\Form\Type\MediaUploader;
 
+use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use EasyApiBundle\Form\Type\AbstractApiType;
 use EasyApiBundle\Util\FileUtils\MimeUtil;
 use EasyApiBundle\Util\StringUtils\CaseConverter;
@@ -54,6 +55,15 @@ abstract class AbstractMediaType extends AbstractApiType
 
             if (null !== $data && isset($data['file']) && isset($data['filename'])) {
                 $data['file'] = self::convertBase64ToUploadedFile($data['file'], $data['filename']);
+                $event->setData($data);
+            }
+        });
+
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+            /** @var AbstractMedia $data */
+            $data = $event->getData();
+            if(null !== $data) {
+                $data->setOriginalFilename($data->getFilename());
                 $event->setData($data);
             }
         });

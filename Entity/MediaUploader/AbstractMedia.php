@@ -67,16 +67,18 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
      * @ORM\Column(name="filename", type="string", length=255, nullable=true)
      * @Groups({"abstract_media_full", "abstract_media_short", "abstract_media_filename"})
      */
-    private $filename;
+    private ?string $filename;
+
+    private ?string $originalFilename;
 
     /** @var File */
-    private $file;
+    private ?File $file;
 
     /** @var string */
-    private $directoryName;
+    private ?string $directoryName;
 
     /** @var string */
-    private $directoryValue;
+    private ?string $directoryValue;
 
     /**
      * @var AbstractBaseEntity
@@ -120,6 +122,10 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
      */
     protected function getClonedFilename(): ?string
     {
+        if(OrignameNamer::class === static::fileNamer) {
+            preg_replace('//');
+        }
+
         return $this->getFilename();
     }
 
@@ -137,6 +143,22 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     public function setFilename(?string $filename): void
     {
         $this->filename = $filename;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getOriginalFilename(): ?string
+    {
+        return $this->originalFilename;
+    }
+
+    /**
+     * @param string|null $originalFilename
+     */
+    public function setOriginalFilename(?string $originalFilename): void
+    {
+        $this->originalFilename = $originalFilename;
     }
 
     /**
