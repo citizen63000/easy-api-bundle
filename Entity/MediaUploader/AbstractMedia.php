@@ -67,18 +67,18 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
      * @ORM\Column(name="filename", type="string", length=255, nullable=true)
      * @Groups({"abstract_media_full", "abstract_media_short", "abstract_media_filename"})
      */
-    private ?string $filename;
+    private ?string $filename = null;
 
-    private ?string $originalFilename;
+    private ?string $originalFilename = null;
 
-    /** @var File */
-    private ?File $file;
+    /** @var File|null */
+    private ?File $file = null;
 
-    /** @var string */
-    private ?string $directoryName;
+    /** @var string|null */
+    private ?string $directoryName = null;
 
-    /** @var string */
-    private ?string $directoryValue;
+    /** @var string|null */
+    private ?string $directoryValue = null;
 
     /**
      * @var AbstractBaseEntity
