@@ -111,9 +111,13 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     {
         parent::__clone();
 
-        if(null !== $this->fileManager) {
+        if (null === $this->originalFilename) {
+            $this->originalFilename = $this->getClonedFilename();
+        }
 
-            $tmpFilePath = '/tmp/'.md5(uniqid());
+        if (null !== $this->fileManager) {
+
+            $tmpFilePath = '/tmp/' . md5(uniqid());
             $fileData = file_get_contents($this->fileManager->getFileSystemPath($this));
             (new Filesystem())->dumpFile($tmpFilePath, $fileData);
             $mimeType = finfo_buffer(finfo_open(), $fileData, FILEINFO_MIME_TYPE);
