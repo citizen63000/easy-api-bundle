@@ -25,6 +25,8 @@ abstract class AbstractApiTest extends WebTestCase
 
     protected const baseRouteName = null;
     protected const entityClass = null;
+
+    /** @var array associative array with error message or fields list for example ['firstname', 'age' => 'core.error.age.invalid'] */
     protected const requiredFields = [];
     protected const defaultEntityId = 1;
 
