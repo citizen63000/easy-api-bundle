@@ -33,7 +33,15 @@ trait CreateTestTrait
         $requiredFields = static::getRequiredFields();
 
         if(count($requiredFields) > 0) {
-            foreach ($requiredFields as $requiredField) {
+            foreach ($requiredFields as $key => $value) {
+
+                if(is_int($key)) {
+                    $requiredField = $value;
+                    $errorMessage = 'core.error.'.static::getDataClassShortName().".{$requiredField}.required";
+                } else {
+                    $requiredField = $key;
+                    $errorMessage = $value;
+                }
 
                 $data = $this->getDataSent('createWithAllFields.json', 'Create');
                 unset($data[$requiredField]);
@@ -42,7 +50,7 @@ trait CreateTestTrait
 
                 $result = $apiOutput->getData();
                 static::assertEquals(Response::HTTP_UNPROCESSABLE_ENTITY, $apiOutput->getStatusCode());
-                static::assertEquals(['errors' => ['core.error.'.static::getDataClassShortName().".{$requiredField}.required"]], $result);
+                static::assertEquals(['errors' => [$errorMessage]], $result);
             }
         } else {
             self::markTestSkipped('Cannot be tested : no required fields defined, please set static var requiredFields with required fields if necessary.');

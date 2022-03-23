@@ -5,6 +5,7 @@ namespace EasyApiBundle\Services\User;
 use EasyApiBundle\Entity\User\AbstractConnectionHistory;
 use EasyApiBundle\Entity\User\AbstractConnectionHistory as ConnectionHistory;
 use EasyApiBundle\Services\AbstractService;
+use Namshi\JOSE\JWS;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\User\UserInterface;
 use UserAgentParser\Exception\NoResultFoundException;
@@ -98,6 +99,11 @@ class Tracking extends AbstractService
      */
     public function getTokenIdentifier(string $token)
     {
+        $payload = JWS::load($token)->getPayload();
+        if(isset($payload['session_state'])) {
+            return $payload['session_state'];
+        }
+
         return explode('.', $token)[1];
     }
 
@@ -120,11 +126,11 @@ class Tracking extends AbstractService
     }
 
     /**
-     * @param string $userAgent
+     * @param string|null $userAgent
      *
      * @return array
      */
-    protected function parseUserAgent(string $userAgent): array
+    protected function parseUserAgent(?string $userAgent): array
     {
         $results = [];
 
@@ -199,10 +205,10 @@ class Tracking extends AbstractService
             $connectionHistory->setDeviceType($result->getDevice()->getType());
         }
         if (empty($connectionHistory->isMobile())) {
-            $connectionHistory->setIsMobile($result->getDevice()->getIsMobile());
+            $connectionHistory->setIsMobile($result->getDevice()->getIsMobile() === true);
         }
         if (empty($connectionHistory->isTouch())) {
-            $connectionHistory->setIsTouch($result->getDevice()->getIsTouch());
+            $connectionHistory->setIsTouch($result->getDevice()->getIsTouch() === true);
         }
     }
 }

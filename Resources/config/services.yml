@@ -14,6 +14,11 @@ services:
     public: true
     resource: '../../Services/MediaUploader'
 
+  EasyApiBundle\EventListener\FileManagerListener:
+    public: true
+    tags:
+      - { name: doctrine.event_listener, event: postLoad }
+
   EasyApiBundle\Services\ApiDoc\GetFormParameterRouteDescriber:
     tags:
       - 'nelmio_api_doc.route_describer'
@@ -25,6 +30,9 @@ services:
   EasyApiBundle\Services\ListFilter:
     public: true
     arguments: ['@service_container', '@security.token_storage']
+
+  EasyApiBundle\Services\EntitySerializer:
+    public: true
 
   app.jwt_authentication.jws_provider:
     class: EasyApiBundle\Services\JWS\JWSProvider

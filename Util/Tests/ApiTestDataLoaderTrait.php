@@ -275,10 +275,10 @@ trait ApiTestDataLoaderTrait
     {
         $path = self::$projectDir.DIRECTORY_SEPARATOR.'tests'.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.'csv'.DIRECTORY_SEPARATOR.$filename;
         $f = fopen($path, 'r');
-        $line = fgets($f);
+        $line = str_replace(['"', "\n", ' ', '`'], '',fgets($f));
         fclose($f);
 
-        return str_replace(['"', "\n"], '', $line);
+        return implode(',', array_map( function($column) { return "`$column`"; } , explode(',', $line)));
     }
 
     /**

@@ -4,11 +4,13 @@ namespace EasyApiBundle\Controller;
 
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use EasyApiBundle\Entity\AbstractBaseEntity;
 use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Form\Serializer\FormErrorsSerializer;
 use EasyApiBundle\Form\Type\FilterType;
 use EasyApiBundle\Model\FilterResult;
+use EasyApiBundle\Services\EntitySerializer;
 use EasyApiBundle\Services\ListFilter;
 use EasyApiBundle\Services\MediaUploader\FileManager;
 use EasyApiBundle\Util\Forms\FormSerializer;
@@ -17,12 +19,14 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use EasyApiBundle\Exception\ApiProblemException;
 use EasyApiBundle\Util\ApiProblem;
 use EasyApiBundle\Util\CoreUtilsTrait;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -71,6 +75,9 @@ abstract class AbstractApiController extends AbstractFOSRestController
     /** @var null */
     public const defaultFilterSort = null;
 
+    /** @var bool */
+    public const useSerializerCache = false;
+
     /**
      * @return ContainerInterface
      */
@@ -105,7 +112,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
      */
     protected function getEntityAction($entity, array $serializationGroups = null): Response
     {
-        return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups);
+        return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [], Response::HTTP_OK, [], static::useSerializerCache);
     }
 
     /**
@@ -153,8 +160,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
         array $sortFields = null,
         array $serializationGroups = null,
         FilterModel $entityFilterModel = null
-    ): Response
-    {
+    ): Response {
         // type & model
         $entityFilterTypeClass = $entityFilterTypeClass ?? static::entityFilterTypeClass;
         $entityFilterModelClass = static::entityFilterModelClass;
@@ -201,6 +207,10 @@ abstract class AbstractApiController extends AbstractFOSRestController
         if ($form->isValid()) {
             $entity = $this->persistAndFlush($form->getData());
 
+            if (static::useSerializerCache) {
+                $this->clearSerializerCache($entity);
+            }
+
             return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [], Response::HTTP_CREATED);
         }
 
@@ -224,6 +234,10 @@ abstract class AbstractApiController extends AbstractFOSRestController
         if ($form->isValid()) {
             $entity = $this->persistAndFlush($entity);
 
+            if (static::useSerializerCache) {
+                $this->clearSerializerCache($entity);
+            }
+
             return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [], Response::HTTP_OK);
         }
 
@@ -237,6 +251,10 @@ abstract class AbstractApiController extends AbstractFOSRestController
      */
     protected function deleteEntityAction($entity): Response
     {
+        if (static::useSerializerCache) {
+            $this->clearSerializerCache($entity);
+        }
+
         $this->removeAndFlush($entity);
 
         return static::renderResponse(null, Response::HTTP_NO_CONTENT);
@@ -350,10 +368,10 @@ abstract class AbstractApiController extends AbstractFOSRestController
      * @param array|null $context Additional context like AbstractNormalizer::IGNORED_ATTRIBUTES list or AbstractNormalizer::ATTRIBUTES list
      * @param int $status
      * @param array $headers
-     *
+     * @param bool $useCache
      * @return Response
      */
-    protected function renderEntityResponse($entity, array $serializationGroups = null, array $context = null, int $status = 200, array $headers = []): Response
+    protected function renderEntityResponse($entity, array $serializationGroups = null, array $context = null, int $status = 200, array $headers = [], bool $useCache = false): Response
     {
         $context = $context ?? [];
 
@@ -361,7 +379,36 @@ abstract class AbstractApiController extends AbstractFOSRestController
             $context [AbstractNormalizer::GROUPS] = $serializationGroups;
         }
 
-        return $this->renderResponse($this->getSerializer()->serialize($entity, 'json', $context), $status, $headers);
+        return $this->renderResponse($this->serializeEntity($entity, $context, $useCache), $status, $headers);
+    }
+
+    /**
+     * @param $entity
+     * @param array $context
+     * @param bool $useCache
+     * @param bool $forceCacheReload
+     * @return string
+     */
+    protected function serializeEntity($entity, array $context, bool $useCache = false, bool $forceCacheReload = false): string
+    {
+        if ($entity instanceof AbstractBaseEntity) {
+            return $this->get(EntitySerializer::class)->serializeEntity($entity, $context, JsonEncoder::FORMAT, $useCache, $forceCacheReload);
+        } else {
+            return $this->getSerializer()->serialize($entity, JsonEncoder::FORMAT, $context);
+        }
+    }
+
+    /**
+     * @param $entity
+     */
+    protected function clearSerializerCache($entity): void
+    {
+        if (static::useSerializerCache) {
+            try {
+                $this->get(EntitySerializer::class)->clearCache($entity);
+            } catch (\Exception | InvalidArgumentException $e) {
+            }
+        }
     }
 
     /**
@@ -389,9 +436,10 @@ abstract class AbstractApiController extends AbstractFOSRestController
     public static function getSubscribedServices(): array
     {
         return array_merge(parent::getSubscribedServices(), [
-            static::filterService => static::filterService
-            , FileManager::class => FileManager::class
-            , FormErrorsSerializer::class => FormErrorsSerializer::class
+            static::filterService => static::filterService,
+            FileManager::class => FileManager::class,
+            EntitySerializer::class => EntitySerializer::class,
+            FormErrorsSerializer::class => FormErrorsSerializer::class
         ]);
     }
 }

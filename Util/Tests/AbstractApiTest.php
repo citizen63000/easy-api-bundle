@@ -25,6 +25,8 @@ abstract class AbstractApiTest extends WebTestCase
 
     protected const baseRouteName = null;
     protected const entityClass = null;
+
+    /** @var array associative array with error message or fields list for example ['firstname', 'age' => 'core.error.age.invalid'] */
     protected const requiredFields = [];
     protected const defaultEntityId = 1;
 
@@ -313,7 +315,8 @@ abstract class AbstractApiTest extends WebTestCase
     protected static function getLastEntityId(string $className = null): int
     {
         $tableName = self::$entityManager->getClassMetadata($className ?? static::entityClass)->getTableName();
-        $stmt = self::$entityManager->getConnection()->prepare("SELECT max(id) as id FROM {$tableName}");
+        $schemaName = self::$entityManager->getClassMetadata($className ?? static::entityClass)->getSchemaName();
+        $stmt = self::$entityManager->getConnection()->prepare("SELECT max(id) as id FROM {$schemaName}.{$tableName}");
         $stmt->execute();
 
         return (int) $stmt->fetchColumn(0);
