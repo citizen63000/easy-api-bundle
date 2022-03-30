@@ -17,9 +17,10 @@ trait UpdateTestFunctionsTrait
      * @param string|null $userLogin
      * @param string|null $userPassword
      * @param bool $doGetTest
+     * @param int $expectedResponseCode
      * @throws \Exception
      */
-    protected function doTestUpdate(?int $id, string $filename, array $params = [], string $userLogin = null, string $userPassword = null, bool $doGetTest = true): void
+    protected function doTestUpdate(?int $id, string $filename, array $params = [], string $userLogin = null, string $userPassword = null, bool $doGetTest = true, int $expectedResponseCode = Response::HTTP_OK): void
     {
         $id = $id ?? static::defaultEntityId;
         $params += ['id' => $id];
@@ -29,7 +30,7 @@ trait UpdateTestFunctionsTrait
         $apiOutput = self::httpPutWithLogin(['name' => static::getUpdateRouteName(), 'params' => $params], $userLogin, $userPassword, $data);
 
         // Assert result
-        static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
+        static::assertEquals($expectedResponseCode, $apiOutput->getStatusCode());
         $result = $apiOutput->getData();
         $expectedResult = $this->getExpectedResponse($filename, 'Update', $result, true);
         static::assertAssessableContent($expectedResult, $result);
