@@ -31,10 +31,16 @@ trait UpdateTestFunctionsTrait
 
         // Assert result
         static::assertEquals($expectedResponseCode, $apiOutput->getStatusCode());
-        $result = $apiOutput->getData();
-        $expectedResult = $this->getExpectedResponse($filename, 'Update', $result, true);
-        static::assertAssessableContent($expectedResult, $result);
-        static::assertEquals($expectedResult, $result, "Assert failed for file {$filename}");
+
+        // verify response code & response content
+        if (Response::HTTP_NO_CONTENT !== $expectedResponseCode) {
+            $result = $apiOutput->getData();
+            $expectedResult = $this->getExpectedResponse($filename, 'Update', $result, true);
+            static::assertAssessableContent($expectedResult, $result);
+            static::assertEquals($expectedResult, $result, "Assert failed for file {$filename}");
+        } else {
+            static::assertEmpty($apiOutput->getData(true));
+        }
 
         // Get after put
         if ($doGetTest) {
