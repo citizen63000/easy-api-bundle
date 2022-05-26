@@ -1,6 +1,5 @@
 <?php
 
-
 namespace EasyApiBundle\Command;
 
 use EasyApiBundle\Util\Maker\EntityGenerator;

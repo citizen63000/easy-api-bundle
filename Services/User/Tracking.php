@@ -2,14 +2,13 @@
 
 namespace EasyApiBundle\Services\User;
 
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use EasyApiBundle\Entity\User\AbstractUser as User;
+use EasyApiBundle\Entity\User\AbstractConnectionHistory;
 use EasyApiBundle\Entity\User\AbstractConnectionHistory as ConnectionHistory;
 use EasyApiBundle\Services\AbstractService;
+use Namshi\JOSE\JWS;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\User\UserInterface;
 use UserAgentParser\Exception\NoResultFoundException;
-use UserAgentParser\Exception\PackageNotLoadedException;
 use UserAgentParser\Model\UserAgent;
 use UserAgentParser\Provider\WhichBrowser;
 
@@ -21,37 +20,38 @@ class Tracking extends AbstractService
     /**
      * @return array
      */
-    protected function getProviders()
+    protected function getProviders(): array
     {
         return [new WhichBrowser()];
     }
 
     /**
-     * @param User    $user
+     * @param UserInterface $user
      * @param Request $request
-     * @param string  $token
-     * @param bool    $isSSO
+     * @param string $token
+     * @param bool $isSSO
      *
      * @return ConnectionHistory
      *
-     * @throws PackageNotLoadedException
-     * @throws ORMException
+     * @throws \Exception
      */
-    public function logConnection(User $user, Request $request, string $token, bool $isSSO = false)
+    public function logConnection(UserInterface $user, Request $request, string $token, bool $isSSO = false): ConnectionHistory
     {
         $connectionHistoryClass = $this->getParameter(self::CONNECTION_HISTORY_CLASS_PARAMETER);
 
-        if(null === $connectionHistoryClass) {
+        if (null === $connectionHistoryClass) {
             throw new \Exception(self::CONNECTION_HISTORY_CLASS_PARAMETER.' must be defined to log connection');
         }
 
+        /** @var AbstractConnectionHistory $connectionHistory */
         $connectionHistory = new $connectionHistoryClass();
         $connectionHistory->setUser($user);
         $connectionHistory->setIsSSO($isSSO);
         $connectionHistory->setIp($request->getClientIp());
         $connectionHistory->setUserAgent($request->headers->get('User-Agent'));
-        $connectionHistory->setTokenValue($token); // @todo hash token
+        $connectionHistory->setTokenValue($token);
         $connectionHistory->setLoginDate(new \DateTime());
+        $connectionHistory->setLastActionDate($connectionHistory->getLoginDate());
 
         $this->updateConnectionFromUserAgent($connectionHistory);
 
@@ -63,41 +63,56 @@ class Tracking extends AbstractService
     /**
      * Update date when user execute action.
      *
-     * @param User $user
+     * @param UserInterface $user
      * @param Request $request
      * @param string $token
      *
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * @throws \Exception
      */
-    public function updateLastAction(User $user, Request $request, string $token)
+    public function updateLastAction(UserInterface $user, Request $request, string $token)
     {
         $connectionHistoryClass = $this->getParameter(self::CONNECTION_HISTORY_CLASS_PARAMETER);
 
-        if(null === $connectionHistoryClass) {
+        if (null === $connectionHistoryClass) {
             throw new \Exception(self::CONNECTION_HISTORY_CLASS_PARAMETER.' must be defined to log connection');
         }
 
+        $tokenId = $this->getTokenIdentifier($token);
         /** @var ConnectionHistory $connectionHistory */
-        $connectionHistory = $this->getRepository($connectionHistoryClass)->findOneBy(['user' => $user->getId(), 'tokenValue' => $token]);
+        $connectionHistory = $this->getRepository($connectionHistoryClass)->findOneBy(['user' => $user->getId(), 'tokenValue' => $tokenId]);
 
-        if(null == $connectionHistory) {
-            $connectionHistory = $this->logConnection($user, $request, $token);
+        if (null == $connectionHistory) {
+            $this->logConnection($user, $request, $tokenId);
+        } else {
+            $currentDate = new \DateTime();
+            if ($currentDate->format('Y-m-d H:i:s') !== $connectionHistory->getLastActionDate()->format('Y-m-d H:i:s')) {
+                $connectionHistory->setLastActionDate($currentDate);
+                $this->persistAndFlush($connectionHistory);
+            }
+        }
+    }
+
+    /**
+     * take JTI (token identifier) if exist in payload, if not exists use payload as identifier
+     * @param string $token
+     * @return mixed|string
+     */
+    public function getTokenIdentifier(string $token)
+    {
+        $payload = JWS::load($token)->getPayload();
+        if(isset($payload['session_state'])) {
+            return $payload['session_state'];
         }
 
-        $connectionHistory->setLastActionDate(new \DateTime());
-
-        $this->persistAndFlush($connectionHistory);
+        return explode('.', $token)[1];
     }
 
     /**
      * @param ConnectionHistory $connectionHistory
      *
      * @return ConnectionHistory
-     *
-     * @throws PackageNotLoadedException
      */
-    public function updateConnectionFromUserAgent(ConnectionHistory $connectionHistory)
+    public function updateConnectionFromUserAgent(ConnectionHistory $connectionHistory): ConnectionHistory
     {
         $results = $this->parseUserAgent($connectionHistory->getUserAgent());
 
@@ -111,13 +126,11 @@ class Tracking extends AbstractService
     }
 
     /**
-     * @param string $userAgent
+     * @param string|null $userAgent
      *
      * @return array
-     *
-     * @throws PackageNotLoadedException
      */
-    protected function parseUserAgent(string $userAgent)
+    protected function parseUserAgent(?string $userAgent): array
     {
         $results = [];
 
@@ -141,7 +154,7 @@ class Tracking extends AbstractService
      *
      * @return ConnectionHistory
      */
-    protected function updateBrowser(UserAgent $result, ConnectionHistory $connectionHistory)
+    protected function updateBrowser(UserAgent $result, ConnectionHistory $connectionHistory): ConnectionHistory
     {
         $browser = $result->getBrowser();
         $browserEngine = $result->getRenderingEngine();
@@ -192,10 +205,10 @@ class Tracking extends AbstractService
             $connectionHistory->setDeviceType($result->getDevice()->getType());
         }
         if (empty($connectionHistory->isMobile())) {
-            $connectionHistory->setIsMobile($result->getDevice()->getIsMobile());
+            $connectionHistory->setIsMobile($result->getDevice()->getIsMobile() === true);
         }
         if (empty($connectionHistory->isTouch())) {
-            $connectionHistory->setIsTouch($result->getDevice()->getIsTouch());
+            $connectionHistory->setIsTouch($result->getDevice()->getIsTouch() === true);
         }
     }
 }

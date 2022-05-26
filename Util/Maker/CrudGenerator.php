@@ -100,10 +100,10 @@ class CrudGenerator extends AbstractGenerator
         $prefix = str_replace(['API', 'Bundle'], ['api_', ''], $bundleName);
 
         if(!empty($this->config->getContextName())) {
-            return CaseConverter::convertToPascalCase($prefix.'_'.str_replace(['\\', '/'], '_', $this->config->getContextName()));
+            return CaseConverter::convertToSnakeCase($prefix.'_'.str_replace(['\\', '/'], '_', $this->config->getContextName()));
         }
 
-        return CaseConverter::convertToPascalCase($prefix);
+        return CaseConverter::convertToSnakeCase($prefix);
     }
 
     /**
@@ -131,8 +131,8 @@ class CrudGenerator extends AbstractGenerator
             'controller_url' => "{$bundle}/Controller/".(!empty($context) ? "{$transformedContext}/" : '').$this->config->getEntityName().'Controller.php',
             'context_name' => $context,
             'route_name_prefix' => $this->getRouteNamePrefix(),
-            'entity_route_name' => CaseConverter::convertToPascalCase($this->config->getEntityName()),
-            'entity_url_name' => str_replace('_', '-', CaseConverter::convertToPascalCase($this->config->getEntityName())),
+            'entity_route_name' => CaseConverter::convertToSnakeCase($this->config->getEntityName()),
+            'entity_url_name' => str_replace('_', '-', CaseConverter::convertToSnakeCase($this->config->getEntityName())),
             'serialization_groups' => implode(', ', $this->getSerializerGroups()),
             'uses' => $uses,
             'routingControllerPath' => "{$bundle}:".(!empty($context) ? "{$context}\\" : '').$this->config->getEntityName(),
@@ -145,17 +145,17 @@ class CrudGenerator extends AbstractGenerator
      */
     protected function getSerializerGroups(): array
     {
-        $groups = ['\''.CaseConverter::convertToPascalCase($this->config->getEntityName()).'_full\''];
+        $groups = ['\''.CaseConverter::convertToSnakeCase($this->config->getEntityName()).'_full\''];
 
         // parent serializer groups
         $parentConfig = $this->config->getParentEntity();
         if (null !== $parentConfig) {
-            $groups[] = '\''.CaseConverter::convertToPascalCase($parentConfig->getEntityName()).'_full\'';
+            $groups[] = '\''.CaseConverter::convertToSnakeCase($parentConfig->getEntityName()).'_full\'';
             foreach ($parentConfig->getFields() as $field) {
                 if ($field->isReferential() && !in_array('\'referential_short\'', $groups)) {
                     $groups[] = '\'referential_short\'';
                 } elseif (!$field->isNativeType() && ('manyToOne' === $field->getRelationType() || 'oneToOne' === $field->getRelationType())) {
-                    $groups[] = '\''.CaseConverter::convertToPascalCase($field->getName()).'_id\'';
+                    $groups[] = '\''.CaseConverter::convertToSnakeCase($field->getName()).'_id\'';
                 }
             }
         }
@@ -166,7 +166,7 @@ class CrudGenerator extends AbstractGenerator
                     $groups[] = '\'referential_short\'';
                 }
             } elseif (!$field->isNativeType() && ('manyToOne' === $field->getRelationType() || 'oneToOne' === $field->getRelationType())) {
-                $groups[] = '\''.CaseConverter::convertToPascalCase($field->getName()).'_id\'';
+                $groups[] = '\''.CaseConverter::convertToSnakeCase($field->getName()).'_id\'';
             }
         }
 

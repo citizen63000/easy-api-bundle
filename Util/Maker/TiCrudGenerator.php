@@ -282,7 +282,7 @@ class TiCrudGenerator extends AbstractGenerator
                 'bundle_name' => $this->config->getBundleName(),
                 'context_name' => $this->config->getContextName(),
                 'namespace' => "Tests\\{$this->config->getBundleName()}\\".(!empty($this->config->getContextName()) ? "{$this->config->getContextName()}\\" : '')."{$this->config->getEntityName()}",
-                'route_name_prefix' => $this->getRouteNamePrefix().'_'.CaseConverter::convertToPascalCase($this->config->getEntityName()),
+                'route_name_prefix' => $this->getRouteNamePrefix().'_'.CaseConverter::convertToSnakeCase($this->config->getEntityName()),
                 'fields' => $this->config->getFields(),
                 'requiredFieldsForArray' => implode(', ', $requiredFieldsForArray),
                 'fixtures' => $fixtures,
@@ -453,7 +453,7 @@ class TiCrudGenerator extends AbstractGenerator
         $prefix = str_replace(['API', 'Bundle'], ['api_', ''], $bundleName);
         $contextName = str_replace(['\\', '/'], '_', $this->config->getContextName());
 
-        return CaseConverter::convertToPascalCase($prefix.(!empty($contextName) ? "_{$contextName}" : ''));
+        return CaseConverter::convertToSnakeCase($prefix.(!empty($contextName) ? "_{$contextName}" : ''));
     }
 
     /**

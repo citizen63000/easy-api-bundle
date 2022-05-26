@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 abstract class AbstractApiTest extends WebTestCase
@@ -24,6 +25,8 @@ abstract class AbstractApiTest extends WebTestCase
 
     protected const baseRouteName = null;
     protected const entityClass = null;
+
+    /** @var array associative array with error message or fields list for example ['firstname', 'age' => 'core.error.age.invalid'] */
     protected const requiredFields = [];
     protected const defaultEntityId = 1;
 
@@ -42,7 +45,7 @@ abstract class AbstractApiTest extends WebTestCase
     public const USER_NORULES_TEST_EMAIL = 'api-tests-no-rules@example.com';
     public const USER_NORULES_TEST_PASSWORD = 'u-norules-pwd';
 
-    public const TOKEN_ROUTE_NAME = 'fos_user_security_check';
+    public const TOKEN_ROUTE_NAME = 'api_login';
 
     public const DEBUG_LEVEL_SIMPLE = 1;
     public const DEBUG_LEVEL_ADVANCED = 2;
@@ -116,20 +119,6 @@ abstract class AbstractApiTest extends WebTestCase
      * @var bool
      */
     protected static $loadDataOnSetup = null;
-
-    /**
-     * Indicates if you want launch cleanup on all tests in your test class.
-     *
-     * @var bool
-     */
-    protected static $executeCleanupOnAllTest = true;
-
-    /**
-     * Indicates if you want launch cleanup on all tests in your test class.
-     *
-     * @var bool
-     */
-    protected static $executeCleanupAfterEachTest = false;
 
     /**
      * Indicates if the first launch need to launch.
@@ -231,6 +220,15 @@ abstract class AbstractApiTest extends WebTestCase
     }
 
     /**
+     * sf3 polyfill for sf4
+     * @return Container|ContainerInterface|null
+     */
+    protected static function getContainerInstance(): ?ContainerInterface
+    {
+        return static::$container ?? self::createClient(['debug' => false])->getContainer();
+    }
+
+    /**
      * Show where you are (Class::method()).
      *
      * @param bool $debugNewLine Adds a new line before debug log
@@ -317,7 +315,8 @@ abstract class AbstractApiTest extends WebTestCase
     protected static function getLastEntityId(string $className = null): int
     {
         $tableName = self::$entityManager->getClassMetadata($className ?? static::entityClass)->getTableName();
-        $stmt = self::$entityManager->getConnection()->prepare("SELECT max(id) as id FROM {$tableName}");
+        $schemaName = self::$entityManager->getClassMetadata($className ?? static::entityClass)->getSchemaName();
+        $stmt = self::$entityManager->getConnection()->prepare("SELECT max(id) as id FROM {$schemaName}.{$tableName}");
         $stmt->execute();
 
         return (int) $stmt->fetchColumn(0);
@@ -381,7 +380,7 @@ abstract class AbstractApiTest extends WebTestCase
             static::loadData();
         }
 
-        if (true === static::$executeSetupOnAllTest && true === static::$launchFirstSetup) {
+        if (false === static::isInitialized() || (true === static::$executeSetupOnAllTest && true === static::$launchFirstSetup)) {
             self::doSetup();
         } elseif (true === static::$launchFirstSetup) {
             // If no reset rollback user test & its rights
@@ -394,27 +393,10 @@ abstract class AbstractApiTest extends WebTestCase
     /**
      * {@inheritdoc}
      */
-    protected function tearDown()
-    {
-        self::logStep();
-        if (true === static::$executeCleanupAfterEachTest) {
-            self::doCleanup();
-        }
-        parent::tearDown();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public static function tearDownAfterClass()
     {
         self::logStep();
-        if (false === static::$executeCleanupOnAllTest) {
-            self::doCleanup();
-        }
-        self::$executeSetupOnAllTest = true;
-        self::$executeCleanupOnAllTest = true;
-
+        static::$executeSetupOnAllTest = null;
         self::$token = null;
     }
 
@@ -428,17 +410,6 @@ abstract class AbstractApiTest extends WebTestCase
             self::initialize();
         } else {
             self::$entityManager = self::$container->get('doctrine.orm.entity_manager');
-        }
-    }
-
-    /**
-     * Performs cleanup operations.
-     */
-    final protected static function doCleanup(): void
-    {
-        self::logStep();
-        if (self::isInitialized()) {
-            self::loadYaml('reset-all.yml');
         }
     }
 
@@ -479,7 +450,7 @@ abstract class AbstractApiTest extends WebTestCase
         $fileDir = self::$container->getParameter('kernel.project_dir') . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'artifacts';
         $fileBag = new FileBag();
         foreach ($filenames as $field => $filename) {
-            $fileBag->addFile($field, $fileDir.DIRECTORY_SEPARATOR.$filename, true, $filename);
+            $fileBag->addFile($field, $fileDir.DIRECTORY_SEPARATOR.$filename, $filename);
         }
 
         return $fileBag;

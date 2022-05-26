@@ -79,7 +79,7 @@ class AbstractGenerator
     {
         $this->config = EntityConfigLoader::findAndCreateFromEntityName($entityName, $bundle);
 
-        //        if ($parentEntityName) {
+//        if ($parentEntityName) {
 //            $parentConfig = EntityConfigLoader::findAndCreateFromEntityName($parentEntityName, $bundle);
 //            $this->config->setParentEntity($parentConfig);
 //        }
@@ -92,7 +92,7 @@ class AbstractGenerator
      */
     protected static function getConsoleCommand(): string
     {
-        return (Kernel::MAJOR_VERSION > 2) ? 'bin/console' : 'app/console';
+        return 'bin/console';
     }
 
     /**
@@ -126,7 +126,7 @@ class AbstractGenerator
      */
     protected function getSkeletonPath(): string
     {
-        $configPath = $this->container->get('generator_skeleton_path', null);
+        $configPath = $this->container->getParameter('easy_api.inheritance.generator_skeleton_path', null);
 
         return $configPath ?? self::DEFAULT_SKELETON_PATH;
     }

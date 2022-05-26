@@ -24,6 +24,15 @@ abstract class AbstractBaseUniqueEntity extends AbstractBaseEntity
     }
 
     /**
+     * AbstractBaseUniqueEntity clone.
+     */
+    public function __clone()
+    {
+        parent::__clone();
+        $this->uuid = Uuid::uuid4();
+    }
+
+    /**
      * @return Uuid|null
      */
     public function getUuid(): ?UuidInterface

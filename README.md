@@ -45,6 +45,9 @@ easy_api:
     repository: 'AppBundle\Form\Type\AbstractRepository'
     controller: 'AppBundle\Controller\AbstractApiController'
     serialized_form: 'AppBundle\Form\Model\SerializedForm'
+  tests:
+    debug: true # true by default
+    datetime_format: 'Y-m-d H:i:s' # DateTimeInterface::ATOM format by default
 ```
 
 ### Form options for frontend apps :
@@ -113,3 +116,6 @@ protected static function assertMyAssertion($key, $parameter, $value): void
     static::assertTrue($expected === $value, $errorMessage);
 }
 ```
+## Performance optimization
+* Implement the Symfony\Component\Serializer\Normalizer\CacheableSupportsMethodInterface on normalizers (see https://symfony.com/doc/current/serializer/custom_normalizer.html)
+* see https://symfony.com/doc/4.4/performance.html

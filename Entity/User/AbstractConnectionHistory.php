@@ -4,8 +4,8 @@ namespace EasyApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use EasyApiBundle\Entity\User\AbstractUser as User;
 use \DateTime;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\MappedSuperclass
@@ -13,135 +13,135 @@ use \DateTime;
 abstract class AbstractConnectionHistory
 {
     /**
-     * @var int
+     * @var int|null
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    protected $id;
+    protected ?int $id = null;
 
     /**
-     * @var User
+     * @var UserInterface|null
      * @ORM\ManyToOne(targetEntity="EasyApiBundle\Entity\User\User", cascade={})
      */
-    protected $user;
+    protected ?UserInterface $user = null;
 
     /**
      * @var bool
      * @ORM\Column(type="boolean")
      */
-    protected $isSso;
+    protected bool $isSso = false;
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string")
      */
-    protected $ip;
+    protected ?string $ip = null;
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string")
      */
-    protected $userAgent;
+    protected ?string $userAgent = null;
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string")
      */
-    protected $tokenValue;
+    protected ?string $tokenValue = null;
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string")
      */
-    protected $browserName;
+    protected ?string $browserName = null;
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string")
      */
-    protected $browserVersion;
+    protected ?string $browserVersion = null;
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string")
      */
-    protected $browserEngineName;
+    protected ?string $browserEngineName = null;
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string")
      */
-    protected $browserEngineVersion;
+    protected ?string $browserEngineVersion = null;
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string")
      */
-    protected $operatingSystemName;
+    protected ?string $operatingSystemName = null;
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string")
      */
-    protected $operatingSystemVersion;
+    protected ?string $operatingSystemVersion = null;
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string")
      */
-    protected $deviceModel;
+    protected ?string $deviceModel = null;
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string")
      */
-    protected $deviceVersion;
+    protected ?string $deviceVersion = null;
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string")
      */
-    protected $deviceBrand;
+    protected ?string $deviceBrand = null;
 
     /**
-     * @var string
+     * @var string|null
      * @ORM\Column(type="string")
      */
-    protected $deviceType;
+    protected ?string $deviceType = null;
 
     /**
      * @var bool
      * @ORM\Column(type="boolean")
      */
-    protected $isMobile;
+    protected bool $isMobile = false;
 
     /**
      * @var bool
      * @ORM\Column(type="boolean")
      */
-    protected $isTouch;
+    protected bool $isTouch = false;
 
     /**
-     * @var \DateTime
+     * @var \DateTime|null
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
      */
-    protected $loginDate;
+    protected ?DateTime $loginDate = null;
 
     /**
-     * @var \DateTime
+     * @var \DateTime|null
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
      */
-    protected $lastActionDate;
+    protected ?DateTime $lastActionDate = null;
 
     /**
      * Get id.
      *
-     * @return int
+     * @return int|null
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -149,9 +149,9 @@ abstract class AbstractConnectionHistory
     /**
      * Get user.
      *
-     * @return User
+     * @return UserInterface
      */
-    public function getUser()
+    public function getUser(): ?UserInterface
     {
         return $this->user;
     }
@@ -159,9 +159,9 @@ abstract class AbstractConnectionHistory
     /**
      * Set user.
      *
-     * @param $user
+     * @param UserInterface $user
      */
-    public function setUser(User $user)
+    public function setUser(UserInterface $user)
     {
         $this->user = $user;
     }
@@ -169,7 +169,7 @@ abstract class AbstractConnectionHistory
     /**
      * @return bool
      */
-    public function isSso()
+    public function isSso(): bool
     {
         return $this->isSso;
     }
@@ -185,13 +185,13 @@ abstract class AbstractConnectionHistory
     /**
      * @return string
      */
-    public function getUserAgent()
+    public function getUserAgent(): ?string
     {
         return $this->userAgent;
     }
 
     /**
-     * @param string $userAgent
+     * @param string|null $userAgent
      */
     public function setUserAgent(?string $userAgent)
     {
@@ -207,7 +207,7 @@ abstract class AbstractConnectionHistory
     }
 
     /**
-     * @param string $tokenValue
+     * @param string|null $tokenValue
      */
     public function setTokenValue(?string $tokenValue)
     {
@@ -215,7 +215,7 @@ abstract class AbstractConnectionHistory
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getIp() :?string
     {
@@ -223,7 +223,7 @@ abstract class AbstractConnectionHistory
     }
 
     /**
-     * @param string $ip
+     * @param string|null $ip
      */
     public function setIp(?string $ip)
     {
@@ -231,7 +231,7 @@ abstract class AbstractConnectionHistory
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getBrowserName() :?string
     {
@@ -239,7 +239,7 @@ abstract class AbstractConnectionHistory
     }
 
     /**
-     * @param string $browserName
+     * @param string|null $browserName
      */
     public function setBrowserName(?string $browserName)
     {
@@ -255,7 +255,7 @@ abstract class AbstractConnectionHistory
     }
 
     /**
-     * @param string $browserVersion
+     * @param string|null $browserVersion
      */
     public function setBrowserVersion(?string $browserVersion)
     {
@@ -271,7 +271,7 @@ abstract class AbstractConnectionHistory
     }
 
     /**
-     * @param string $browserEngineName
+     * @param string|null $browserEngineName
      */
     public function setBrowserEngineName(?string $browserEngineName)
     {
@@ -287,7 +287,7 @@ abstract class AbstractConnectionHistory
     }
 
     /**
-     * @param string $browserEngineVersion
+     * @param string|null $browserEngineVersion
      */
     public function setBrowserEngineVersion(?string $browserEngineVersion)
     {
@@ -303,7 +303,7 @@ abstract class AbstractConnectionHistory
     }
 
     /**
-     * @param string $operatingSystemName
+     * @param string|null $operatingSystemName
      */
     public function setOperatingSystemName(?string $operatingSystemName)
     {
@@ -319,7 +319,7 @@ abstract class AbstractConnectionHistory
     }
 
     /**
-     * @param string $operatingSystemVersion
+     * @param string|null $operatingSystemVersion
      */
     public function setOperatingSystemVersion(?string $operatingSystemVersion)
     {
@@ -335,7 +335,7 @@ abstract class AbstractConnectionHistory
     }
 
     /**
-     * @param string $deviceModel
+     * @param string|null $deviceModel
      */
     public function setDeviceModel(?string $deviceModel)
     {
@@ -351,7 +351,7 @@ abstract class AbstractConnectionHistory
     }
 
     /**
-     * @param string $deviceVersion
+     * @param string|null $deviceVersion
      */
     public function setDeviceVersion(?string $deviceVersion)
     {
@@ -367,7 +367,7 @@ abstract class AbstractConnectionHistory
     }
 
     /**
-     * @param string $deviceBrand
+     * @param string|null $deviceBrand
      */
     public function setDeviceBrand(?string $deviceBrand)
     {
@@ -383,7 +383,7 @@ abstract class AbstractConnectionHistory
     }
 
     /**
-     * @param string $deviceType
+     * @param string|null $deviceType
      */
     public function setDeviceType(?string $deviceType)
     {

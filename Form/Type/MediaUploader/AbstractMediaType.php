@@ -2,7 +2,10 @@
 
 namespace EasyApiBundle\Form\Type\MediaUploader;
 
+use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use EasyApiBundle\Form\Type\AbstractApiType;
+use EasyApiBundle\Util\FileUtils\MimeUtil;
+use EasyApiBundle\Util\StringUtils\CaseConverter;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -30,11 +33,9 @@ abstract class AbstractMediaType extends AbstractApiType
                 TextType::class,
                 [
                     'label' => false,
-                    'required' => false,
+                    'required' => $options['required'],
                     'constraints' => $this->getConstraints('filename', $options),
-                    'attr' => [
-                        'widget' => 'filename',
-                    ],
+                    'attr' => ['widget' => 'filename'],
                 ]
             )
             ->add(
@@ -44,22 +45,27 @@ abstract class AbstractMediaType extends AbstractApiType
                     'label' => false,
                     'required' => false,
                     'constraints' => $this->getConstraints('file', $options),
-                    'attr' => [
-                        'widget' => 'file',
-                    ],
+                    'attr' => static::getFileAttr()
                 ]
             )
         ;
 
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
-
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
             $data = $event->getData();
 
-            if(null !== $data && isset($data['file']) && isset($data['filename'])) {
+            if (null !== $data && isset($data['file']) && isset($data['filename'])) {
                 $data['file'] = self::convertBase64ToUploadedFile($data['file'], $data['filename']);
                 $event->setData($data);
             }
+        });
 
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+            /** @var AbstractMedia $data */
+            $data = $event->getData();
+            if(null !== $data) {
+                $data->setOriginalFilename($data->getFilename());
+                $event->setData($data);
+            }
         });
     }
 
@@ -74,7 +80,7 @@ abstract class AbstractMediaType extends AbstractApiType
     {
         // Create a real file in temporary directory
         $tmpFilePath = '/tmp/'.md5(uniqid());
-        $fileData = base64_decode(preg_replace('/^data:[a-zA-Z0-9\-\/\.]+;base64,/', '', $base64));
+        $fileData = base64_decode(preg_replace('/^data:[a-zA-Z0-9\-\/\.\+]+;base64,/', '', $base64));
         (new Filesystem())->dumpFile($tmpFilePath, $fileData);
         // add extension (mime_content_type doesn't work with docx)
         $mimeType = finfo_buffer(finfo_open(), $fileData, FILEINFO_MIME_TYPE);
@@ -95,15 +101,78 @@ abstract class AbstractMediaType extends AbstractApiType
         $groups = is_array($options['validation_groups']) ? $options['validation_groups'] : [];
         $constraints = [];
 
-        if(isset($groups['NotBlank'])) {
+        if (isset($groups['NotBlank'])) {
             $constraints[] =  new Assert\NotBlank(['groups' => $this->getGroupsForField($fieldName, $groups['NotBlank'])]);
         }
 
-        if(isset($groups['Blank'])) {
+        if (isset($groups['Blank'])) {
             $constraints[] =  new Assert\Blank(['groups' => $this->getGroupsForField($fieldName, $groups['Blank'])]);
         }
 
+        // form constraints passed in parent form
+        if ('filename' === $fieldName && is_array($options['constraints'])) {
+            foreach ($options['constraints'] as $constraint) {
+                if (is_string($constraint)) {
+                    $constraints[] = new $constraint();
+                } elseif (is_object($constraint)) {
+                    $constraints[] = $constraint;
+                }
+            }
+        } elseif ('file' === $fieldName) {
+            $assertOptions = static::getFileValidationOptions();
+            if (!empty($assertOptions)) {
+                $constraints[] = static::$dataClass::isImage() ? new Assert\Image($assertOptions) : new Assert\File($assertOptions);
+            }
+        }
+
         return $constraints;
+    }
+
+    /**
+     * @return array
+     */
+    protected static function getFileValidationOptions(): array
+    {
+        $assertOptions = [];
+
+        $mimeTypes = static::$dataClass::getMimeTypes();
+        if (!empty($mimeTypes)) {
+            $assertOptions['mimeTypes'] = $mimeTypes;
+        }
+        if ($maxSize = static::$dataClass::getMaxSize()) {
+            $assertOptions['maxSize'] = $maxSize;
+        }
+
+        if (static::$dataClass::isImage()) {
+            $optionNames = ['minWidth', 'maxWidth', 'minHeight', 'maxHeight', 'minRatio', 'maxRatio'];
+            foreach ($optionNames as $optionName) {
+                $method = 'get'.ucfirst($optionName);
+                $value = static::$dataClass::$method();
+                if (null !== $value) {
+                    $assertOptions[$optionName] = $value;
+                }
+            }
+        }
+
+        return $assertOptions;
+    }
+
+    /**
+     * @return array
+     */
+    protected static function getFileAttr(): array
+    {
+        $assertOptions = static::getFileValidationOptions();
+        $attr = ['widget' => 'file'];
+
+        foreach ($assertOptions as $key => $value) {
+            $attr[CaseConverter::convertCamelCaseToSnakeCase($key)] = $value;
+            if ('mimeTypes' === $key) {
+                $attr['extensions'] = MimeUtil::getMimesExtentions($value);
+            }
+        }
+
+        return $attr;
     }
 
 
@@ -115,15 +184,14 @@ abstract class AbstractMediaType extends AbstractApiType
      */
     private function getGroupsForField(string $fieldName, array $groups)
     {
-        if(count($groups)) {
-
-            if(isset($groups[$fieldName])) {
+        if (count($groups)) {
+            if (isset($groups[$fieldName])) {
                 return $groups[$fieldName];
             }
 
             $fields = ['filename', 'file'];
             foreach ($groups as $key => $group) {
-                if(!in_array($key, $fields, true) && !is_int($key)) {
+                if (!in_array($key, $fields, true) && !is_int($key)) {
                     throw new \Exception("{$this->getBlockPrefix()}.options.validation_groups.{$key}.invalid");
                 }
             }

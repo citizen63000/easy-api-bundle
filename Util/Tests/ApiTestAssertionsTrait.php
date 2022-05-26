@@ -173,11 +173,12 @@ trait ApiTestAssertionsTrait
      */
     protected static function assertDateTime($key, $format, $value): void
     {
-        $expectedFormat = $format ?? 'Y-m-d H:i:s';
+        $expectedFormat = $format ?? self::$container->getParameter('easy_api.tests.datetime_format');
         $errorMessage = "Invalid date format for {$key} field: expected format {$expectedFormat}, get value '{$value}'";
         static::assertTrue(!empty($value), $errorMessage);
         $date = \DateTime::createFromFormat($expectedFormat, $value);
-        static::assertTrue($date && ($date->format($expectedFormat) === $value), $errorMessage);
+        static::assertNotFalse($date, "assertDateTimeNow : invalid format $expectedFormat for key $key (value $value)");
+        static::assertTrue($date && (string) ($date->format($expectedFormat) === (string) $value), $errorMessage);
     }
 
     /**
@@ -189,10 +190,11 @@ trait ApiTestAssertionsTrait
      */
     protected static function assertDateTimeNow(string $key, ?string $format, ?string $value)
     {
-        $expectedFormat = $format ?? 'Y-m-d H:i:s';
+        $expectedFormat = $format ?? self::$container->getParameter('easy_api.tests.datetime_format');
         $errorMessage = "Invalid date format for {$key} field: expected format {$expectedFormat}, get value '{$value}'";
         static::assertTrue(!empty($value), $errorMessage);
         $date = \DateTime::createFromFormat($expectedFormat, $value);
+        static::assertNotFalse($date, "assertDateTimeNow : invalid format $expectedFormat for key $key (value $value)");
         static::assertTrue($date->diff(new \DateTime())->format('%S') <= 1, $errorMessage);
     }
 
@@ -224,7 +226,7 @@ trait ApiTestAssertionsTrait
         $expected = str_replace('{UUID}', $expectedUUID, $expected);
         $expected = str_replace('{UID}', '[a-zA-Z0-9]+', $expected);
         $expected = "/$expected/";
-        $errorMessage = "Invalid file url in {$key} field: expected {$expected}, get value {$value}";
+        $errorMessage = "Invalid file url in {$key} field: expected {$expected}, get value {$value}.";
         $found = preg_match($expected, $value);
         static::assertTrue((bool) $found, $errorMessage);
     }
@@ -243,7 +245,7 @@ trait ApiTestAssertionsTrait
         $expected = str_replace('{UUID}', static::regexp_uuid, $expected);
         $expected = str_replace('{UID}', static::regexp_uid, $expected);
         $expected = "/$expected/";
-        $errorMessage = "Invalid file name in {$key} field: expected {$expected}, get value {$value}";
+        $errorMessage = "Invalid file name in {$key} field: expected {$expected}, get value {$value}.";
         $found = preg_match($expected, $value);
         static::assertTrue((bool) $found, $errorMessage);
     }

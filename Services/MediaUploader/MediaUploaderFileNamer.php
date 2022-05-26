@@ -4,25 +4,29 @@ namespace EasyApiBundle\Services\MediaUploader;
 
 use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use Psr\Container\ContainerInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Vich\UploaderBundle\Mapping\PropertyMapping;
 use Vich\UploaderBundle\Naming\ConfigurableInterface;
 use Vich\UploaderBundle\Naming\NamerInterface;
 use Vich\UploaderBundle\Naming\OrignameNamer;
 use Vich\UploaderBundle\Naming\PropertyNamer;
+use Vich\UploaderBundle\Util\Transliterator;
 
 class MediaUploaderFileNamer implements NamerInterface
 {
-    /** @var ContainerInterface  */
-    protected $container;
+    protected ContainerInterface $container;
+
+    protected SluggerInterface $slugger;
 
     /**
      * DirectoryNamer constructor.
      *
      * @param ContainerInterface $container
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container, SluggerInterface $slugger)
     {
         $this->container = $container;
+        $this->slugger = $slugger;
     }
 
     /**
@@ -59,7 +63,7 @@ class MediaUploaderFileNamer implements NamerInterface
      * @param string $namerClassName
      * @return bool
      */
-    private static function isVichNamer(string $namerClassName): bool
+    private function isVichNamer(string $namerClassName): bool
     {
         return substr($namerClassName, 0, 4) === 'Vich';
     }
@@ -68,10 +72,10 @@ class MediaUploaderFileNamer implements NamerInterface
      * @param string $namerClassName
      * @return NamerInterface
      */
-    private static function getVichNamer(string $namerClassName): NamerInterface
+    private function getVichNamer(string $namerClassName): NamerInterface
     {
         /** @var NamerInterface|ConfigurableInterface $namer */
-        $namer = new $namerClassName();
+        $namer = new $namerClassName(new Transliterator($this->slugger));
 
         if(PropertyNamer::class === $namerClassName) {
             $namer->configure(['property' => 'generateFileName']);

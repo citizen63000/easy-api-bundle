@@ -1,8 +1,9 @@
 fos_rest:
     serializer:
         serialize_null: true
-    routing_loader:
-        default_format: json
+    format_listener:
+        rules:
+            - { path: ^/api, prefer_extension: true, fallback_format: json, priorities: [ json ] }
     allowed_methods_listener: true
     param_fetcher_listener: true
     body_listener:
@@ -13,8 +14,5 @@ fos_rest:
             rss: false
             json: true
             xml: false
-        force_redirects:
-            html: true
         failed_validation: HTTP_UNPROCESSABLE_ENTITY
         empty_content: HTTP_NO_CONTENT
-        default_engine: twig

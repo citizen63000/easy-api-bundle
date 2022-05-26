@@ -11,18 +11,9 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-
 abstract class AbstractApiType extends AbstractType
 {
     private $valuesToSetNull = [];
-
-    public function buildForm(FormBuilderInterface $builder, array $options)
-    {
-        parent::buildForm($builder, $options);
-
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, [$this, 'managePreSubmitAbstractMediaFiles']);
-        $builder->addEventListener(FormEvents::POST_SUBMIT, [$this, 'manageAbstractMediaFiles']);
-    }
 
     /**
      * @var string
@@ -46,6 +37,18 @@ abstract class AbstractApiType extends AbstractType
      * @var array
      */
     protected $validationGroups;
+
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array $options
+     */
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        parent::buildForm($builder, $options);
+
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, [$this, 'managePreSubmitAbstractMediaFiles']);
+        $builder->addEventListener(FormEvents::POST_SUBMIT, [$this, 'manageAbstractMediaFiles']);
+    }
 
     /**
      * @return array
@@ -100,10 +103,6 @@ abstract class AbstractApiType extends AbstractType
      */
     protected function getValidationGroups($pEntity)
     {
-        if (null !== $this->validationGroups) {
-            return $this->validationGroups;
-        }
-
         $this->validationGroups = ['Default'];
         foreach (static::$groupsConditions as $group => $conditions) {
             foreach ($conditions as $condition => $values) {
@@ -179,7 +178,6 @@ abstract class AbstractApiType extends AbstractType
      */
     public function managePreSubmitAbstractMediaFiles(FormEvent $event)
     {
-
         $data = $event->getData();
         $form = $event->getForm();
 
@@ -190,12 +188,12 @@ abstract class AbstractApiType extends AbstractType
         foreach ($form as $name => $child) {
             $config = $child->getConfig();
             $type = $config->getType();
-            if($type->getInnerType() instanceof AbstractMediaType) {
-                if(array_key_exists($name, $data)) {
-                    if(is_array($data[$name])) {
+            if ($type->getInnerType() instanceof AbstractMediaType) {
+                if (array_key_exists($name, $data)) {
+                    if (is_array($data[$name])) {
                         $filename = $data[$name]['filename'] ?? null;
                         $file = $data[$name]['file'] ?? null;
-                        if(null === $filename && null === $file) {
+                        if (null === $filename && null === $file) {
                             $data[$name] = null;
                             $this->valuesToSetNull[] = $name;
                         }
@@ -218,9 +216,13 @@ abstract class AbstractApiType extends AbstractType
     {
         $data = $event->getData();
 
+        // set media entity to null on container entity
         foreach ($this->valuesToSetNull as $fieldName) {
             $data->{'set'.ucfirst($fieldName)}(null);
             $event->setData($data);
         }
+
+        // clean for the next form
+        $this->valuesToSetNull = [];
     }
 }

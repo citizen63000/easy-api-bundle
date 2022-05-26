@@ -3,55 +3,50 @@
 namespace EasyApiBundle\Services\JWS;
 
 use Doctrine\ORM\EntityManager;
-use FOS\UserBundle\Model\User;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWSProvider\JWSProviderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\KeyLoader\KeyLoaderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Signature\CreatedJWS;
 use Lexik\Bundle\JWTAuthenticationBundle\Signature\LoadedJWS;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Namshi\JOSE\JWS;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class JWSProvider implements JWSProviderInterface
 {
     /** @var KeyLoaderInterface */
-    private $keyLoader;
+    protected KeyLoaderInterface $keyLoader;
 
     /** @var string */
-    private $cryptoEngine;
+    protected string $cryptoEngine;
 
     /** @var string */
-    private $signatureAlgorithm;
+    protected string $signatureAlgorithm;
 
     /** @var int */
-    private $ttl;
+    protected int $ttl;
 
     /** @var string */
-    private $authorizationHeaderPrefix;
+    protected string $authorizationHeaderPrefix;
 
     /** @var TokenStorageInterface */
-    private $tokenStorage;
+    protected TokenStorageInterface $tokenStorage;
 
     /** @var EntityManager */
-    private $em;
+    protected EntityManager $em;
 
     /** @var string */
-    private $userClass;
+    protected string $userClass;
 
     /** @var string */
-    private $userIdentityField;
+    protected string $userIdentityField;
 
     /**
-     * @param KeyLoaderInterface    $keyLoader
-     * @param string                $cryptoEngine
-     * @param string                $signatureAlgorithm
-     * @param int                   $ttl
-     * @param string                $authorizationHeaderPrefix
-     * @param TokenStorageInterface $tokenStorage
-     * @param EntityManager         $entityManager
-     *
-     * @throws \InvalidArgumentException If the given algorithm is not supported
+     * @param KeyLoaderInterface $keyLoader
+     * @param string $cryptoEngine
+     * @param string $signatureAlgorithm
+     * @param string $authorizationHeaderPrefix
      */
-    public function __construct(KeyLoaderInterface $keyLoader, $cryptoEngine, $signatureAlgorithm, $ttl, $authorizationHeaderPrefix, TokenStorageInterface $tokenStorage, EntityManager $entityManager, string $userClass, string $userIdentityField)
+    public function __construct(KeyLoaderInterface $keyLoader, string $cryptoEngine, string $signatureAlgorithm, int $ttl, string $authorizationHeaderPrefix, TokenStorageInterface $tokenStorage, EntityManager $entityManager, string $userClass, string $userIdentityField)
     {
         $cryptoEngine = 'openssl' === $cryptoEngine ? 'OpenSSL' : 'SecLib';
 
@@ -71,50 +66,9 @@ class JWSProvider implements JWSProviderInterface
     }
 
     /**
-     * @param User $user
-     * @return CreatedJWS
-     */
-    public function generateTokenByUser(User $user)
-    {
-        $identityGetter = 'get'.ucfirst($this->userIdentityField);
-        return $this->create(['roles' => $user->getRoles(), $this->userIdentityField => $user->$identityGetter()]);
-    }
-
-    /**
      * {@inheritdoc}
      */
-    public function create(array $payload)
-    {
-        $jws = new JWS([
-            'alg' => $this->signatureAlgorithm,
-            'typ' => $this->authorizationHeaderPrefix,
-        ], $this->cryptoEngine);
-
-        $token = $this->tokenStorage->getToken();
-        $user = (null !== $token) ? $token->getUser() : null;
-
-        if (null === $user || (is_string($user) && $user === 'anon.')) {
-            $user = $this->em->getRepository($this->userClass)->findOneBy([$this->userIdentityField => $payload[$this->userIdentityField]]);
-        }
-
-        if ($user instanceof User) {
-            $jws->setPayload($payload + ['exp' => time() + $this->ttl, 'iat' => time(), 'displayName' => $user->__toString()]);
-        } else {
-            $jws->setPayload($payload);
-        }
-
-        $jws->sign(
-            $this->keyLoader->loadKey('private'),
-            $this->keyLoader->getPassphrase()
-        );
-
-        return new CreatedJWS($jws->getTokenString(), $jws->isSigned());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function load($token)
+    public function load($token): LoadedJWS
     {
         $jws = JWS::load($token, false, null, $this->cryptoEngine);
 
@@ -130,8 +84,41 @@ class JWSProvider implements JWSProviderInterface
      *
      * @return bool
      */
-    private function isAlgorithmSupportedForEngine($cryptoEngine, $signatureAlgorithm)
+    private function isAlgorithmSupportedForEngine(string $cryptoEngine, string $signatureAlgorithm): bool
     {
         return class_exists("Namshi\\JOSE\\Signer\\{$cryptoEngine}\\{$signatureAlgorithm}");
+    }
+
+    /**
+     * @param array $payload
+     * @param array $header
+     * @return null
+     */
+    public function create(array $payload, array $header = [])
+    {
+        $jws = new JWS([
+            'alg' => $this->signatureAlgorithm,
+            'typ' => $this->authorizationHeaderPrefix,
+        ], $this->cryptoEngine);
+
+        $token = $this->tokenStorage->getToken();
+        $user = (null !== $token) ? $token->getUser() : null;
+
+        if (null === $user || (is_string($user) && $user === 'anon.')) {
+            $user = $this->em->getRepository($this->userClass)->findOneBy([$this->userIdentityField => $payload[$this->userIdentityField]]);
+        }
+
+        if ($user instanceof UserInterface) {
+            $jws->setPayload($payload + ['exp' => time() + $this->ttl, 'iat' => time(), 'displayName' => $user->__toString()]);
+        } else {
+            $jws->setPayload($payload);
+        }
+
+        $jws->sign(
+            $this->keyLoader->loadKey('private'),
+            $this->keyLoader->getPassphrase()
+        );
+
+        return new CreatedJWS($jws->getTokenString(), $jws->isSigned());
     }
 }

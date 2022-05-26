@@ -1,16 +1,20 @@
 <?php
 
-
 namespace EasyApiBundle;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Config\Loader\LoaderInterface;
 
 class ApiKernel extends Kernel
 {
+    protected const PROD_ENVIRONMENT_NAME = 'prod';
+    protected const DEV_ENVIRONMENT_NAME = 'dev';
+    protected const TEST_ENVIRONMENT_NAME = 'test';
+
     /**
-     * @return array|iterable|\Symfony\Component\HttpKernel\Bundle\BundleInterface[]
+     * @return array|iterable|BundleInterface[]
      */
     public function registerBundles()
     {
@@ -24,10 +28,8 @@ class ApiKernel extends Kernel
             new \Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new \Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new \Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
-            new \Gesdinet\JWTRefreshTokenBundle\GesdinetJWTRefreshTokenBundle(),
             new \FOS\RestBundle\FOSRestBundle(),
             new \Nelmio\CorsBundle\NelmioCorsBundle(),
-            new \FOS\UserBundle\FOSUserBundle(),
             new \Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
             new \FOS\HttpCacheBundle\FOSHttpCacheBundle(),
             new \Nelmio\ApiDocBundle\NelmioApiDocBundle(),
@@ -35,9 +37,8 @@ class ApiKernel extends Kernel
             new \Oneup\FlysystemBundle\OneupFlysystemBundle(),
         ];
 
-        if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
+        if (static::TEST_ENVIRONMENT_NAME === $this->environment || static::DEV_ENVIRONMENT_NAME === $this->environment) {
             $bundles[] = new \Symfony\Bundle\DebugBundle\DebugBundle();
-            $bundles[] = new \Sensio\Bundle\DistributionBundle\SensioDistributionBundle();
             $bundles[] = new \Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
         }
 
@@ -47,15 +48,15 @@ class ApiKernel extends Kernel
     /**
      * @return string
      */
-    public function getCacheDir()
+    public function getCacheDir(): string
     {
-        return dirname($this->getRootDir()).'/var/cache/'.$this->getEnvironment();
+        return dirname($this->getRootDir())."/var/cache/{$this->getEnvironment()}";
     }
 
     /**
      * @return string
      */
-    public function getLogDir()
+    public function getLogDir(): string
     {
         return dirname($this->getRootDir()).'/var/logs';
     }
@@ -69,9 +70,8 @@ class ApiKernel extends Kernel
         $loader->load(function (ContainerBuilder $container) {
             $container->setParameter('container.autowiring.strict_mode', true);
             $container->setParameter('container.dumper.inline_class_loader', true);
-
             $container->addObjectResource($this);
         });
-        $loader->load($this->getRootDir().'/config/config_'.$this->getEnvironment().'.yml');
+        $loader->load("{$this->getRootDir()}/config/config_{$this->getEnvironment()}.yml");
     }
 }
