@@ -28,6 +28,6 @@ trait CrudGetControllerTrait
      */
     public function getAction(Request $request)
     {
-        return $this->getEntityAction($this->getEntityOfRequest($request));
+        return $this->getEntityAction($request, $this->getEntityOfRequest($request));
     }
 }
