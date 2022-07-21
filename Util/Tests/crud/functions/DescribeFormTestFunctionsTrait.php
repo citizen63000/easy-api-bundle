@@ -26,7 +26,8 @@ trait DescribeFormTestFunctionsTrait
      */
     protected function doGetTest(string $method, array $params = [], string $userLogin = null, string $userPassword = null)
     {
-        $apiOutput = self::httpGetWithLogin(['name' => static::getDescribeFormRouteName(), 'params' => ['method' => $method]], $userLogin, $userPassword);
+        $params['method'] = $method;
+        $apiOutput = self::httpGetWithLogin(['name' => static::getDescribeFormRouteName(), 'params' => $params], $userLogin, $userPassword);
 
         $result = $apiOutput->getData();
 
