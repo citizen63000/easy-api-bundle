@@ -27,8 +27,6 @@
     "nelmio/api-doc-bundle": "3.6.1",
     "vich/uploader-bundle": "1.15.*",
     "oneup/flysystem-bundle": "^3.0",
-    "whichbrowser/parser": "^2.0",
-    "thadafinser/user-agent-parser": "^2.0",
     "ext-fileinfo": "*",
     "ext-pdo": "*",
     "ext-json": "*"
