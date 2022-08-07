@@ -10,7 +10,8 @@
   ],
   "require": {
     "php": ">=7.4.3",
-    "symfony/symfony": "^4.4",
+    "symfony/symfony-framework": "^4.4",
+    "symfony/symfony-flex": "^1.6",
     "symfony/monolog-bundle": "^3.3",
     "symfony/swiftmailer-bundle": "^3.2",
     "sensio/framework-extra-bundle": "^5.3",
