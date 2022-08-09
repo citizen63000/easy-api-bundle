@@ -2,8 +2,8 @@
 
 namespace EasyApiBundle\Util\Tests;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\Common\Persistence\ObjectRepository;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectRepository;
 use EasyApiBundle\Util\CoreUtilsTrait;
 use Symfony\Component\DependencyInjection\Container;
 
@@ -52,5 +52,4 @@ trait TestUtilsTrait
     {
         return $this->getContainer()->get($id, $invalidBehavior);
     }
-
 }

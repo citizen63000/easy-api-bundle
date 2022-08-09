@@ -2,6 +2,7 @@
 
 namespace EasyApiBundle\Util\Forms;
 
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Nelmio\ApiDocBundle\Model\Model;
 use EasyApiBundle\Form\Type\AbstractApiType;
@@ -35,7 +36,7 @@ class FormSerializer
      * @param FormFactory $formFactory
      * @param Router $router
      */
-    public function __construct(FormFactory $formFactory, Router $router, ManagerRegistry $doctrine)
+    public function __construct(FormFactory $formFactory, Router $router, Registry $doctrine)
     {
         $this->formFactory = $formFactory;
         $this->router = $router;
@@ -102,7 +103,7 @@ class FormSerializer
     {
         return new SerializedForm();
     }
-    
+
     /**
      * @return SerializedFormField
      */
@@ -213,7 +214,7 @@ class FormSerializer
             $sForm = $this->parseForm($subForm, $sField->getKey(), SerializedForm::PARENT_TYPE_FORM);
             $sField->setConditionedFields(self::getChildrenFieldsConditions($form, $sField));
             $sField->setForm($sForm);
-        // not a form
+            // not a form
         } else {
 
             // Properties
@@ -352,10 +353,8 @@ class FormSerializer
 
     /**
      * Get field placeholder.
-     *
      * @param FormConfigBuilderInterface $config
      * @param SerializedFormField $sField
-     *
      * @return mixed|string
      */
     private static function getFieldPlaceholder(FormConfigBuilderInterface $config, SerializedFormField $sField)
