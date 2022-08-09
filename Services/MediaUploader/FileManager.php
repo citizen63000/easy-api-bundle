@@ -7,6 +7,7 @@ use EasyApiBundle\Util\ApiProblem;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Vich\UploaderBundle\Storage\FlysystemStorage;
+use Vich\UploaderBundle\Storage\StorageInterface;
 
 class FileManager
 {
@@ -15,7 +16,7 @@ class FileManager
     /**
      * @param FlysystemStorage $fileSystemStorage
      */
-    public function __construct(FlysystemStorage $fileSystemStorage)
+    public function __construct(StorageInterface $fileSystemStorage)
     {
         $this->fileSystemStorage = $fileSystemStorage;
     }
