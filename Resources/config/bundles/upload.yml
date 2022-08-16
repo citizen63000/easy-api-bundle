@@ -25,10 +25,10 @@ oneup_flysystem:
     adapters:
         private_media_uploader_adapter:
             local:
-                directory: '%kernel.project_dir%/private'
+                location: '%kernel.project_dir%/private'
         public_media_uploader_adapter:
             local:
-                directory: '%web_dir%'
+                location: '%web_dir%'
     filesystems:
         private_media_uploader_fs:
             adapter:    private_media_uploader_adapter

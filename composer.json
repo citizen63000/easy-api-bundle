@@ -9,7 +9,9 @@
     }
   ],
   "require": {
-    "php": ">=7.4.3"
+    "php": ">=7.4.3",
+    "ext-fileinfo": "*",
+    "symfony/flex": "^1.19"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "@stable",

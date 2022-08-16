@@ -6,15 +6,14 @@ use EasyApiBundle\Exception\ApiProblemException;
 use EasyApiBundle\Util\ApiProblem;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Vich\UploaderBundle\Storage\FileSystemStorage;
 use Vich\UploaderBundle\Storage\StorageInterface;
 
 class FileManager
 {
-    protected FileSystemStorage $fileSystemStorage;
+    protected StorageInterface $fileSystemStorage;
 
     /**
-     * @param FileSystemStorage $fileSystemStorage
+     * @param StorageInterface $fileSystemStorage
      */
     public function __construct(StorageInterface $fileSystemStorage)
     {
