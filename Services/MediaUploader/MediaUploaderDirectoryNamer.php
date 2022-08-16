@@ -35,7 +35,11 @@ class MediaUploaderDirectoryNamer implements DirectoryNamerInterface
     public function directoryName($object, PropertyMapping $mapping): string
     {
         if ($directoryNamer = $object->getDirectoryNamer()) {
-            return $this->container->get($directoryNamer)->directoryName($object, $mapping);
+            if (is_string($directoryNamer)) {
+                return $this->container->get($directoryNamer)->directoryName($object, $mapping);
+            } else {
+                return $directoryNamer->directoryName($object, $mapping);
+            }
         }
 
         if ($directoryName = $object->getDirectoryName()) {
