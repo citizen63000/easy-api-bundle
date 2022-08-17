@@ -5,7 +5,7 @@ vich_uploader:
     mappings:
         private_media_uploader:
             uri_prefix:         /private
-            upload_destination: private_media_uploader_fs
+            upload_destination: oneup_flysystem.private_media_uploader_fs_filesystem
             inject_on_load:     false
             delete_on_update:   true
             delete_on_remove:   true
@@ -13,7 +13,7 @@ vich_uploader:
             directory_namer: 'EasyApiBundle\Services\MediaUploader\MediaUploaderDirectoryNamer'
         public_media_uploader:
             uri_prefix:         '%router.request_context.scheme%://%router.request_context.host%'
-            upload_destination: public_media_uploader_fs
+            upload_destination: oneup_flysystem.public_media_uploader_fs_filesystem
             inject_on_load:     false
             delete_on_update:   true
             delete_on_remove:   true
