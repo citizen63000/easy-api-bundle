@@ -113,8 +113,6 @@ trait ApiTestDataLoaderTrait
                     $arraySchemas[] = "'{$schema}'";
                 }
                 $schemas = implode(',', $arraySchemas);
-            } else {
-                $schemas = '"'.self::$container->getParameter('database_tests_name').'"';
             }
 
             $sql = "SELECT CONCAT('`', TABLE_SCHEMA, '`', '.', '`', TABLE_NAME, '`')
@@ -176,6 +174,7 @@ trait ApiTestDataLoaderTrait
             }
         }
     }
+
     /**
      * @param string $table
      * @param string $filename
@@ -275,10 +274,10 @@ trait ApiTestDataLoaderTrait
     {
         $path = self::$projectDir.DIRECTORY_SEPARATOR.'tests'.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.'csv'.DIRECTORY_SEPARATOR.$filename;
         $f = fopen($path, 'r');
-        $line = str_replace(['"', "\n", ' ', '`'], '',fgets($f));
+        $line = str_replace(['"', "\n", ' ', '`'], '', fgets($f));
         fclose($f);
 
-        return implode(',', array_map( function($column) { return "`$column`"; } , explode(',', $line)));
+        return implode(',', array_map( function($column) { return "`$column`"; }, explode(',', $line)));
     }
 
     /**
