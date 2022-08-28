@@ -23,19 +23,15 @@ class MediaUploaderDirectoryNamer implements DirectoryNamerInterface
     }
 
     /**
-     * @todo type parameters for php7.4
-     *
      * Returns the name of a directory where files will be uploaded.
-     *
      * @param AbstractMedia $object
      * @param PropertyMapping $mapping
-     *
      * @return string
      */
     public function directoryName($object, PropertyMapping $mapping): string
     {
         if ($directoryNamer = $object->getDirectoryNamer()) {
-            return $this->container->get($directoryNamer)->directoryName($object, $mapping);
+                return $this->container->get($directoryNamer)->directoryName($object, $mapping);
         }
 
         if ($directoryName = $object->getDirectoryName()) {

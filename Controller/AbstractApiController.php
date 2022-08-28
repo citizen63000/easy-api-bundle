@@ -110,7 +110,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
      *
      * @return Response
      */
-    protected function getEntityAction($entity, array $serializationGroups = null): Response
+    protected function getEntityAction(Request $request, $entity, array $serializationGroups = null): Response
     {
         return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [], Response::HTTP_OK, [], static::useSerializerCache);
     }

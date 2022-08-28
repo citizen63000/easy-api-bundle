@@ -29,7 +29,7 @@ trait GetTestFunctionsTrait
      */
     public function doTestGenericGet(array $params = [], string $filename = 'nominalCase.json', string $userLogin = null, string $userPassword = null)
     {
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => $params], $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(static::generateGetRouteParameters($params), $userLogin, $userPassword);
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
         $result = $apiOutput->getData();
@@ -57,12 +57,12 @@ trait GetTestFunctionsTrait
      */
     public function doTestGenericGetNotFound(array $params = [], string $userLogin = null, string $userPassword = null): void
     {
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => $params], $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(static::generateGetRouteParameters($params), $userLogin, $userPassword);
         static::assertApiProblemError($apiOutput, Response::HTTP_NOT_FOUND, [sprintf(ApiProblem::ENTITY_NOT_FOUND, 'entity')]);
     }
 
     /**
-     * GET - Error case - 401 - Without authentication.
+     * GET - Error case - Without authentication.
      * @param int|null $id
      */
     public function doTestGetWithoutAuthentication(int $id = null): void
@@ -71,17 +71,17 @@ trait GetTestFunctionsTrait
     }
 
     /**
-     * GET - Error case - 401 - Without authentication.
+     * GET - Error case - Without authentication.
      * @param array $params
      */
     public function doTestGenericGetWithoutAuthentication(array $params = []): void
     {
-        $apiOutput = self::httpGet(['name' => static::getGetRouteName(), 'params' => $params], false);
+        $apiOutput = self::httpGet(static::generateGetRouteParameters($params), false);
         static::assertApiProblemError($apiOutput, Response::HTTP_UNAUTHORIZED, [ApiProblem::JWT_NOT_FOUND]);
     }
 
     /**
-     * GET - Error case - 403 - Missing right.
+     * GET - Error case - Missing right.
      * @param int|null $id
      * @param string|null $userLogin
      * @param string|null $userPassword
@@ -92,7 +92,7 @@ trait GetTestFunctionsTrait
     }
 
     /**
-     * GET - Error case - 403 - Missing right.
+     * GET - Error case - Missing right.
      * @param array $params
      * @param string|null $userLogin
      * @param string|null $userPassword
@@ -104,7 +104,7 @@ trait GetTestFunctionsTrait
             $userPassword = static::USER_NORULES_TEST_PASSWORD;
         }
 
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => $params], $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(static::generateGetRouteParameters($params), $userLogin, $userPassword);
 
         static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
     }
