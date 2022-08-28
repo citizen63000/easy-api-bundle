@@ -1,11 +1,11 @@
 # Vich Uploader Configuration
 vich_uploader:
     db_driver: orm
-    storage:   flysystem
+    storage:   file_system
     mappings:
         private_media_uploader:
             uri_prefix:         /private
-            upload_destination: private_media_uploader_fs
+            upload_destination: '%kernel.project_dir%/private'
             inject_on_load:     false
             delete_on_update:   true
             delete_on_remove:   true
@@ -13,26 +13,9 @@ vich_uploader:
             directory_namer: 'EasyApiBundle\Services\MediaUploader\MediaUploaderDirectoryNamer'
         public_media_uploader:
             uri_prefix:         '%router.request_context.scheme%://%router.request_context.host%'
-            upload_destination: public_media_uploader_fs
+            upload_destination: '%kernel.project_dir%/public'
             inject_on_load:     false
             delete_on_update:   true
             delete_on_remove:   true
             namer: 'EasyApiBundle\Services\MediaUploader\MediaUploaderFileNamer'
             directory_namer: 'EasyApiBundle\Services\MediaUploader\MediaUploaderDirectoryNamer'
-
-# OneUp Fly System Configuration
-oneup_flysystem:
-    adapters:
-        private_media_uploader_adapter:
-            local:
-                directory: '%kernel.project_dir%/private'
-        public_media_uploader_adapter:
-            local:
-                directory: '%web_dir%'
-    filesystems:
-        private_media_uploader_fs:
-            adapter:    private_media_uploader_adapter
-            mount:      private_media_uploader_fs
-        public_media_uploader_fs:
-            adapter:    public_media_uploader_adapter
-            mount:      public_media_uploader_fs
