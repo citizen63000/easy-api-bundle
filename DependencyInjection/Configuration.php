@@ -19,9 +19,8 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('easy_api');
-        $rootNode
+        $treeBuilder = new TreeBuilder('easy_api');
+        $treeBuilder->getRootNode()
             ->children()
 
                 ->booleanNode('authentication')->defaultTrue()->end()

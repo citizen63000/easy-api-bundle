@@ -66,7 +66,7 @@ services:
   # JWT JWT_AUTHENTICATED - Token used
   app.event.jwt_authenticated_listener:
     class: EasyApiBundle\EventListener\JWTAuthenticatedListener
-    arguments: ['@doctrine.orm.entity_manager', '@router.request_context', '@request_stack', '%jwt_token_ttl%', '@service_container', '@security.encoder_factory']
+    arguments: ['@doctrine.orm.entity_manager', '@router.request_context', '@request_stack', '%lexik_jwt_authentication.token_ttl%', '@service_container', '@security.encoder_factory']
     tags:
       - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_authenticated, method: onJWTAuthenticated }
 
