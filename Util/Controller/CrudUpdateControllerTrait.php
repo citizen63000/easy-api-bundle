@@ -20,7 +20,7 @@ trait CrudUpdateControllerTrait
      *     @Swagger\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type="static::entityUpdateTypeClass"))
      * ),
      * @Swagger\Annotations\Response(
-     *     response=201,
+     *     response=200,
      *     description="Successful operation",
      *     @Swagger\Annotations\Schema(
      *          ref=@Nelmio\ApiDocBundle\Annotation\Model(
