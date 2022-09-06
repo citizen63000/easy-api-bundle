@@ -120,7 +120,7 @@ trait ApiTestRequesterTrait
         $profiler = $client->getProfile();
         if (!$profiler) {
             if (!static::$container->has('profiler')) {
-                throw new \Exception('You must enable the profiler in the configuration to use it.');
+                throw new \Exception('You must enable the profiler (profiler: {collect: true }) in the configuration to use it in tests.');
             } else {
                 throw new \Exception('Impossible to load the profiler in the client.');
             }
