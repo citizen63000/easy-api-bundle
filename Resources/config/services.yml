@@ -109,11 +109,6 @@ services:
 ##    class: EasyApiBundle\Util\AnonymousDataManager
 ##    arguments: ['@doctrine.orm.entity_manager', '@lexik_jwt_authentication.encoder']
 #
-#  #  # Mailer
-#  #  app_mailer:
-#  #    class: EasyApiBundle\Services\Mailer\AppMailer
-#  #    arguments: ['@service_container', '@security.token_storage']
-#
   app.api_exception_subscriber:
     class: EasyApiBundle\EventListener\ApiExceptionSubscriber
     arguments: ['@logger', '%kernel.environment%']

@@ -4,5 +4,4 @@ imports:
     - { resource: jwt.yml }
     - { resource: fosrest.yml }
     - { resource: twig.yml }
-    - { resource: swiftmailer.yml }
     - { resource: upload.yml }
