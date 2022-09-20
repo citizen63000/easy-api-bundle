@@ -12,7 +12,7 @@ trait DescribeFormTestFunctionsTrait
     /**
      * Set $executeSetupOnAllTest to false
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
         static::$executeSetupOnAllTest = false;

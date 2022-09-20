@@ -90,20 +90,13 @@ trait CoreUtilsTrait
 
     /**
      * @return AdapterInterface
+     * @throws \Exception
      */
     protected function getCache(): AdapterInterface
     {
         return $this->getContainer()->get('cache.app');
     }
 
-//    /**
-//     * @return CoreMailer
-//     */
-//    protected function getMailer()
-//    {
-//        return $this->getContainer()->get('api_mailer');
-//    }
-//
 //    /**
 //     * @return FileUploader
 //     */
