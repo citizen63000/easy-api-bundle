@@ -3,8 +3,8 @@
 namespace EasyApiBundle\Util\Tests;
 
 use Doctrine\DBAL\Statement;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Symfony\Component\Yaml\Parser as YmlParser;
 
 /**
@@ -40,7 +40,7 @@ trait ApiTestDataLoaderTrait
      *
      * @throws OptimisticLockException|\Exception
      */
-    protected static function loadData() :void
+    protected static function loadData(): void
     {
         $start = microtime(true);
 
@@ -74,7 +74,6 @@ trait ApiTestDataLoaderTrait
      */
     private static function cleanDb()
     {
-
         /**
          * @var $stmt Statement
          */
@@ -102,7 +101,7 @@ trait ApiTestDataLoaderTrait
     /**
      * @return string
      */
-    private static function retrieveNotEmptyTablesQuery() : ?string
+    private static function retrieveNotEmptyTablesQuery(): ?string
     {
         $cachedQuery = self::getCachedData('test.data.reset.not_empty_tables_query');
 
@@ -128,7 +127,7 @@ trait ApiTestDataLoaderTrait
                     $arrayRefs[] = "'{$table}'";
                 }
                 $sqlRefsToClean = implode(',', $arrayRefs);
-                $sql.= " OR CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) IN ({$sqlRefsToClean})";
+                $sql .= " OR CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) IN ({$sqlRefsToClean})";
             }
 
             $stmt = self::$entityManager->getConnection()->executeQuery($sql);
@@ -185,6 +184,7 @@ trait ApiTestDataLoaderTrait
     {
         $filePath = self::getDataCsvFilePath($filename);
         $columns = self::getDataCsvFileColumns($filename);
+
         return "\n LOAD DATA LOCAL INFILE '{$filePath}' INTO TABLE {$table} FIELDS TERMINATED BY ',' ENCLOSED BY '\"' IGNORE 1 LINES ({$columns});";
     }
 
@@ -208,14 +208,15 @@ trait ApiTestDataLoaderTrait
     /**
      * Execute SQL query (Tests purposes ONLY), giving SQL query.
      *
-     * @param string $query SQL query
-     * @param bool $debugNewLine Adds a new line before debug log
-     * @param bool $showQuery Show query (debug mode)
-     * @param string|null $managerName the manager to use (default manager used if null)
+     * @param string      $query        SQL query
+     * @param bool        $debugNewLine Adds a new line before debug log
+     * @param bool        $showQuery    Show query (debug mode)
+     * @param string|null $managerName  the manager to use (default manager used if null)
+     *
      * @throws OptimisticLockException
      * @throws ORMException
      */
-    final protected static function executeSQLQuery(string $query, bool $debugNewLine = false, bool $showQuery = false, string $managerName = null) :void
+    final protected static function executeSQLQuery(string $query, bool $debugNewLine = false, bool $showQuery = false, string $managerName = null): void
     {
         $em = null === $managerName ? static::$entityManager : static::getContainerInstance()->get('doctrine')->getManager($managerName);
 
@@ -239,7 +240,7 @@ trait ApiTestDataLoaderTrait
         } catch (\Exception $e) {
             self::logError($e->getMessage());
             // STOP
-            die(E_CORE_ERROR);
+            exit(E_CORE_ERROR);
         }
 
         self::$entityManager->flush();
@@ -254,20 +255,18 @@ trait ApiTestDataLoaderTrait
     {
         return file_get_contents(
             self::$projectDir
-            . DIRECTORY_SEPARATOR
-            . 'tests'
-            . DIRECTORY_SEPARATOR
-            . 'data'
-            . DIRECTORY_SEPARATOR
-            . 'csv'
-            . DIRECTORY_SEPARATOR
-            . $filename
+            .DIRECTORY_SEPARATOR
+            .'tests'
+            .DIRECTORY_SEPARATOR
+            .'data'
+            .DIRECTORY_SEPARATOR
+            .'csv'
+            .DIRECTORY_SEPARATOR
+            .$filename
         );
     }
 
     /**
-     * @param string $filename
-     *
      * @return bool|string
      */
     protected static function getDataCsvFileColumns(string $filename)
@@ -277,7 +276,7 @@ trait ApiTestDataLoaderTrait
         $line = str_replace(['"', "\n", ' ', '`'], '', fgets($f));
         fclose($f);
 
-        return implode(',', array_map( function($column) { return "`$column`"; }, explode(',', $line)));
+        return implode(',', array_map(function ($column) { return "`$column`"; }, explode(',', $line)));
     }
 
     /**
