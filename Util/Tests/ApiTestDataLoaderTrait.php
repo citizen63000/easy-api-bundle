@@ -17,18 +17,9 @@ trait ApiTestDataLoaderTrait
 {
     use APITestCacheManagementTrait;
 
-    /**
-     * @var string
-     */
-    protected static $csvDataFilesPath;
-
-    /**
-     * @var array
-     */
-    protected static $schemas = [];
-
-    /** @var array */
-    protected static $referentialsToClean = [];
+    protected static ?string $csvDataFilesPath;
+    protected static array $schemas = [];
+    protected static array $referentialsToClean = [];
 
     protected static function initializeLoader(): void
     {
@@ -41,7 +32,7 @@ trait ApiTestDataLoaderTrait
      *
      * @throws OptimisticLockException|\Exception
      */
-    protected static function loadData() :void
+    protected static function loadData(): void
     {
         $start = microtime(true);
 
@@ -101,7 +92,7 @@ trait ApiTestDataLoaderTrait
      * @throws Exception
      * @throws InvalidArgumentException
      */
-    private static function retrieveNotEmptyTablesQuery() : ?string
+    private static function retrieveNotEmptyTablesQuery(): ?string
     {
         $cachedQuery = self::getCachedData('test.data.reset.not_empty_tables_query');
 
@@ -127,7 +118,7 @@ trait ApiTestDataLoaderTrait
                     $arrayRefs[] = "'{$table}'";
                 }
                 $sqlRefsToClean = implode(',', $arrayRefs);
-                $sql.= " OR CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) IN ({$sqlRefsToClean})";
+                $sql .= " OR CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) IN ({$sqlRefsToClean})";
             }
 
             $stmt = self::$entityManager->getConnection()->executeQuery($sql);
@@ -191,8 +182,9 @@ trait ApiTestDataLoaderTrait
     /**
      * Execute some SQL statements (Tests purposes ONLY), giving SQL test filename.
      *
-     * @param string $filename SQL script filename
-     * @param bool $debugNewLine Adds a new line before debug log
+     * @param string $filename     SQL script filename
+     * @param bool   $debugNewLine Adds a new line before debug log
+     *
      * @throws ORMException
      * @throws OptimisticLockException
      */
@@ -210,10 +202,11 @@ trait ApiTestDataLoaderTrait
     /**
      * Execute SQL query (Tests purposes ONLY), giving SQL query.
      *
-     * @param string $query SQL query
-     * @param bool $debugNewLine Adds a new line before debug log
-     * @param bool $showQuery Show query (debug mode)
-     * @param string|null $managerName the manager to use (default manager used if null)
+     * @param string      $query        SQL query
+     * @param bool        $debugNewLine Adds a new line before debug log
+     * @param bool        $showQuery    Show query (debug mode)
+     * @param string|null $managerName  the manager to use (default manager used if null)
+     *
      * @throws OptimisticLockException
      * @throws ORMException
      */
@@ -255,14 +248,14 @@ trait ApiTestDataLoaderTrait
     {
         return file_get_contents(
             self::$projectDir
-            . DIRECTORY_SEPARATOR
-            . 'tests'
-            . DIRECTORY_SEPARATOR
-            . 'data'
-            . DIRECTORY_SEPARATOR
-            . 'csv'
-            . DIRECTORY_SEPARATOR
-            . $filename
+            .DIRECTORY_SEPARATOR
+            .'tests'
+            .DIRECTORY_SEPARATOR
+            .'data'
+            .DIRECTORY_SEPARATOR
+            .'csv'
+            .DIRECTORY_SEPARATOR
+            .$filename
         );
     }
 
@@ -277,7 +270,7 @@ trait ApiTestDataLoaderTrait
         $line = str_replace(['"', "\n", ' ', '`'], '', fgets($f));
         fclose($f);
 
-        return implode(',', array_map( function($column) { return "`$column`"; }, explode(',', $line)));
+        return implode(',', array_map(function ($column) { return "`$column`"; }, explode(',', $line)));
     }
 
     /**
