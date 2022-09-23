@@ -7,12 +7,11 @@ use EasyApiBundle\Util\ApiProblem;
 trait ApiTestAssertionsTrait
 {
     /**
-     * Use it to add personal assessable function, call it in setUp()
-     * @param string $functionName
+     * Use it to add personal assessable function, call it in setUp().
      */
     protected function addAdditionalAssessableFunction(string $functionName): void
     {
-        static::$additionalAssessableFunctions[]= $functionName;
+        static::$additionalAssessableFunctions[] = $functionName;
     }
 
     /**
@@ -131,7 +130,7 @@ trait ApiTestAssertionsTrait
         foreach ($expected as $key => $value) {
             if (array_key_exists($key, $result)) {
                 if (!is_array($value)) {
-                    if (preg_match("/^\\\\|^{/", $value)) {
+                    if (preg_match('/^\\\\|^{/', $value)) {
                         foreach ($assessableFunctions as $functionName) {
                             $functionExpr1 = "\\\\{$functionName}\((.*)\)";
                             $functionExpr2 = "{{$functionName}\((.*)\)}";
@@ -143,7 +142,7 @@ trait ApiTestAssertionsTrait
                             }
                         }
                     }
-                } elseif(is_array($result[$key])) {
+                } elseif (is_array($result[$key])) {
                     static::assertAssessableContent($expected[$key], $result[$key]);
                 }
             }
@@ -152,13 +151,14 @@ trait ApiTestAssertionsTrait
 
     /**
      * @param string|null $param
+     *
      * @return false|string|null
      */
     private static function getAssessableFunctionParameter(string $param)
     {
         // value in quotes
-        if ('\'' === substr($param, 0, 1) && '\'' === substr($param, strlen($param)-1, 1)) {
-            return substr($param, 1, strlen($param)-2);
+        if ('\'' === substr($param, 0, 1) && '\'' === substr($param, strlen($param) - 1, 1)) {
+            return substr($param, 1, strlen($param) - 2);
         }
 
         return $param;
@@ -166,7 +166,8 @@ trait ApiTestAssertionsTrait
 
     /**
      * Test if the value is DateTime
-     * usage : assertDateTime([format for ex 'y-m-d'])
+     * usage : assertDateTime([format for ex 'y-m-d']).
+     *
      * @param $key
      * @param $format
      * @param $value
@@ -200,7 +201,8 @@ trait ApiTestAssertionsTrait
 
     /**
      * Test if the value is Date (format Y-m-d)
-     * usage : assertDate()
+     * usage : assertDate().
+     *
      * @param $key
      * @param $expected
      * @param $value
@@ -213,7 +215,8 @@ trait ApiTestAssertionsTrait
     /**
      * Test if the value is file url
      * You can use {UID} & {UUID} tags
-     * Usage : assertFileUrl(my_directory_{UUID}/file_{UID}.jpg)
+     * Usage : assertFileUrl(my_directory_{UUID}/file_{UID}.jpg).
+     *
      * @param $key
      * @param $expected
      * @param $value
@@ -221,7 +224,7 @@ trait ApiTestAssertionsTrait
     private static function assertFileUrl($key, $expected, $value): void
     {
         $expected = str_replace('{uri_prefix}', static::getDomainUrl(), $expected);
-        $expected = str_replace([ '.', '/', '-'], ['\.', '\/', '\-'], $expected);
+        $expected = str_replace(['.', '/', '-'], ['\.', '\/', '\-'], $expected);
         $expectedUUID = '[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+\-[a-zA-Z0-9]+';
         $expected = str_replace('{UUID}', $expectedUUID, $expected);
         $expected = str_replace('{UID}', '[a-zA-Z0-9]+', $expected);
@@ -234,14 +237,15 @@ trait ApiTestAssertionsTrait
     /**
      * Test if the value is filename with extension
      * You can use {UID} & {UUID} tags
-     * Usage : assertFileUrl(my_file_{UID}.jpg)
+     * Usage : assertFileUrl(my_file_{UID}.jpg).
+     *
      * @param $key
      * @param $expected
      * @param $value
      */
     private static function assertFileName($key, $expected, $value): void
     {
-        $expected = str_replace([ '.', '-'], ['\.', '\-'], $expected);
+        $expected = str_replace(['.', '-'], ['\.', '\-'], $expected);
         $expected = str_replace('{UUID}', static::regexp_uuid, $expected);
         $expected = str_replace('{UID}', static::regexp_uid, $expected);
         $expected = "/$expected/";
@@ -252,7 +256,8 @@ trait ApiTestAssertionsTrait
 
     /**
      * Test if the value is UUID
-     * Usage : assertUUID()
+     * Usage : assertUUID().
+     *
      * @param $key
      * @param $expected
      * @param $value
