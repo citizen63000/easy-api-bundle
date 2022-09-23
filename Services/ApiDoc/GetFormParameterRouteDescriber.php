@@ -2,7 +2,7 @@
 
 namespace EasyApiBundle\Services\ApiDoc;
 
-use EasyApiBundle\Util\Maker\EntityConfigLoader;
+use EasyApiBundle\Util\Entity\EntityConfigLoader;
 use ReflectionMethod;
 
 use Doctrine\Common\Annotations\Reader;
