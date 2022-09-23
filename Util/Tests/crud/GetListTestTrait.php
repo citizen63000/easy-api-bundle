@@ -21,7 +21,7 @@ trait GetListTestTrait
      */
     public function testGet(): void
     {
-        $this->doTestGetList('nominalCase.json');
+        $this->doTestGetListPaginate('nominalCase.json', 1, 10);
     }
 
     /**
@@ -29,7 +29,7 @@ trait GetListTestTrait
      */
     public function testGetAll(): void
     {
-        $this->doTestGetListPaginate('getAll.json', 1, 99999);
+        $this->doTestGetList('getAll.json');
     }
 
     /**

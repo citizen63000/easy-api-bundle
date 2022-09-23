@@ -20,7 +20,7 @@ class FilterModel
     private $sort;
 
     /** @var int */
-    private $page = 1;
+    private $page;
 
     /** @var int */
     private $limit;
@@ -29,7 +29,7 @@ class FilterModel
      * FilterModel constructor.
      * @param array $filters
      */
-    public function __construct($filters = [])
+    public function __construct(array $filters = [])
     {
         foreach ($filters as $filter) {
             $this->$filter = null;
@@ -63,7 +63,7 @@ class FilterModel
     }
 
     /**
-     * @param array $defaultSort
+     * @param array|null $defaultSort
      */
     public function setDefaultSort(array $defaultSort = null): void
     {
@@ -119,17 +119,17 @@ class FilterModel
     }
 
     /**
-     * @return mixed
+     * @return string|null
      */
-    public function getSort()
+    public function getSort(): ?string
     {
         return $this->sort;
     }
 
     /**
-     * @param mixed $sort
+     * @param string|null $sort
      */
-    public function setSort($sort): void
+    public function setSort(?string $sort): void
     {
         $this->sort = $sort;
     }
