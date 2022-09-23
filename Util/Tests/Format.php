@@ -9,13 +9,10 @@ use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 abstract class Format
 {
-    const JSON = 'application/json';
-    const XML = 'application/xml';
+    public const JSON = 'application/json';
+    public const XML = 'application/xml';
 
-    /**
-     * @var array
-     */
-    protected static $encoderFormats = [
+    protected static array $encoderFormats = [
         self::JSON => JsonEncoder::FORMAT,
         self::XML => 'xml',
     ];
@@ -44,7 +41,7 @@ abstract class Format
      * @param $data
      * @param $format
      *
-     * @return string|\Symfony\Component\Serializer\Encoder\scalar
+     * @return false|string
      */
     public static function writeData($data, $format)
     {
