@@ -339,7 +339,7 @@ abstract class AbstractApiTest extends WebTestCase
     /**
      * {@inheritdoc}
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::logStep();
         self::doSetup();
@@ -370,7 +370,7 @@ abstract class AbstractApiTest extends WebTestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         self::logStep();
 
@@ -391,7 +391,7 @@ abstract class AbstractApiTest extends WebTestCase
     /**
      * {@inheritdoc}
      */
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         self::logStep();
         static::$executeSetupOnAllTest = null;
