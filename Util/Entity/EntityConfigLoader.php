@@ -3,7 +3,6 @@
 namespace EasyApiBundle\Util\Entity;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Embedded;
@@ -42,7 +41,6 @@ class EntityConfigLoader
      * @param string|null $inheritanceType
      * @param string|null $context
      * @return EntityConfiguration
-     * @throws DBALException
      */
     public static function createEntityConfigFromDatabase(EntityManager $em, string $bundle ,string $entityName, string $tableName, string $schema = null, string $parentEntityName = null, string $inheritanceType = null, string $context =null): EntityConfiguration
     {
