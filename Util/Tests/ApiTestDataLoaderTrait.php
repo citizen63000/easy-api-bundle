@@ -2,6 +2,7 @@
 
 namespace EasyApiBundle\Util\Tests;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Statement;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
@@ -71,6 +72,9 @@ trait ApiTestDataLoaderTrait
 
     /**
      * @return int|void
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws Exception
      */
     private static function cleanDb()
     {
