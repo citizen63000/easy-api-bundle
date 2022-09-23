@@ -2,7 +2,6 @@
 
 namespace EasyApiBundle\Util\Tests;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\NonUniqueResultException;
@@ -325,7 +324,7 @@ abstract class AbstractApiTest extends WebTestCase
     /**
      * @param string|null $className
      * @return int|null
-     * @throws DBALException|Exception
+     * @throws Exception
      */
     protected static function getNextEntityId(string $className = null): ?int
     {
