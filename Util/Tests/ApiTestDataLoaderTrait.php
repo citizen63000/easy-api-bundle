@@ -3,9 +3,9 @@
 namespace EasyApiBundle\Util\Tests;
 
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Statement;
-use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Yaml\Parser as YmlParser;
 
 /**
@@ -41,7 +41,7 @@ trait ApiTestDataLoaderTrait
      *
      * @throws OptimisticLockException|\Exception
      */
-    protected static function loadData(): void
+    protected static function loadData() :void
     {
         $start = microtime(true);
 
@@ -71,18 +71,14 @@ trait ApiTestDataLoaderTrait
     }
 
     /**
-     * @return int|void
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws Exception
      */
-    private static function cleanDb()
+    private static function cleanDb(): void
     {
-        /**
-         * @var $stmt Statement
-         */
         $stmt = self::$entityManager->getConnection()->executeQuery(self::retrieveNotEmptyTablesQuery());
-        $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        $tables = $stmt->fetchFirstColumn();
 
         if ($stmt->rowCount() > 0) {
             $resetQuery = "SET FOREIGN_KEY_CHECKS = 0;\n";
@@ -96,16 +92,16 @@ trait ApiTestDataLoaderTrait
                 self::logDebug("\e[32m[SQL]\e[0m ▶ \e[32mReset {$stmt->rowCount()} tables: {$strTables}\e[0m", self::DEBUG_LEVEL_SIMPLE);
             }
 
-            return self::executeSQLQuery($resetQuery);
+            self::executeSQLQuery($resetQuery);
         }
-
-        return 0;
     }
 
     /**
-     * @return string
+     * @return null|string
+     * @throws Exception
+     * @throws InvalidArgumentException
      */
-    private static function retrieveNotEmptyTablesQuery(): ?string
+    private static function retrieveNotEmptyTablesQuery() : ?string
     {
         $cachedQuery = self::getCachedData('test.data.reset.not_empty_tables_query');
 
@@ -131,11 +127,11 @@ trait ApiTestDataLoaderTrait
                     $arrayRefs[] = "'{$table}'";
                 }
                 $sqlRefsToClean = implode(',', $arrayRefs);
-                $sql .= " OR CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) IN ({$sqlRefsToClean})";
+                $sql.= " OR CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) IN ({$sqlRefsToClean})";
             }
 
             $stmt = self::$entityManager->getConnection()->executeQuery($sql);
-            $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+            $tables = $stmt->fetchFirstColumn();
             $listingQueries = [];
 
             foreach ($tables as $table) {
@@ -195,8 +191,10 @@ trait ApiTestDataLoaderTrait
     /**
      * Execute some SQL statements (Tests purposes ONLY), giving SQL test filename.
      *
-     * @param string $filename     SQL script filename
-     * @param bool   $debugNewLine Adds a new line before debug log
+     * @param string $filename SQL script filename
+     * @param bool $debugNewLine Adds a new line before debug log
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     final protected static function executeSQLScript(string $filename, bool $debugNewLine = false)
     {
@@ -212,11 +210,10 @@ trait ApiTestDataLoaderTrait
     /**
      * Execute SQL query (Tests purposes ONLY), giving SQL query.
      *
-     * @param string      $query        SQL query
-     * @param bool        $debugNewLine Adds a new line before debug log
-     * @param bool        $showQuery    Show query (debug mode)
-     * @param string|null $managerName  the manager to use (default manager used if null)
-     *
+     * @param string $query SQL query
+     * @param bool $debugNewLine Adds a new line before debug log
+     * @param bool $showQuery Show query (debug mode)
+     * @param string|null $managerName the manager to use (default manager used if null)
      * @throws OptimisticLockException
      * @throws ORMException
      */
@@ -252,35 +249,35 @@ trait ApiTestDataLoaderTrait
 
     /**
      * @param string $filename
-     *
-     * @return bool|string
+     * @return false|string
      */
     protected static function getSqlFileContent(string $filename)
     {
         return file_get_contents(
             self::$projectDir
-            .DIRECTORY_SEPARATOR
-            .'tests'
-            .DIRECTORY_SEPARATOR
-            .'data'
-            .DIRECTORY_SEPARATOR
-            .'csv'
-            .DIRECTORY_SEPARATOR
-            .$filename
+            . DIRECTORY_SEPARATOR
+            . 'tests'
+            . DIRECTORY_SEPARATOR
+            . 'data'
+            . DIRECTORY_SEPARATOR
+            . 'csv'
+            . DIRECTORY_SEPARATOR
+            . $filename
         );
     }
 
     /**
-     * @return bool|string
+     * @param string $filename
+     * @return string
      */
-    protected static function getDataCsvFileColumns(string $filename)
+    protected static function getDataCsvFileColumns(string $filename): string
     {
         $path = self::$projectDir.DIRECTORY_SEPARATOR.'tests'.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.'csv'.DIRECTORY_SEPARATOR.$filename;
         $f = fopen($path, 'r');
         $line = str_replace(['"', "\n", ' ', '`'], '', fgets($f));
         fclose($f);
 
-        return implode(',', array_map(function ($column) { return "`$column`"; }, explode(',', $line)));
+        return implode(',', array_map( function($column) { return "`$column`"; }, explode(',', $line)));
     }
 
     /**
@@ -299,6 +296,7 @@ trait ApiTestDataLoaderTrait
      * @param string $filename
      *
      * @return array
+     * @throws InvalidArgumentException
      */
     protected static function parseDataYmlFile(string $filename): array
     {
@@ -325,7 +323,7 @@ trait ApiTestDataLoaderTrait
      *
      * @return string
      */
-    protected static function getDataCsvFilePath(string $fileName)
+    protected static function getDataCsvFilePath(string $fileName): string
     {
         return self::$csvDataFilesPath.$fileName;
     }
