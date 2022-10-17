@@ -15,7 +15,6 @@
     "symfony/console": "^4.4",
     "symfony/dotenv": "^4.4",
     "symfony/expression-language": "^4.4",
-    "symfony/flex": "^1.19",
     "symfony/form": "^4.4",
     "symfony/framework-bundle": "^4.4.44",
     "symfony/monolog-bundle": "^3.8",
@@ -54,10 +53,7 @@
     "platform": {
       "php": "7.4.3"
     },
-    "sort-packages": true,
-    "allow-plugins": {
-      "symfony/flex": true
-    }
+    "sort-packages": true
   },
   "autoload": {
     "psr-4": {
