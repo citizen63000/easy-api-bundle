@@ -31,21 +31,19 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
- * Class AbstractApiController
- * @package EasyApiBundle\Controller
  * @method UserInterface|null getUser() Gets the current User.
  */
 abstract class AbstractApiController extends AbstractFOSRestController
 {
     use CoreUtilsTrait;
 
-    /** @var null */
+    /** @var ?string */
     public const entityClass = null;
 
-    /** @var null */
+    /** @var ?string */
     public const entityCreateTypeClass = null;
 
-    /** @var null */
+    /** @var ?string */
     public const entityUpdateTypeClass = null;
 
     /** @var array */
@@ -57,7 +55,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
     /** @var array */
     public const listSerializationGroups = [];
 
-    /** @var array  */
+    /** @var array */
     public const filterFields = [];
 
     /** @var array */
@@ -72,7 +70,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
     /** @var string */
     public const filterService = ListFilter::class;
 
-    /** @var null */
+    /** @var ?string */
     public const defaultFilterSort = null;
 
     /** @var bool */
