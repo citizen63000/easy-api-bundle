@@ -22,7 +22,7 @@ use Nelmio\ApiDocBundle\Util\ControllerReflector;
 use Psr\Log\LoggerInterface;
 use Swagger\Analysis;
 use Swagger\Annotations\AbstractAnnotation;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 use Swagger\Context;
 use Symfony\Component\Routing\RouteCollection;
 
@@ -182,7 +182,7 @@ final class SwaggerPhpDescriber implements ModelRegistryAwareInterface
                 }
 
                 if (!$annotation instanceof SWG\Response && !$annotation instanceof SWG\Parameter && !$annotation instanceof SWG\ExternalDocumentation) {
-                    throw new \LogicException(sprintf('Using the annotation "%s" as a root annotation in "%s::%s()" is not allowed. It should probably be nested in a `@SWG\Response` or `@SWG\Parameter` annotation.', get_class($annotation), $method->getDeclaringClass()->name, $method->name));
+                    throw new \LogicException(sprintf('Using the annotation "%s" as a root annotation in "%s::%s()" is not allowed. It should probably be nested in a `@OA\Response` or `@OA\Parameter` annotation.', get_class($annotation), $method->getDeclaringClass()->name, $method->name));
                 }
 
                 $implicitAnnotations[] = $annotation;
