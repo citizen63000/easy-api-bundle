@@ -2,14 +2,14 @@
 
 namespace EasyApiBundle\DependencyInjection\Compiler;
 
-use EasyApiBundle\Util\ApiDoc\SwaggerPhpDescriber;
+use EasyApiBundle\Util\ApiDoc\OpenApiPhpDescriber;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Override annotation model reading
- * Will be removed when Doctrine will support self & static constant in annotations
+ * Will be removed when Doctrine will support self & static constant in annotations.
  */
 final class ConfigurationPass implements CompilerPassInterface
 {
@@ -17,7 +17,7 @@ final class ConfigurationPass implements CompilerPassInterface
     {
         $nelmioApiDocConfig = $container->getParameter('nelmio_api_doc.areas');
         foreach ($nelmioApiDocConfig as $area) {
-            $container->register("nelmio_api_doc.nelmio_swagger_php.{$area}", SwaggerPhpDescriber::class)
+            $container->register("nelmio_api_doc.nelmio_open_api_php.{$area}", OpenApiPhpDescriber::class)
                 ->setPublic(false)
                 ->setArguments([
                     new Reference("nelmio_api_doc.routes.{$area}"),

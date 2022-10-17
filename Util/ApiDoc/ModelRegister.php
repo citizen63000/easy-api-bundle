@@ -14,12 +14,9 @@ namespace EasyApiBundle\Util\ApiDoc;
 use Nelmio\ApiDocBundle\Annotation\Model as ModelAnnotation;
 use Nelmio\ApiDocBundle\Model\Model;
 use Nelmio\ApiDocBundle\Model\ModelRegistry;
-use Swagger\Analysis;
-use Swagger\Annotations\AbstractAnnotation;
-use Swagger\Annotations\Items;
-use Swagger\Annotations\Parameter;
-use Swagger\Annotations\Response;
-use Swagger\Annotations\Schema;
+use OpenApi\Analysis;
+use OpenApi\Annotations as OA;
+use OpenApi\Generator;
 use Symfony\Component\PropertyInfo\Type;
 
 /**
@@ -29,39 +26,31 @@ use Symfony\Component\PropertyInfo\Type;
  */
 final class ModelRegister
 {
-    /**
-     * @var ModelRegistry
-     */
+    /** @var ModelRegistry */
     private $modelRegistry;
 
-    /**
-     * ModelRegister constructor.
-     * @param ModelRegistry $modelRegistry
-     */
-    public function __construct(ModelRegistry $modelRegistry)
+    /** @var string[] */
+    private $mediaTypes;
+
+    public function __construct(ModelRegistry $modelRegistry, array $mediaTypes)
     {
         $this->modelRegistry = $modelRegistry;
+        $this->mediaTypes = $mediaTypes;
     }
 
-    /**
-     * @param Analysis $analysis
-     * @param array|null $parentGroups
-     * @throws \Exception
-     */
     public function __invoke(Analysis $analysis, array $parentGroups = null)
     {
-        $modelsRegistered = [];
         foreach ($analysis->annotations as $annotation) {
             // @Model using the ref field
-            if ($annotation instanceof Schema && $annotation->ref instanceof ModelAnnotation) {
+            if ($annotation instanceof OA\Schema && $annotation->ref instanceof ModelAnnotation) {
                 $model = $annotation->ref;
 
                 // ------- @author citizen63000 -------
-                if(0 === strpos($model->type, 'static::')) {
+                if (0 === strpos($model->type, 'static::')) {
                     $model->type = constant(str_replace('static', $model->_context->flullClassname, $model->type));
                 }
 
-                if(null === $model->type) {
+                if (null === $model->type) {
                     throw new \Exception("Class(es) missing for {$model->_context->method} method in controler {$model->_context->flullClassname}, did you forget entityClass, entityCreateTypeClass or entityUpdateTypeClass constant ?");
                 }
                 // -------------------------------------
@@ -74,41 +63,48 @@ final class ModelRegister
                 continue;
             }
 
+            // Misusage of ::$ref
+            if (($annotation instanceof OA\Response || $annotation instanceof OA\RequestBody) && $annotation->ref instanceof ModelAnnotation) {
+                throw new \InvalidArgumentException(sprintf('Using @Model inside @%s::$ref is not allowed. You should use ::$ref with @Property, @Parameter, @Schema, @Items but within @Response or @RequestBody you should put @Model directly at the root of the annotation : `@Response(..., @Model(...))`.', get_class($annotation)));
+            }
+
             // Implicit usages
-            if ($annotation instanceof Response) {
-                $annotationClass = Schema::class;
-            } elseif ($annotation instanceof Parameter) {
-                if ('array' === $annotation->type) {
-                    $annotationClass = Items::class;
-                } else {
-                    $annotationClass = Schema::class;
+
+            // We don't use $ref for @Responses, @RequestBody and @Parameter to respect semantics
+            // We don't replace these objects with the @Model found (we inject it in a subfield) whereas we do for @Schemas
+
+            $model = $this->getModel($annotation); // We check whether there is a @Model annotation nested
+            if (null === $model) {
+                continue;
+            }
+
+            if ($annotation instanceof OA\Response || $annotation instanceof OA\RequestBody) {
+                $properties = [
+                    '_context' => Util::createContext(['nested' => $annotation], $annotation->_context),
+                    'ref' => $this->modelRegistry->register(new Model($this->createType($model->type), $this->getGroups($model, $parentGroups), $model->options)),
+                ];
+
+                foreach ($this->mediaTypes as $mediaType) {
+                    $this->createContentForMediaType($mediaType, $properties, $annotation, $analysis);
                 }
-            } elseif ($annotation instanceof Schema) {
-                $annotationClass = Items::class;
+                $this->detach($model, $annotation, $analysis);
+
+                continue;
+            }
+
+            if (!$annotation instanceof OA\Parameter) {
+                throw new \InvalidArgumentException(sprintf("@Model annotation can't be nested with an annotation of type @%s.", get_class($annotation)));
+            }
+
+            if ($annotation->schema instanceof OA\Schema && 'array' === $annotation->schema->type) {
+                $annotationClass = OA\Items::class;
             } else {
-                continue;
-            }
-
-            $model = null;
-            foreach ($annotation->_unmerged as $unmerged) {
-                if ($unmerged instanceof ModelAnnotation) {
-                    $model = $unmerged;
-
-                    break;
-                }
-            }
-
-            if (null === $model || !$model instanceof ModelAnnotation) {
-                continue;
+                $annotationClass = OA\Schema::class;
             }
 
             if (!is_string($model->type)) {
                 // Ignore invalid annotations, they are validated later
                 continue;
-            }
-
-            if ($annotation instanceof Schema) {
-                @trigger_error(sprintf('Using `@Model` implicitely in a `@OA\Schema`, `@OA\Items` or `@OA\Property` annotation in %s is deprecated since version 3.2 and won\'t be supported in 4.0. Use `ref=@Model()` instead.', $annotation->_context->getDebugLocation()), E_USER_DEPRECATED);
             }
 
             $annotation->merge([new $annotationClass([
@@ -120,13 +116,7 @@ final class ModelRegister
         }
     }
 
-    /**
-     * @author citizen63000
-     * @param ModelAnnotation $model
-     * @param array|null $parentGroups
-     * @return array|mixed
-     */
-    private function getGroups(ModelAnnotation $model, array $parentGroups = null)
+    private function getGroups(ModelAnnotation $model, array $parentGroups = null): ?array
     {
         if (null === $model->groups) {
             return $parentGroups;
@@ -140,15 +130,18 @@ final class ModelRegister
         return $groups;
     }
 
-    private function detach(ModelAnnotation $model, AbstractAnnotation $annotation, Analysis $analysis)
+    private function detach(ModelAnnotation $model, OA\AbstractAnnotation $annotation, Analysis $analysis): void
     {
-        foreach ($annotation->_unmerged as $key => $unmerged) {
-            if ($unmerged === $model) {
-                unset($annotation->_unmerged[$key]);
+        if (Generator::UNDEFINED !== $annotation->attachables) {
+            foreach ($annotation->attachables as $key => $attachable) {
+                if ($attachable === $model) {
+                    unset($annotation->attachables[$key]);
 
-                break;
+                    break;
+                }
             }
         }
+
         $analysis->annotations->detach($model);
     }
 
@@ -159,5 +152,41 @@ final class ModelRegister
         }
 
         return new Type(Type::BUILTIN_TYPE_OBJECT, false, $type);
+    }
+
+    private function getModel(OA\AbstractAnnotation $annotation): ?ModelAnnotation
+    {
+        if (Generator::UNDEFINED !== $annotation->attachables) {
+            foreach ($annotation->attachables as $attachable) {
+                if ($attachable instanceof ModelAnnotation) {
+                    return $attachable;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function createContentForMediaType(
+        string $type,
+        array $properties,
+        OA\AbstractAnnotation $annotation,
+        Analysis $analysis
+    ) {
+        switch ($type) {
+            case 'json':
+                $modelAnnotation = Util::createChild($annotation, OA\JsonContent::class, $properties);
+
+                break;
+            case 'xml':
+                $modelAnnotation = Util::createChild($annotation, OA\XmlContent, $properties);
+
+                break;
+            default:
+                throw new \InvalidArgumentException(sprintf("@Model annotation is not compatible with the media types '%s'. It must be one of 'json' or 'xml'.", implode(',', $this->mediaTypes)));
+        }
+
+        $annotation->merge([$modelAnnotation]);
+        $analysis->addAnnotation($modelAnnotation, $properties['_context']);
     }
 }
