@@ -2,7 +2,7 @@
 
 namespace EasyApiBundle\Util\Forms;
 
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class SerializedFormField
@@ -95,7 +95,7 @@ class SerializedFormField
 
     /**
      * @var mixed|null
-     * @SWG\Property(type="string")
+     * @OA\Property(type="string")
      * @Groups({"public"})
      */
     protected $defaultValue = '';
