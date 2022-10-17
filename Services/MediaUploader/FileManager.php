@@ -12,9 +12,6 @@ class FileManager
 {
     protected StorageInterface $fileSystemStorage;
 
-    /**
-     * @param StorageInterface $fileSystemStorage
-     */
     public function __construct(StorageInterface $fileSystemStorage)
     {
         $this->fileSystemStorage = $fileSystemStorage;
@@ -23,16 +20,14 @@ class FileManager
     /**
      * @param string $path
      * @param string $filename
-     * @return Response
+     * @return StreamedResponse
      */
-    public function getFileStreamedResponse(string $path, string $filename): Response
+    public function getFileStreamedResponse(string $path, string $filename): StreamedResponse
     {
         try {
             $stream = fopen($path, 'r');
         } catch (\Exception $e) {
-            throw new ApiProblemException(
-                new ApiProblem(Response::HTTP_NOT_FOUND, sprintf(ApiProblem::ENTITY_NOT_FOUND, $filename))
-            );
+            throw new ApiProblemException(new ApiProblem(Response::HTTP_NOT_FOUND, sprintf(ApiProblem::ENTITY_NOT_FOUND, $filename)));
         }
 
         $response = new StreamedResponse(function () use ($stream) {
@@ -48,7 +43,8 @@ class FileManager
     }
 
     /**
-     * Return the system path of a file type in vich system
+     * Return the system path of a file type in vich system.
+     *
      * @param $entity
      * @param string $vichName Name of the file in vich configuration
      * @return string|null
@@ -59,11 +55,12 @@ class FileManager
     }
 
     /**
-     * Return the web path of a file type in vich system
+     * Return the web path of a file type in vich system.
+     *
      * @param $entity
      * @param string $vichName Name of the file in vich configuration
+     *
      * @return string|null
-     * @throws \Exception
      */
     public function getFileWebPath($entity, string $vichName = 'file'): ?string
     {
