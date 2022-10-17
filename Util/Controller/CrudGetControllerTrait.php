@@ -12,10 +12,10 @@ trait CrudGetControllerTrait
      *
      * @Symfony\Component\Routing\Annotation\Route("/{id}", methods={"GET"}, requirements={"id"="\d+"}, name="_get", )
      *
-     * @Swagger\Annotations\Response(
+     * @OpenApi\Annotations\Response(
      *     response=200,
      *     description="Successful operation",
-     *     @Swagger\Annotations\Schema(
+     *     @OpenApi\Annotations\Schema(
      *          ref=@Nelmio\ApiDocBundle\Annotation\Model(
      *              type="static::entityClass",
      *              groups={"static::serializationGroups"}

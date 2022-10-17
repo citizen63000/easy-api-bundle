@@ -12,7 +12,7 @@ trait CrudDeleteControllerTrait
      *
      * @Symfony\Component\Routing\Annotation\Route("/{id}", methods={"DELETE"}, requirements={"id"="\d+"}, name="_delete")
      *
-     * @Swagger\Annotations\Response(
+     * @OpenApi\Annotations\Response(
      *     response=204,
      *     description="Successful operation",
      * ),

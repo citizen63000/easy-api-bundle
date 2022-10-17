@@ -12,26 +12,26 @@ trait CrudUpdateControllerTrait
      *
      * @Symfony\Component\Routing\Annotation\Route("/{id}", methods={"PUT"}, requirements={"id"="\d+"}, name="_update")
      *
-     * @Swagger\Annotations\Parameter(
+     * @OpenApi\Annotations\Parameter(
      *     name="data",
      *     in="body",
      *     description="Create data.",
      *     required=true,
-     *     @Swagger\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type="static::entityUpdateTypeClass"))
+     *     @OpenApi\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type="static::entityUpdateTypeClass"))
      * ),
-     * @Swagger\Annotations\Response(
+     * @OpenApi\Annotations\Response(
      *     response=200,
      *     description="Successful operation",
-     *     @Swagger\Annotations\Schema(
+     *     @OpenApi\Annotations\Schema(
      *          ref=@Nelmio\ApiDocBundle\Annotation\Model(
      *              type="static::entityClass",
      *              groups={"static::serializationGroups"}
      *          )
      *      )
      * ),
-     * @Swagger\Annotations\Response(response="404", ref="#/definitions/404"),
-     * @Swagger\Annotations\Response(response="405", ref="#/definitions/405"),
-     * @Swagger\Annotations\Response(response="415", ref="#/definitions/415")
+     * @OpenApi\Annotations\Response(response="404", ref="#/definitions/404"),
+     * @OpenApi\Annotations\Response(response="405", ref="#/definitions/405"),
+     * @OpenApi\Annotations\Response(response="415", ref="#/definitions/415")
      *
      * @param Request          $request
      *
