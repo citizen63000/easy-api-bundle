@@ -2,14 +2,13 @@
 
 namespace EasyApiBundle\Services\ApiDoc;
 
-use EasyApiBundle\Util\Entity\EntityConfigLoader;
-use ReflectionMethod;
-
 use Doctrine\Common\Annotations\Reader;
-use EXSyst\Component\Swagger\Parameter;
-use EXSyst\Component\Swagger\Swagger;
+use EasyApiBundle\Annotation\GetFormParameter;
+use EasyApiBundle\Util\Entity\EntityConfigLoader;
 use Nelmio\ApiDocBundle\RouteDescriber\RouteDescriberTrait;
-
+use OpenApi\Annotations\OpenApi;
+use OpenApi\Annotations\Parameter;
+use ReflectionMethod;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -20,8 +19,6 @@ use Symfony\Component\Form\FormConfigBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Routing\Route;
-
-use EasyApiBundle\Annotation\GetFormParameter;
 
 class GetFormParameterRouteDescriber
 {
@@ -37,21 +34,14 @@ class GetFormParameterRouteDescriber
 
     /**
      * GetFormParameterRouteDescriber constructor.
-     * @param Reader $annotationReader
-     * @param FormFactoryInterface $formFactory
      */
     public function __construct(Reader $annotationReader, FormFactoryInterface $formFactory)
     {
         $this->annotationReader = $annotationReader;
-        $this->formFactory      = $formFactory;
+        $this->formFactory = $formFactory;
     }
 
-    /**
-     * @param Swagger $api
-     * @param Route $route
-     * @param ReflectionMethod $reflectionMethod
-     */
-    public function describe(Swagger $api, Route $route, ReflectionMethod $reflectionMethod): void
+    public function describe(OpenApi $api, Route $route, ReflectionMethod $reflectionMethod): void
     {
         $annotations = $this->annotationReader->getMethodAnnotations($reflectionMethod);
 
@@ -63,12 +53,7 @@ class GetFormParameterRouteDescriber
         }
     }
 
-    /**
-     * @param Swagger $api
-     * @param Route $route
-     * @param GetFormParameter $annotation
-     */
-    private function addParameters(Swagger $api, Route $route, GetFormParameter $annotation): void
+    private function addParameters(OpenApi $api, Route $route, GetFormParameter $annotation): void
     {
         $controllerName = $route->getDefault('_controller');
 
@@ -81,7 +66,6 @@ class GetFormParameterRouteDescriber
     }
 
     /**
-     * @param FormInterface $field
      * @return Parameter
      */
     protected function createParameter(FormInterface $field)
@@ -95,13 +79,11 @@ class GetFormParameterRouteDescriber
     }
 
     /**
-     * @param string $controllerName
-     * @param GetFormParameter $annotation
      * @return \Symfony\Component\Form\FormInterface
      */
     protected function createForm(string $controllerName, GetFormParameter $annotation)
     {
-        if(0 === strpos($annotation->type, 'static::')) {
+        if (0 === strpos($annotation->type, 'static::')) {
             $type = static::getConstValue($controllerName, $annotation->type);
         } else {
             $type = $annotation->type;
@@ -111,8 +93,6 @@ class GetFormParameterRouteDescriber
     }
 
     /**
-     * @param string $controllerName
-     * @param GetFormParameter $annotation
      * @return array
      */
     protected static function getFormOptions(string $controllerName, GetFormParameter $annotation)
@@ -121,8 +101,8 @@ class GetFormParameterRouteDescriber
     }
 
     /**
-     * @param string $controllerName
      * @param string|array $varName
+     *
      * @return mixed
      */
     protected static function getConstValue(string $controllerName, $varName)
@@ -132,10 +112,6 @@ class GetFormParameterRouteDescriber
         return constant(str_replace('static', explode('::', $controllerName)[0], $varName));
     }
 
-    /**
-     * @param FormConfigBuilderInterface $config
-     * @return string
-     */
     protected function convertFormTypeToParameterType(FormConfigBuilderInterface $config): string
     {
         $formType = $config->getType()->getInnerType();
@@ -163,7 +139,7 @@ class GetFormParameterRouteDescriber
         if ($formType instanceof EntityType) {
             $classConfig = EntityConfigLoader::createEntityConfigFromEntityFullName($config->getOption('class'));
             foreach ($classConfig->getFields() as $field) {
-                if($field->isPrimary()) {
+                if ($field->isPrimary()) {
                     return $field->getType();
                 }
             }

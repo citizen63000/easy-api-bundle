@@ -4,7 +4,7 @@ namespace EasyApiBundle\Services\ApiDoc;
 
 use EasyApiBundle\Annotation\GetFormFilterParameter;
 use EasyApiBundle\Annotation\GetFormParameter;
-use EXSyst\Component\Swagger\Parameter;
+use OpenApi\Annotations\Parameter;
 use Symfony\Component\Form\FormInterface;
 
 class GetFormFilterParameterRouteDescriber extends GetFormParameterRouteDescriber
@@ -12,25 +12,25 @@ class GetFormFilterParameterRouteDescriber extends GetFormParameterRouteDescribe
     protected const annotationClass = GetFormFilterParameter::class;
 
     /**
-     * @param string $controllerName
      * @param GetFormFilterParameter $annotation
+     *
      * @return array
      */
     protected static function getFormOptions(string $controllerName, GetFormParameter $annotation)
     {
-        if(0 === strpos($annotation->entityClass, 'static::')) {
+        if (0 === strpos($annotation->entityClass, 'static::')) {
             $entityClass = static::getConstValue($controllerName, $annotation->entityClass);
         } else {
             $entityClass = $annotation->entityClass;
         }
 
-        if(count($annotation->fields) === 1 && 0 === strpos($annotation->fields[0], 'static::')) {
+        if (1 === count($annotation->fields) && 0 === strpos($annotation->fields[0], 'static::')) {
             $fields = static::getConstValue($controllerName, $annotation->fields);
         } else {
             $fields = $annotation->fields;
         }
 
-        if(count($annotation->sortFields) === 1 && 0 === strpos($annotation->sortFields[0], 'static::')) {
+        if (1 === count($annotation->sortFields) && 0 === strpos($annotation->sortFields[0], 'static::')) {
             $sortFields = static::getConstValue($controllerName, $annotation->fields);
         } else {
             $sortFields = $annotation->sortFields;
@@ -38,8 +38,8 @@ class GetFormFilterParameterRouteDescriber extends GetFormParameterRouteDescribe
 
         return ['entityClass' => $entityClass, 'fields' => $fields, 'sortFields' => $sortFields];
     }
+
     /**
-     * @param FormInterface $field
      * @return Parameter
      */
     protected function createParameter(FormInterface $field)
@@ -47,11 +47,11 @@ class GetFormFilterParameterRouteDescriber extends GetFormParameterRouteDescribe
         $description = '';
         $type = $this->convertFormTypeToParameterType($field->getConfig());
 
-        if($field->getName() === 'sort') {
+        if ('sort' === $field->getName()) {
             $description = 'field1:asc,field2:desc';
-        } elseif ($type === 'dateTime') {
+        } elseif ('dateTime' === $type) {
             $description = 'yyyy-mm-dd h:i:s';
-        } elseif ($type === 'date') {
+        } elseif ('date' === $type) {
             $description = 'yyyy-mm-dd';
         }
 
@@ -63,5 +63,4 @@ class GetFormFilterParameterRouteDescriber extends GetFormParameterRouteDescribe
             'description' => $description,
         ]);
     }
-
 }
