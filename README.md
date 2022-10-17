@@ -6,7 +6,7 @@ Exemple :
 ```php
 /**
  * @Route("/my-path", name="my_path")
- * @SWG\Tag(name="MyEntity")
+ * @OA\Tag(name="MyEntity")
  */
 class MyEntityCrudController extends AbstractApiController
 {
@@ -39,12 +39,12 @@ easy_api:
     enable: false
     connection_history_class: AppBundle\Entity\User\ConnectionHistory
   inheritance:
-    entity: 'AppBundle\Entity\AbstractEntity'
-    entityReferential: 'AppBundle\Entity\AbstractReferential'
-    form: 'AppBundle\Form\Type\AbstractCoreType'
-    repository: 'AppBundle\Form\Type\AbstractRepository'
-    controller: 'AppBundle\Controller\AbstractApiController'
-    serialized_form: 'AppBundle\Form\Model\SerializedForm'
+    entity: 'App\Entity\AbstractEntity'
+    entityReferential: 'App\Entity\AbstractReferential'
+    form: 'App\Form\Type\AbstractCoreType'
+    repository: 'App\Form\Type\AbstractRepository'
+    controller: 'App\Controller\AbstractApiController'
+    serialized_form: 'App\Form\Model\SerializedForm'
   tests:
     debug: true # true by default
     datetime_format: 'Y-m-d H:i:s' # DateTimeInterface::ATOM format by default
@@ -65,10 +65,10 @@ In Nelmio model annotation:
     /**
      * Get entity.
      *
-     * @Swagger\Annotations\Response(
+     * @OA\Annotations\Response(
      *     response=200,
      *     description="Successful operation",
-     *     @Swagger\Annotations\Schema(
+     *     @OA\Annotations\Schema(
      *          ref=@Nelmio\ApiDocBundle\Annotation\Model(
      *              type="static::entityClass",
      *              groups={"static::serializationGroups"}
