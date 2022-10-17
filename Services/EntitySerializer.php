@@ -95,6 +95,6 @@ class EntitySerializer
      */
     public function clearAllCaches()
     {
-        $this->cache->deleteItem(self::CACHE_NAME_PREFIX.'*');
+        $this->cache->clear(self::CACHE_NAME_PREFIX);
     }
 }
