@@ -19,7 +19,7 @@ class FileBag
     public function addFile(string $fieldName, string $filePath, $fileName = null, array $headers = [])
     {
         $mimeTypeGuesser = new FileinfoMimeTypeGuesser();
-        $uploadedFile = new UploadedFile($filePath, $fileName, $mimeTypeGuesser->guess($filePath), null, null, true);
+        $uploadedFile = new UploadedFile($filePath, $fileName, $mimeTypeGuesser->guessMimeType($filePath), null, true);
 
         $file = [
             'name' => $fieldName,
