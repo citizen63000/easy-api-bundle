@@ -32,8 +32,7 @@ trait CrudFilteredListControllerTrait
      *     )
      * )
      * @OpenApi\Annotations\Response(response="404", ref="#/definitions/404"),
-     * @OpenApi\Annotations\Response(response="405", ref="#/definitions/405"),
-     * @OpenApi\Annotations\Response(response="415", ref="#/definitions/415")
+     * @OpenApi\Annotations\Response(response="405", description="Method not allowed"),
      *
      * @param Request $request
      *

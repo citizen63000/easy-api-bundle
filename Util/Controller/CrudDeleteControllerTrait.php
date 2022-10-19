@@ -16,6 +16,7 @@ trait CrudDeleteControllerTrait
      *     response=204,
      *     description="Successful operation",
      * ),
+     * @OpenApi\Annotations\Response(response="404", description="Entity not found"),
      *
      * @param Request $entity
      *
