@@ -8,6 +8,7 @@ use EasyApiBundle\Util\Entity\EntityConfigLoader;
 use Nelmio\ApiDocBundle\RouteDescriber\RouteDescriberTrait;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Parameter;
+use OpenApi\Generator;
 use ReflectionMethod;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -59,8 +60,9 @@ class GetFormParameterRouteDescriber
 
         $filterForm = $this->createForm($controllerName, $annotation);
         foreach ($this->getOperations($api, $route) as $operation) {
+            $operation->parameters = ($operation->parameters == Generator::UNDEFINED) ? [] : $operation->parameters;
             foreach ($filterForm->all() as $field) {
-                $operation->getParameters()->add($this->createParameter($field));
+                $operation->parameters[] = $this->createParameter($field);
             }
         }
     }

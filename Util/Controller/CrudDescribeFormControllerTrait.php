@@ -15,7 +15,7 @@ trait CrudDescribeFormControllerTrait
      * @OpenApi\Annotations\Response(
      *     response=200,
      *     description="Successful operation",
-     *     @OpenApi\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type="EasyApiBundle\Util\Forms\SerializedForm", groups={"public"}))
+     *     @Nelmio\ApiDocBundle\Annotation\Model(type="EasyApiBundle\Util\Forms\SerializedForm", groups={"public"})
      * )
      *
      * @OpenApi\Annotations\Response(response="404", ref="#/definitions/404")

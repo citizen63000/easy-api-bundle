@@ -13,10 +13,10 @@ trait CrudFilteredListControllerTrait
      * @Symfony\Component\Routing\Annotation\Route(methods={"GET"}, name="_list")
      *
      * @EasyApiBundle\Annotation\GetFormFilterParameter(
-     *     type="static::entityFilterTypeClass",
-     *     entityClass="static::entityClass",
-     *     fields={"static::filterFields"},
-     *     sortFields={"static::filterSortFields"}
+     *     type=self::entityFilterTypeClass,
+     *     entityClass=self::entityClass,
+     *     fields=self::filterFields,
+     *     sortFields=self::filterSortFields
      *  )
      * @OpenApi\Annotations\Response(
      *     response=200,
@@ -25,8 +25,8 @@ trait CrudFilteredListControllerTrait
      *         type="array",
      *         @OpenApi\Annotations\Items(
      *              ref=@Nelmio\ApiDocBundle\Annotation\Model(
-     *                  type="static::entityClass",
-     *                  groups={"static::listSerializationGroups"}
+     *                  type=self::entityClass,
+     *                  groups=self::listSerializationGroups
      *              )
      *          )
      *     )

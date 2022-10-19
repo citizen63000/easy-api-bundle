@@ -15,11 +15,9 @@ trait CrudCloneControllerTrait
      * @OpenApi\Annotations\Response(
      *     response=201,
      *     description="Successful operation",
-     *     @OpenApi\Annotations\Schema(
-     *          ref=@Nelmio\ApiDocBundle\Annotation\Model(
-     *              type="static::entityClass",
-     *              groups={"static::serializationGroups"}
-     *          )
+     *     Nelmio\ApiDocBundle\Annotation\Model(
+     *          type=self::entityClass,
+     *          groups=self::serializationGroups
      *      )
      * ),
      * @OpenApi\Annotations\Response(response="404", ref="#/definitions/404"),

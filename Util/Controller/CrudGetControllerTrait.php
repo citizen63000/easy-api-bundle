@@ -15,11 +15,9 @@ trait CrudGetControllerTrait
      * @OpenApi\Annotations\Response(
      *     response=200,
      *     description="Successful operation",
-     *     @OpenApi\Annotations\Schema(
-     *          ref=@Nelmio\ApiDocBundle\Annotation\Model(
-     *              type="static::entityClass",
-     *              groups={"static::serializationGroups"}
-     *          )
+     *     @Nelmio\ApiDocBundle\Annotation\Model(
+     *          type=self::entityClass,
+     *          groups=self::serializationGroups
      *      )
      * ),
      * @param Request $request
