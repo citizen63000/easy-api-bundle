@@ -17,7 +17,7 @@ trait CrudUpdateControllerTrait
      *     in="body",
      *     description="Create data.",
      *     required=true,
-     *     @OpenApi\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type=self::entityUpdateTypeClass)
+     *     @OpenApi\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type=self::entityUpdateTypeClass))
      * ),
      * @OpenApi\Annotations\Response(
      *     response=200,
