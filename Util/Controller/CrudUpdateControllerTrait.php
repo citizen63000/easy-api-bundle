@@ -22,7 +22,7 @@ trait CrudUpdateControllerTrait
      * @OpenApi\Annotations\Response(
      *     response=200,
      *     description="Successful operation",
-     *     @@Nelmio\ApiDocBundle\Annotation\Model(
+     *     @Nelmio\ApiDocBundle\Annotation\Model(
      *          type=self::entityClass,
      *          groups=self::serializationGroups
      *      )
