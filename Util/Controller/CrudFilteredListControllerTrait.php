@@ -4,6 +4,7 @@ namespace EasyApiBundle\Util\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use OpenApi\Annotations as OA;
 
 trait CrudFilteredListControllerTrait
 {
@@ -18,12 +19,12 @@ trait CrudFilteredListControllerTrait
      *     fields=self::filterFields,
      *     sortFields=self::filterSortFields
      *  )
-     * @OpenApi\Annotations\Response(
+     * @OA\Response(
      *     response=200,
      *     description="Successful operation",
-     *     @OpenApi\Annotations\Schema(
+     *     @OA\JsonContent(
      *         type="array",
-     *         @OpenApi\Annotations\Items(
+     *         @OA\Items(
      *              ref=@Nelmio\ApiDocBundle\Annotation\Model(
      *                  type=self::entityClass,
      *                  groups=self::listSerializationGroups
@@ -31,7 +32,7 @@ trait CrudFilteredListControllerTrait
      *          )
      *     )
      * )
-     * @OpenApi\Annotations\Response(response="405", description="Method not allowed"),
+     * @OA\Response(response="405", description="Method not allowed"),
      *
      * @param Request $request
      *
