@@ -8,7 +8,9 @@ use EasyApiBundle\Util\Entity\EntityConfigLoader;
 use Nelmio\ApiDocBundle\RouteDescriber\RouteDescriberTrait;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Parameter;
+use OpenApi\Annotations\Schema;
 use OpenApi\Generator;
+use Ramsey\Uuid\Uuid;
 use ReflectionMethod;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -25,17 +27,12 @@ class GetFormParameterRouteDescriber
 {
     use RouteDescriberTrait;
 
-    /** @var Reader */
-    private $annotationReader;
+    private Reader $annotationReader;
 
-    /** @var FormFactoryInterface */
-    protected $formFactory;
+    protected FormFactoryInterface $formFactory;
 
     protected const annotationClass = GetFormParameter::class;
 
-    /**
-     * GetFormParameterRouteDescriber constructor.
-     */
     public function __construct(Reader $annotationReader, FormFactoryInterface $formFactory)
     {
         $this->annotationReader = $annotationReader;
@@ -57,10 +54,10 @@ class GetFormParameterRouteDescriber
     private function addParameters(OpenApi $api, Route $route, GetFormParameter $annotation): void
     {
         $controllerName = $route->getDefault('_controller');
+        $filterForm = $this->formFactory->create($annotation->type, null, static::getFormOptions($controllerName, $annotation));
 
-        $filterForm = $this->createForm($controllerName, $annotation);
         foreach ($this->getOperations($api, $route) as $operation) {
-            $operation->parameters = ($operation->parameters == Generator::UNDEFINED) ? [] : $operation->parameters;
+            $operation->parameters = (Generator::UNDEFINED == $operation->parameters) ? [] : $operation->parameters;
             foreach ($filterForm->all() as $field) {
                 $operation->parameters[] = $this->createParameter($field);
             }
@@ -75,23 +72,10 @@ class GetFormParameterRouteDescriber
         return new Parameter([
             'in' => 'query',
             'name' => $field->getName(),
+            'parameter' => (string) Uuid::uuid1(),
             'required' => $field->getConfig()->getRequired(),
-            'type' => $this->convertFormTypeToParameterType($field->getConfig()),
+//            'schema' => new Schema(['type' => $this->convertFormTypeToParameterType($field->getConfig())]),
         ]);
-    }
-
-    /**
-     * @return \Symfony\Component\Form\FormInterface
-     */
-    protected function createForm(string $controllerName, GetFormParameter $annotation)
-    {
-        if (0 === strpos($annotation->type, 'static::')) {
-            $type = static::getConstValue($controllerName, $annotation->type);
-        } else {
-            $type = $annotation->type;
-        }
-
-        return $this->formFactory->create($type, null, static::getFormOptions($controllerName, $annotation));
     }
 
     /**
@@ -100,18 +84,6 @@ class GetFormParameterRouteDescriber
     protected static function getFormOptions(string $controllerName, GetFormParameter $annotation)
     {
         return [];
-    }
-
-    /**
-     * @param string|array $varName
-     *
-     * @return mixed
-     */
-    protected static function getConstValue(string $controllerName, $varName)
-    {
-        $varName = is_array($varName) && count($varName) ? $varName[0] : $varName;
-
-        return constant(str_replace('static', explode('::', $controllerName)[0], $varName));
     }
 
     protected function convertFormTypeToParameterType(FormConfigBuilderInterface $config): string

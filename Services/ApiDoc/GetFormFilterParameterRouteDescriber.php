@@ -5,6 +5,8 @@ namespace EasyApiBundle\Services\ApiDoc;
 use EasyApiBundle\Annotation\GetFormFilterParameter;
 use EasyApiBundle\Annotation\GetFormParameter;
 use OpenApi\Annotations\Parameter;
+use OpenApi\Annotations\Schema;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Form\FormInterface;
 
 class GetFormFilterParameterRouteDescriber extends GetFormParameterRouteDescriber
@@ -18,25 +20,7 @@ class GetFormFilterParameterRouteDescriber extends GetFormParameterRouteDescribe
      */
     protected static function getFormOptions(string $controllerName, GetFormParameter $annotation)
     {
-        if (0 === strpos($annotation->entityClass, 'static::')) {
-            $entityClass = static::getConstValue($controllerName, $annotation->entityClass);
-        } else {
-            $entityClass = $annotation->entityClass;
-        }
-
-        if (1 === count($annotation->fields) && 0 === strpos($annotation->fields[0], 'static::')) {
-            $fields = static::getConstValue($controllerName, $annotation->fields);
-        } else {
-            $fields = $annotation->fields;
-        }
-
-        if (1 === count($annotation->sortFields) && 0 === strpos($annotation->sortFields[0], 'static::')) {
-            $sortFields = static::getConstValue($controllerName, $annotation->fields);
-        } else {
-            $sortFields = $annotation->sortFields;
-        }
-
-        return ['entityClass' => $entityClass, 'fields' => $fields, 'sortFields' => $sortFields];
+        return ['entityClass' => $annotation->entityClass, 'fields' => $annotation->fields, 'sortFields' => $annotation->sortFields];
     }
 
     /**
@@ -58,8 +42,9 @@ class GetFormFilterParameterRouteDescriber extends GetFormParameterRouteDescribe
         return new Parameter([
             'in' => 'query',
             'name' => $field->getName(),
+            'parameter' => (string) Uuid::uuid1(),
             'required' => $field->getConfig()->getRequired(),
-            'type' => $type,
+//            'schema' => new Schema(['type' => $type]),
             'description' => $description,
         ]);
     }
