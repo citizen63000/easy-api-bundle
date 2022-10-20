@@ -14,7 +14,7 @@ trait CrudCreateControllerTrait
      *
      * @OpenApi\Annotations\Parameter(
      *     name="data",
-     *     in="body",
+     *     in="query",
      *     description="Create data.",
      *     required=true,
      *     @OpenApi\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type=self::entityCreateTypeClass))
