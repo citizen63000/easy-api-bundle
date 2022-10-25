@@ -57,6 +57,8 @@ class ListFilter extends AbstractService
 
         if(null !== $model->getPage()) {
             $filterResult->setResults(AbstractRepository::paginateResult($qb, $model->getPage(), $model->getLimit()));
+        } elseif(null !== $model->getLimit()) {
+            $filterResult->setResults(AbstractRepository::paginateResult($qb, 1, $model->getLimit()));
         } else {
             $filterResult->setResults($qb->getQuery()->getResult());
         }
