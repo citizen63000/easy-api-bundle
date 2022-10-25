@@ -28,6 +28,6 @@ class GetFormFilterParameterRouteDescriber extends GetFormParameterRouteDescribe
             $description = 'yyyy-mm-dd';
         }
 
-        parent::createParameter($field, $description);
+        return parent::createParameter($field, $description);
     }
 }
