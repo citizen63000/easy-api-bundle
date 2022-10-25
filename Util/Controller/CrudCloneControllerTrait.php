@@ -22,13 +22,9 @@ trait CrudCloneControllerTrait
      * ),
      * @OpenApi\Annotations\Response(response="404", description="Entity not found"),
      * @OpenApi\Annotations\Response(response="405", description="Method not allowed"),
-     *
-     * @param Request $request
-     *
-     * @return Response
      */
-    public function cloneAction(Request $request)
+    public function clone(Request $request): Response
     {
-        return $this->cloneEntityAction($this->getEntityOfRequest($request));
+        return $this->doCloneEntity($this->getEntityOfRequest($request));
     }
 }

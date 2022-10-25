@@ -30,7 +30,7 @@ class UserManagementController extends AbstractApiController
      * @OA\Response(response="404", description="Entity not found"),
      * @OA\Response(response="405", description="Method not allowed"),
      */
-    public function getMeAction(): Response
+    public function getMe(): Response
     {
         return $this->renderEntityResponse($this->getUser(), static::serializationGroups, [AbstractNormalizer::ATTRIBUTES => static::serializationAttributes]);
     }
