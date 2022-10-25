@@ -24,16 +24,11 @@ class UserManagementController extends AbstractApiController
      * @OA\Response(
      *     response=200,
      *     description="Successful operation",
-     *     @OA\Schema(ref=@Model(type="static::entityClass", groups={"static::serializationGroups"}))
+     *     @Model(type=self::entityClass, groups=self::serializationGroups)
      * ),
      *
-     * @OA\Response(response="401", ref="#/definitions/401"),
-     * @OA\Response(response="403", ref="#/definitions/403"),
-     * @OA\Response(response="415", ref="#/definitions/415"),
-     * @OA\Response(response="422", ref="#/definitions/422")
-     *
-     * @return Response
-     *
+     * @OA\Response(response="404", description="Entity not found"),
+     * @OA\Response(response="405", description="Method not allowed"),
      */
     public function getMeAction(): Response
     {
