@@ -5,30 +5,19 @@ namespace EasyApiBundle\Services\ApiDoc;
 use EasyApiBundle\Annotation\GetFormFilterParameter;
 use EasyApiBundle\Annotation\GetFormParameter;
 use OpenApi\Annotations\Parameter;
-use OpenApi\Annotations\Schema;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Form\FormInterface;
 
 class GetFormFilterParameterRouteDescriber extends GetFormParameterRouteDescriber
 {
     protected const annotationClass = GetFormFilterParameter::class;
 
-    /**
-     * @param GetFormFilterParameter $annotation
-     *
-     * @return array
-     */
-    protected static function getFormOptions(string $controllerName, GetFormParameter $annotation)
+    protected static function getFormOptions(string $controllerName, GetFormParameter $annotation): array
     {
         return ['entityClass' => $annotation->entityClass, 'fields' => $annotation->fields, 'sortFields' => $annotation->sortFields];
     }
 
-    /**
-     * @return Parameter
-     */
-    protected function createParameter(FormInterface $field)
+    protected function createParameter(FormInterface $field, $description = ''): Parameter
     {
-        $description = '';
         $type = $this->convertFormTypeToParameterType($field->getConfig());
 
         if ('sort' === $field->getName()) {
@@ -39,13 +28,6 @@ class GetFormFilterParameterRouteDescriber extends GetFormParameterRouteDescribe
             $description = 'yyyy-mm-dd';
         }
 
-        return new Parameter([
-            'in' => 'query',
-            'name' => $field->getName(),
-            'parameter' => (string) Uuid::uuid1(),
-            'required' => $field->getConfig()->getRequired(),
-//            'schema' => new Schema(['type' => $type]),
-            'description' => $description,
-        ]);
+        parent::createParameter($field, $description);
     }
 }

@@ -44,8 +44,7 @@ class GetFormParameterRouteDescriber
         $annotations = $this->annotationReader->getMethodAnnotations($reflectionMethod);
 
         foreach ($annotations as $annotation) {
-            $annotationClass = static::annotationClass;
-            if ($annotation instanceof $annotationClass) {
+            if (static::annotationClass === get_class($annotation)) {
                 $this->addParameters($api, $route, $annotation);
             }
         }
@@ -64,24 +63,19 @@ class GetFormParameterRouteDescriber
         }
     }
 
-    /**
-     * @return Parameter
-     */
-    protected function createParameter(FormInterface $field)
+    protected function createParameter(FormInterface $field, $description = ''): Parameter
     {
         return new Parameter([
             'in' => 'query',
             'name' => $field->getName(),
             'parameter' => (string) Uuid::uuid1(),
             'required' => $field->getConfig()->getRequired(),
-//            'schema' => new Schema(['type' => $this->convertFormTypeToParameterType($field->getConfig())]),
+            'schema' => new Schema(['type' => $this->convertFormTypeToParameterType($field->getConfig())]),
+            'description' => $description,
         ]);
     }
 
-    /**
-     * @return array
-     */
-    protected static function getFormOptions(string $controllerName, GetFormParameter $annotation)
+    protected static function getFormOptions(string $controllerName, GetFormParameter $annotation): array
     {
         return [];
     }
