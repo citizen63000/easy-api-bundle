@@ -202,9 +202,7 @@ abstract class AbstractApiTest extends WebTestCase
     final protected static function initialize(): void
     {
         self::logStep();
-        global $argv;
-        static::$debug = self::$container->getParameter('easy_api.tests.debug') || in_array('--debug', $argv, true);
-        static::$client = self::createClient(['debug' => static::$debug]);
+        static::$client = self::createClient(['debug' => static::$useProfiler]);
         if (static::$useProfiler) {
             static::$client->enableProfiler();
         }
@@ -218,6 +216,9 @@ abstract class AbstractApiTest extends WebTestCase
         static::initLoadDataOnSetup();
         self::initializeLoader();
         self::initializeRequester();
+
+        global $argv;
+        static::$debug = self::$container->getParameter('easy_api.tests.debug') || in_array('--debug', $argv, true);
     }
 
     /**
