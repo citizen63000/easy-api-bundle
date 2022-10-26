@@ -122,7 +122,7 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
             (new Filesystem())->dumpFile($tmpFilePath, $fileData);
             $mimeType = finfo_buffer(finfo_open(), $fileData, FILEINFO_MIME_TYPE);
 
-            $this->setFile(new UploadedFile($tmpFilePath, $this->getClonedFilename(), $mimeType, null, null, true));
+            $this->setFile(new UploadedFile($tmpFilePath, $this->getClonedFilename(), $mimeType, null, true));
         }
     }
 

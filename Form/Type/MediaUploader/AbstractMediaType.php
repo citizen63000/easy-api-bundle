@@ -86,7 +86,7 @@ abstract class AbstractMediaType extends AbstractApiType
         $mimeType = finfo_buffer(finfo_open(), $fileData, FILEINFO_MIME_TYPE);
 
         // we create an uploaded file for form
-        return new UploadedFile($tmpFilePath, $originalFileName, $mimeType, null, null, true);
+        return new UploadedFile($tmpFilePath, $originalFileName, $mimeType, null, true);
     }
 
     /**

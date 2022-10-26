@@ -6,8 +6,8 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
-use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Container;
@@ -158,13 +158,8 @@ abstract class AbstractApiTest extends WebTestCase
 
     /**
      * simulates a browser and makes requests to a Kernel object.
-     *
-     * @var Client
      */
-    protected static $client;
-
-    /** @var Container */
-    protected static $container;
+    protected static ?KernelBrowser $client = null;
 
     /**
      * @var EntityManager
@@ -206,11 +201,11 @@ abstract class AbstractApiTest extends WebTestCase
         if (static::$useProfiler) {
             static::$client->enableProfiler();
         }
-        self::$entityManager = self::$container->get('doctrine.orm.entity_manager');
-        self::$router = self::$container->get('router');
-        self::$application = new Application(self::$container->get('kernel'));
+        self::$entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
+        self::$router = static::getContainer()->get('router');
+        self::$application = new Application(static::getContainer()->get('kernel'));
         self::$application->setAutoExit(false);
-        self::$projectDir = self::$container->getParameter('kernel.project_dir');
+        self::$projectDir = static::getContainer()->getParameter('kernel.project_dir');
 
         static::initExecuteSetupOnAllTest();
         static::initLoadDataOnSetup();
@@ -218,7 +213,7 @@ abstract class AbstractApiTest extends WebTestCase
         self::initializeRequester();
 
         global $argv;
-        static::$debug = self::$container->getParameter('easy_api.tests.debug') || in_array('--debug', $argv, true);
+        static::$debug = static::getContainer()->getParameter('easy_api.tests.debug') || in_array('--debug', $argv, true);
     }
 
     /**
@@ -274,7 +269,7 @@ abstract class AbstractApiTest extends WebTestCase
         fwrite(STDOUT, "\e[31m✘\e[91m {$message}\e[0m\n");
 
         try {
-            $logger = self::$container->get('logger');
+            $logger = static::getContainer()->get('logger');
             $logger->error(str_replace("\t", '', $message));
         } catch (\Exception $exception) {
             fwrite(STDOUT, "\e[31m✘\e[91m {$exception->getMessage()}\e[0m\n");
@@ -408,7 +403,7 @@ abstract class AbstractApiTest extends WebTestCase
         if (!self::isInitialized()) {
             self::initialize();
         } else {
-            self::$entityManager = self::$container->get('doctrine.orm.entity_manager');
+            self::$entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
         }
     }
 
@@ -446,7 +441,7 @@ abstract class AbstractApiTest extends WebTestCase
      */
     protected function getFileBag(array $filenames): FileBag
     {
-        $fileDir = self::$container->getParameter('kernel.project_dir') . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'artifacts';
+        $fileDir = static::getContainer()->getParameter('kernel.project_dir') . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'artifacts';
         $fileBag = new FileBag();
         foreach ($filenames as $field => $filename) {
             $fileBag->addFile($field, $fileDir.DIRECTORY_SEPARATOR.$filename, $filename);
@@ -490,8 +485,8 @@ abstract class AbstractApiTest extends WebTestCase
      */
     protected static function getDomainUrl(): string
     {
-        $scheme = self::$container->getParameter('router.request_context.scheme');
-        $host = self::$container->getParameter('router.request_context.host');
+        $scheme = static::getContainer()->getParameter('router.request_context.scheme');
+        $host = static::getContainer()->getParameter('router.request_context.host');
 
         return "{$scheme}://{$host}";
     }
