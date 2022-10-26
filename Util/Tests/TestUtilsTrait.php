@@ -34,14 +34,6 @@ trait TestUtilsTrait
     }
 
     /**
-     * @return Container
-     */
-    protected function getContainer()
-    {
-        return static::$container;
-    }
-
-    /**
      * @param string $id
      * @param int $invalidBehavior
      *

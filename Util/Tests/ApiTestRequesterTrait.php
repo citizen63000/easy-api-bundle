@@ -105,10 +105,7 @@ trait ApiTestRequesterTrait
         $files = ($content instanceof FileBag) ? $content->getFiles() : [];
         $url = \is_string($route) && 0 === mb_strpos($route, 'http') ? $route : self::getUrl($route);
 
-        $client = self::createClient(['debug' => static::$useProfiler]);
-        if (static::$useProfiler) {
-            $client->enableProfiler();
-        }
+        $client = static::$client;
 
         $requestBeginTime = microtime(true);
         $client->request($method, $url, [], $files, $server, $body);

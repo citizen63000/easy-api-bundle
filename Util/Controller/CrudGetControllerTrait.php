@@ -23,7 +23,7 @@ trait CrudGetControllerTrait
      * @OpenApi\Annotations\Response(response="404", description="Entity not found"),
      * @OpenApi\Annotations\Response(response="405", description="Method not allowed"),
      */
-    public function get(Request $request): Response
+    public function read(Request $request): Response
     {
         return $this->doGetEntity($request, $this->getEntityOfRequest($request));
     }

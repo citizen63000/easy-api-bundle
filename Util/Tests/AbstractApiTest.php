@@ -202,8 +202,10 @@ abstract class AbstractApiTest extends WebTestCase
     final protected static function initialize(): void
     {
         self::logStep();
-        self::$client = self::createClient(['debug' => false]);
-        self::$container = self::$client->getContainer();
+        static::$client = self::createClient(['debug' => static::$debug]);
+        if (static::$useProfiler) {
+            static::$client->enableProfiler();
+        }
         self::$entityManager = self::$container->get('doctrine.orm.entity_manager');
         self::$router = self::$container->get('router');
         self::$application = new Application(self::$container->get('kernel'));

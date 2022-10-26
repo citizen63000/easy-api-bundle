@@ -70,7 +70,7 @@ class GetFormParameterRouteDescriber
             'name' => $field->getName(),
             'parameter' => (string) Uuid::uuid1(),
             'required' => $field->getConfig()->getRequired(),
-            'schema' => new Schema(['type' => $this->convertFormTypeToParameterType($field->getConfig())]),
+//            'schema' => new Schema(['type' => $this->convertFormTypeToParameterType($field->getConfig())]),
             'description' => $description,
         ]);
     }
