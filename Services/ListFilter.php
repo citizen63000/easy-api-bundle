@@ -2,6 +2,7 @@
 
 namespace EasyApiBundle\Services;
 
+use Doctrine\ORM;
 use Doctrine\ORM\QueryBuilder;
 use EasyApiBundle\Form\Model\FilterModel;
 use EasyApiBundle\Form\Type\AbstractFilterType;
@@ -10,8 +11,7 @@ use EasyApiBundle\Util\AbstractRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormConfigBuilderInterface;
-use \Symfony\Component\Form\FormInterface;
-use \Doctrine\ORM;
+use Symfony\Component\Form\FormInterface;
 
 /**
  * Make the query from class and model (in form).
@@ -22,9 +22,8 @@ class ListFilter extends AbstractService
     public const classAlias = 'e';
 
     /**
-     * @param FormInterface $filterForm
-     * @param string $entityClass
      * @return mixed
+     *
      * @throws ORM\NoResultException
      * @throws ORM\NonUniqueResultException
      */
@@ -55,26 +54,30 @@ class ListFilter extends AbstractService
 
         $this->sort($qb, $model, $joins);
 
-        if(null !== $model->getPage()) {
-            $filterResult->setResults(AbstractRepository::paginateResult($qb, $model->getPage(), $model->getLimit()));
-        } elseif(null !== $model->getLimit()) {
-            $filterResult->setResults(AbstractRepository::paginateResult($qb, 1, $model->getLimit()));
+        if (null !== $model->getPage()) {
+            $filterResult->setResults($this->paginateResult($qb, $model->getPage(), $model->getLimit()));
+        } elseif (null !== $model->getLimit()) {
+            $filterResult->setResults($this->paginateResult($qb, 1, $model->getLimit()));
         } else {
             $filterResult->setResults($qb->getQuery()->getResult());
         }
 
-        $filterResult->setNbResults((int)AbstractRepository::paginateResult($qb, $model->getPage(), $model->getLimit(), true));
+        $filterResult->setNbResults();
 
         return $filterResult;
     }
 
     /**
-     * @param QueryBuilder $qb
-     * @param FormConfigBuilderInterface $fieldConfig
-     * @param string $fieldName
-     * @param FilterModel $model
-     * @param array $joins
+     * @return int number of lines
+     *
+     * @throws ORM\NoResultException
+     * @throws ORM\NonUniqueResultException
      */
+    protected function paginateResult(QueryBuilder $qb, int $page = null, int $limit = null): int
+    {
+        return (int) AbstractRepository::paginateResult($qb, $page, $limit, true);
+    }
+
     protected function linkedEntityFilter(QueryBuilder $qb, FormConfigBuilderInterface $fieldConfig, string $fieldName, FilterModel $model, array &$joins)
     {
         $classAlias = $this->joinEntityFromPath($qb, $fieldName, $joins);
@@ -82,12 +85,6 @@ class ListFilter extends AbstractService
         $this->fieldFilter($qb, $fieldConfig, $classAlias, $fieldName, $entityFieldName, $model);
     }
 
-    /**
-     * @param QueryBuilder $qb
-     * @param string $fieldName
-     * @param array $joins
-     * @return string|null
-     */
     protected function joinEntityFromPath(QueryBuilder $qb, string $fieldName, array &$joins): ?string
     {
         $parts = explode('_', $fieldName);
@@ -101,24 +98,15 @@ class ListFilter extends AbstractService
         return $classAlias;
     }
 
-    /**
-     * @param string $path
-     * @return string
-     */
     protected static function getFieldNameFromPath(string $path): string
     {
         $parts = explode('_', $path);
 
-        return $parts[count($parts)-1];
+        return $parts[count($parts) - 1];
     }
 
     /**
-     * Join entity
-     * @param QueryBuilder $qb
-     * @param string $classAlias
-     * @param string $fieldName
-     * @param array $joins
-     * @return string
+     * Join entity.
      */
     protected function joinEntity(QueryBuilder $qb, string $classAlias, string $fieldName, array &$joins): string
     {
@@ -133,14 +121,6 @@ class ListFilter extends AbstractService
         return $alias;
     }
 
-    /**
-     * @param QueryBuilder $qb
-     * @param FormConfigBuilderInterface $fieldConfig
-     * @param string $classAlias
-     * @param string $fieldName
-     * @param string $entityFieldName
-     * @param FilterModel $model
-     */
     protected function fieldFilter(QueryBuilder $qb, FormConfigBuilderInterface $fieldConfig, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model)
     {
         $fieldType = $fieldConfig->getType()->getInnerType();
@@ -159,13 +139,6 @@ class ListFilter extends AbstractService
         }
     }
 
-    /**
-     * @param QueryBuilder $qb
-     * @param string $classAlias
-     * @param string $fieldName
-     * @param string $entityFieldName
-     * @param FilterModel $model
-     */
     protected function entityTypeFilter(QueryBuilder $qb, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model)
     {
         $alias = "{$classAlias}_{$entityFieldName}";
@@ -176,30 +149,17 @@ class ListFilter extends AbstractService
 
     /**
      * Interval like fieldName_min or fieldName_max.
-     * @param QueryBuilder $qb
-     * @param string $classAlias
-     * @param string $fieldName
-     * @param string $entityFieldName
-     * @param FilterModel $model
-     * @param int $operatorPosition
      */
     protected function intervalFilter(QueryBuilder $qb, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model, int $operatorPosition)
     {
         $realFieldName = substr($entityFieldName, 0, $operatorPosition);
         $operator = substr($entityFieldName, $operatorPosition + 1);
-        $exprOperator = $operator === 'min' ? 'gt' : 'lte';
+        $exprOperator = 'min' === $operator ? 'gt' : 'lte';
         $alias = ":{$classAlias}_{$exprOperator}_{$entityFieldName}";
         $qb->andWhere($qb->expr()->$exprOperator("{$classAlias}.{$realFieldName}", $alias));
         $qb->setParameter($alias, $model->$fieldName);
     }
 
-    /**
-     * @param QueryBuilder $qb
-     * @param string $classAlias
-     * @param string $fieldName
-     * @param string $entityFieldName
-     * @param FilterModel $model
-     */
     protected function textFilter(QueryBuilder $qb, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model)
     {
         $alias = ":{$classAlias}_{$entityFieldName}";
@@ -207,13 +167,6 @@ class ListFilter extends AbstractService
         $qb->setParameter($alias, "%{$model->$fieldName}%");
     }
 
-    /**
-     * @param QueryBuilder $qb
-     * @param string $classAlias
-     * @param string $fieldName
-     * @param string $entityFieldName
-     * @param FilterModel $model
-     */
     protected function defaultFilter(QueryBuilder $qb, string $classAlias, string $fieldName, string $entityFieldName, FilterModel $model)
     {
         $alias = ":{$classAlias}_{$entityFieldName}";
@@ -222,10 +175,7 @@ class ListFilter extends AbstractService
     }
 
     /**
-     * (field1:asc|desc, field2:asc|desc, subEntity_field:asc|desc)
-     * @param QueryBuilder $qb
-     * @param FilterModel $model
-     * @param array $joins
+     * (field1:asc|desc, field2:asc|desc, subEntity_field:asc|desc).
      */
     protected function sort(QueryBuilder $qb, FilterModel $model, array &$joins)
     {
@@ -247,11 +197,6 @@ class ListFilter extends AbstractService
         }
     }
 
-    /**
-     * @param string $entityClass
-     * @param FilterModel $model
-     * @return QueryBuilder
-     */
     protected function getFilterQueryBuilder(string $entityClass, FilterModel $model): QueryBuilder
     {
         return $this->getRepository($entityClass)->createQueryBuilder(static::classAlias)->distinct(static::classAlias);
