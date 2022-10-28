@@ -62,18 +62,25 @@ class ListFilter extends AbstractService
             $filterResult->setResults($qb->getQuery()->getResult());
         }
 
-        $filterResult->setNbResults();
+        $filterResult->setNbResults($this->countResults($qb, $model->getPage(), $model->getLimit(), true));
 
         return $filterResult;
     }
 
     /**
-     * @return int number of lines
-     *
      * @throws ORM\NoResultException
      * @throws ORM\NonUniqueResultException
      */
-    protected function paginateResult(QueryBuilder $qb, int $page = null, int $limit = null): int
+    protected function paginateResult(QueryBuilder $qb, int $page = null, int $limit = null)
+    {
+        return AbstractRepository::paginateResult($qb, $page, $limit);
+    }
+
+    /**
+     * @throws ORM\NoResultException
+     * @throws ORM\NonUniqueResultException
+     */
+    protected function countResults(QueryBuilder $qb, int $page = null, int $limit = null): int
     {
         return (int) AbstractRepository::paginateResult($qb, $page, $limit, true);
     }
