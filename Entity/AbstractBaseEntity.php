@@ -17,7 +17,7 @@ Abstract class AbstractBaseEntity
      * @ORM\Column(type="integer")
      * @Groups({"abstract_base_entity_id", "abstract_base_entity", "abstract_base_entity_full"})
      */
-    protected ?int $id;
+    protected ?int $id = null;
 
     /**
      * @Gedmo\Timestampable(on="create")
