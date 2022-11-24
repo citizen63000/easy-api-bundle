@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use EasyApiBundle\Entity\AbstractBaseEntity;
 use EasyApiBundle\Entity\AbstractBaseUniqueEntity;
 use EasyApiBundle\Services\MediaUploader\FileManager;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Filesystem\Filesystem;
@@ -56,7 +56,7 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     protected const fileNamer = OrignameNamer::class;
 
     /**
-     * @var Uuid
+     * @var UuidInterface
      * @ORM\Column(name="uuid", type="uuid", length=255, nullable=false)
      * @Groups({"abstract_media_full", "abstract_media_short", "abstract_media_uuid"})
      */
