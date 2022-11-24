@@ -5,6 +5,7 @@ namespace EasyApiBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use \DateTimeInterface;
 
 trait BaseEntityTrait
 {
@@ -14,21 +15,21 @@ trait BaseEntityTrait
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    protected $id;
+    protected int $id;
 
     /**
-     * @var \DateTime
+     * @var DateTimeInterface
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
      */
-    protected $createdAt;
+    protected DateTimeInterface $createdAt;
 
     /**
-     * @var \DateTime
+     * @var DateTimeInterface
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime")
      */
-    protected $updatedAt;
+    protected DateTimeInterface $updatedAt;
 
     /**
      * @return int
@@ -47,33 +48,33 @@ trait BaseEntityTrait
     }
 
     /**
-     * @return \DateTime
+     * @return DateTimeInterface
      */
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): DateTimeInterface
     {
         return $this->createdAt;
     }
 
     /**
-     * @param \DateTime $createdAt
+     * @param DateTimeInterface $createdAt
      */
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
     /**
-     * @return \DateTime
+     * @return DateTimeInterface
      */
-    public function getUpdatedAt(): \DateTime
+    public function getUpdatedAt(): DateTimeInterface
     {
         return $this->updatedAt;
     }
 
     /**
-     * @param \DateTime $updatedAt
+     * @param DateTimeInterface $updatedAt
      */
-    public function setUpdatedAt(\DateTime $updatedAt): void
+    public function setUpdatedAt(DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }
