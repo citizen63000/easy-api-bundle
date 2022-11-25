@@ -184,7 +184,6 @@ abstract class AbstractApiTest extends WebTestCase
     {
         return
             null !== self::$client
-            && null !== self::$container
             && null !== self::$entityManager
             && null !== self::$router
             && null !== self::$application
@@ -392,6 +391,7 @@ abstract class AbstractApiTest extends WebTestCase
         self::logStep();
         static::$executeSetupOnAllTest = null;
         self::$token = null;
+        self::$entityManager->clear();
     }
 
     /**
@@ -403,7 +403,7 @@ abstract class AbstractApiTest extends WebTestCase
         if (!self::isInitialized()) {
             self::initialize();
         } else {
-            self::$entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
+            self::initExecuteSetupOnAllTest();
         }
     }
 

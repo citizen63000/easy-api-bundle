@@ -59,17 +59,17 @@ trait UpdateTestFunctionsTrait
      * @param string $filename
      * @param array $params
      * @param array $expectedErrors
-     * @param int|string $expectedStatusCode
+     * @param int $expectedStatusCode
      * @param string|null $userLogin
      * @param string|null $userPassword
      * @throws \Exception
      */
-    protected function doTestUpdateInvalid(?int $id, string $filename, array $params = [], array $expectedErrors, string $expectedStatusCode = Response::HTTP_UNPROCESSABLE_ENTITY, string $userLogin = null, string $userPassword = null): void
+    protected function doTestUpdateInvalid(?int $id, string $filename, array $params = [], array $expectedErrors, int $expectedStatusCode = Response::HTTP_UNPROCESSABLE_ENTITY, string $userLogin = null, string $userPassword = null): void
     {
         $id = $id ?? static::defaultEntityId;
         $params += ['id' => $id];
         $data = $this->getDataSent($filename, self::$updateActionType);
-        $apiOutput = self::httpPostWithLogin(['name' => static::getCreateRouteName(), 'params' => $params], $userLogin, $userPassword, $data);
+        $apiOutput = self::httpPutWithLogin(['name' => static::getUpdateRouteName(), 'params' => $params], $userLogin, $userPassword, $data);
         self::assertEquals($expectedStatusCode, $apiOutput->getStatusCode());
         self::assertEquals(['errors' => $expectedErrors], $apiOutput->getData());
     }
