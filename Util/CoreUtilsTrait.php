@@ -47,7 +47,7 @@ trait CoreUtilsTrait
      */
     protected function persistAndFlush($entity)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getEntityManager();
         $em->persist($entity);
         $em->flush();
 
@@ -59,7 +59,7 @@ trait CoreUtilsTrait
      */
     protected function removeAndFlush($entity)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getEntityManager();
         $em->remove($entity);
         $em->flush();
     }
@@ -85,7 +85,7 @@ trait CoreUtilsTrait
      */
     protected function getUserManager()
     {
-        return $this->container->get('app.user.manager');
+        return $this->getContainer()->get('app.user.manager');
     }
 
     /**
