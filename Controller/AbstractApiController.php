@@ -21,8 +21,8 @@ use EasyApiBundle\Util\Forms\SerializedForm;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Psr\Cache\InvalidArgumentException;
 use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -72,7 +72,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
     /** @var string */
     public const filterService = ListFilter::class;
 
-    /** @var ?string */
+    /** @var ?array */
     public const defaultFilterSort = null;
 
     /** @var bool */
