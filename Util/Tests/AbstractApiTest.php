@@ -161,11 +161,6 @@ abstract class AbstractApiTest extends WebTestCase
      */
     protected static ?KernelBrowser $client = null;
 
-    /**
-     * @var EntityManager
-     */
-    protected static $entityManager;
-
     /** @var Router */
     protected static $router;
 
@@ -184,7 +179,7 @@ abstract class AbstractApiTest extends WebTestCase
     {
         return
             null !== self::$client
-            && null !== self::$entityManager
+            && null !== static::getEntityManager()
             && null !== self::$router
             && null !== self::$application
             ;
@@ -200,7 +195,6 @@ abstract class AbstractApiTest extends WebTestCase
         if (static::$useProfiler) {
             static::$client->enableProfiler();
         }
-        self::$entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
         self::$router = static::getContainer()->get('router');
         self::$application = new Application(static::getContainer()->get('kernel'));
         self::$application->setAutoExit(false);
@@ -288,7 +282,7 @@ abstract class AbstractApiTest extends WebTestCase
      */
     final protected static function countEntities(string $entityName, $condition = null, array $parameters = []): int
     {
-        $qb = self::$entityManager->getRepository($entityName)
+        $qb = static::getEntityManager()->getRepository($entityName)
             ->createQueryBuilder('a')
             ->select('COUNT(a)')
         ;
@@ -310,9 +304,9 @@ abstract class AbstractApiTest extends WebTestCase
      */
     protected static function getLastEntityId(string $className = null): int
     {
-        $tableName = self::$entityManager->getClassMetadata($className ?? static::entityClass)->getTableName();
-        $schemaName = self::$entityManager->getClassMetadata($className ?? static::entityClass)->getSchemaName();
-        $stmt = self::$entityManager->getConnection()->prepare("SELECT max(id) as id FROM {$schemaName}.{$tableName}");
+        $tableName = static::getEntityManager()->getClassMetadata($className ?? static::entityClass)->getTableName();
+        $schemaName = static::getEntityManager()->getClassMetadata($className ?? static::entityClass)->getSchemaName();
+        $stmt = static::getEntityManager()->getConnection()->prepare("SELECT max(id) as id FROM {$schemaName}.{$tableName}");
 
         return (int) $stmt->execute()->fetchOne(0);
     }
@@ -391,7 +385,6 @@ abstract class AbstractApiTest extends WebTestCase
         self::logStep();
         static::$executeSetupOnAllTest = null;
         self::$token = null;
-        self::$entityManager->clear();
     }
 
     /**

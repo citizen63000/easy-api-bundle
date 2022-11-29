@@ -3,7 +3,7 @@
 namespace EasyApiBundle\Util\Forms;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Nelmio\ApiDocBundle\Model\Model;
 use EasyApiBundle\Form\Type\AbstractApiType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
@@ -214,9 +214,8 @@ class FormSerializer
             $sForm = $this->parseForm($subForm, $sField->getKey(), SerializedForm::PARENT_TYPE_FORM);
             $sField->setConditionedFields(self::getChildrenFieldsConditions($form, $sField));
             $sField->setForm($sForm);
-            // not a form
+        // not a form
         } else {
-
             // Properties
             $sField->setLabel(self::getFieldLabel($config, $sField));
             $sField->setPlaceholder(self::getFieldPlaceholder($config, $sField));
@@ -466,7 +465,6 @@ class FormSerializer
 
         // Add inherited conditions from parent form
         foreach ($inheritedConditions as $key => $values) {
-
             // if form in collection, for Angular the parent field is the collection so we need two steps to find the parentForm
             $parentPath = (($parentForm = $sField->getParentForm()) && $parentForm->isInCollection()) ? '../../' : '../';
 

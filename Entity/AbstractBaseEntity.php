@@ -24,14 +24,14 @@ Abstract class AbstractBaseEntity
      * @ORM\Column(type="datetime")
      * @Groups({"abstract_base_entity", "abstract_base_entity_full"})
      */
-    protected \DateTimeInterface $createdAt;
+    protected ?\DateTimeInterface $createdAt = null;
 
     /**
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime")
      * @Groups({"abstract_base_entity", "abstract_base_entity_full"})
      */
-    protected \DateTimeInterface $updatedAt;
+    protected ?\DateTimeInterface $updatedAt = null;
 
     /**
      * AbstractBaseEntity constructor.

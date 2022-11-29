@@ -2,12 +2,11 @@
 
 namespace EasyApiBundle\Util;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityRepository;
-use EasyApiBundle\Services\User\UserManager;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use \Symfony\Component\DependencyInjection\ContainerInterface;
-use \Doctrine\Common\Persistence\ObjectManager;
+use \Doctrine\Persistence\ObjectManager;
 
 trait CoreUtilsTrait
 {
@@ -47,7 +46,7 @@ trait CoreUtilsTrait
      */
     protected function persistAndFlush($entity)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getEntityManager();
         $em->persist($entity);
         $em->flush();
 
@@ -59,7 +58,7 @@ trait CoreUtilsTrait
      */
     protected function removeAndFlush($entity)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getEntityManager();
         $em->remove($entity);
         $em->flush();
     }
@@ -73,22 +72,6 @@ trait CoreUtilsTrait
     }
 
     /**
-     * @return EntityRepository
-     */
-    protected function getUserRepository()
-    {
-        return $this->getRepository($this->getUserClassname());
-    }
-
-    /**
-     * @return UserManager
-     */
-    protected function getUserManager()
-    {
-        return $this->container->get('app.user.manager');
-    }
-
-    /**
      * @return AdapterInterface
      * @throws \Exception
      */
@@ -96,13 +79,4 @@ trait CoreUtilsTrait
     {
         return $this->getContainer()->get('cache.app');
     }
-
-//    /**
-//     * @return FileUploader
-//     */
-//    protected function getMediaUploader()
-//    {
-//        return $this->getContainer()->get('app.service.media_uploader');
-//    }
-
 }

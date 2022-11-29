@@ -10,15 +10,6 @@ trait DeleteTestFunctionsTrait
     use crudFunctionsTestTrait;
 
     /**
-     * Set $executeSetupOnAllTest to false
-     */
-    public static function setUpBeforeClass(): void
-    {
-        parent::setUpBeforeClass();
-        static::$executeSetupOnAllTest = false;
-    }
-
-    /**
      * DELETE - Nominal case.
      * @param int|null $id
      * @param array $additionalParameters
