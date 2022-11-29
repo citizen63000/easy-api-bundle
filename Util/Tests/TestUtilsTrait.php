@@ -56,7 +56,7 @@ trait TestUtilsTrait
      *
      * @return ObjectRepository
      */
-    protected function getRepository(string $repository)
+    protected static function getRepository(string $repository)
     {
         return self::getEntityManager()->getRepository($repository);
     }
@@ -66,7 +66,7 @@ trait TestUtilsTrait
      *
      * @return mixed
      */
-    protected function persistAndFlush($entity)
+    protected static function persistAndFlush($entity)
     {
         $em = self::getEntityManager();
         $em->persist($entity);
@@ -79,7 +79,7 @@ trait TestUtilsTrait
      * @return AdapterInterface
      * @throws \Exception
      */
-    protected function getCache(): AdapterInterface
+    protected static function getCache(): AdapterInterface
     {
         return static::getContainer()->get('cache.app');
     }
