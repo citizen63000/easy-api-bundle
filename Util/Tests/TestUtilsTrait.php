@@ -3,6 +3,7 @@
 namespace EasyApiBundle\Util\Tests;
 
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
 use Doctrine\Persistence\ObjectRepository;
 use EasyApiBundle\Util\CoreUtilsTrait;
 use Symfony\Component\DependencyInjection\Container;
@@ -21,6 +22,15 @@ trait TestUtilsTrait
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    /**
+     * @return ObjectManager|object
+     * @throws \Exception
+     */
+    protected function getEntityManager()
+    {
+        return $this->getDoctrine()->getManager();
     }
 
     /**

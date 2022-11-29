@@ -391,7 +391,6 @@ abstract class AbstractApiTest extends WebTestCase
         self::logStep();
         static::$executeSetupOnAllTest = null;
         self::$token = null;
-        self::$entityManager->clear();
     }
 
     /**
