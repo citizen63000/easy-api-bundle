@@ -7,6 +7,7 @@ use EasyApiBundle\Annotation\GetFormParameter;
 use EasyApiBundle\Util\Entity\EntityConfigLoader;
 use Nelmio\ApiDocBundle\RouteDescriber\RouteDescriberTrait;
 use OpenApi\Annotations\OpenApi;
+use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
 use OpenApi\Annotations\Schema;
 use OpenApi\Generator;
@@ -58,17 +59,17 @@ class GetFormParameterRouteDescriber
         foreach ($this->getOperations($api, $route) as $operation) {
             $operation->parameters = (Generator::UNDEFINED == $operation->parameters) ? [] : $operation->parameters;
             foreach ($filterForm->all() as $field) {
-                $operation->parameters[] = $this->createParameter($field);
+                $operation->parameters[] = $this->createParameter($field, $operation);
             }
         }
     }
 
-    protected function createParameter(FormInterface $field, $description = ''): Parameter
+    protected function createParameter(FormInterface $field, Operation $operation, string $description = ''): Parameter
     {
         return new Parameter([
             'in' => 'query',
             'name' => $field->getName(),
-            'parameter' => (string) Uuid::uuid1(),
+            'parameter' => "{$operation->operationId}_{$field->getName()}",
             'required' => $field->getConfig()->getRequired(),
 //            'schema' => new Schema(['type' => $this->convertFormTypeToParameterType($field->getConfig())]),
             'description' => $description,
