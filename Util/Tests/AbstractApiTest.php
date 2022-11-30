@@ -253,7 +253,7 @@ abstract class AbstractApiTest extends WebTestCase
     }
 
     /**
-     * Show an error line and write it in log file
+     * Show an error line and write it in log file.
      *
      * @param string $message
      */
@@ -332,6 +332,9 @@ abstract class AbstractApiTest extends WebTestCase
     {
         self::logStep();
         self::doSetup();
+
+        static::ensureKernelShutdown();
+        static::$client = self::createClient(['debug' => static::$useProfiler]);
 
         self::$launchFirstSetup = false;
     }
