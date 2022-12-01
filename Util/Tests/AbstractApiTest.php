@@ -165,9 +165,6 @@ abstract class AbstractApiTest extends WebTestCase
     /** @var Router */
     protected static $router;
 
-    /** @var Application */
-    protected static $application;
-
     /** @var string */
     protected static $projectDir;
 
@@ -181,7 +178,6 @@ abstract class AbstractApiTest extends WebTestCase
             null !== self::$client
             && null !== static::getEntityManager()
             && null !== self::$router
-            && null !== self::$application
             ;
     }
 
@@ -193,8 +189,6 @@ abstract class AbstractApiTest extends WebTestCase
         self::logStep();
         static::rebootClient();
 
-        self::$application = new Application(static::$kernel);
-        self::$application->setAutoExit(false);
         self::$projectDir = static::getContainer()->getParameter('kernel.project_dir');
 
         static::initExecuteSetupOnAllTest();
@@ -214,16 +208,6 @@ abstract class AbstractApiTest extends WebTestCase
             static::$client->enableProfiler();
         }
         self::$router = static::getContainer()->get('router');
-    }
-
-    /**
-     * sf3 polyfill for sf4.
-     *
-     * @return Container|ContainerInterface|null
-     */
-    protected static function getContainerInstance(): ?ContainerInterface
-    {
-        return static::$container ?? self::createClient(['debug' => false])->getContainer();
     }
 
     /**
