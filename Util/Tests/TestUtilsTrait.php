@@ -2,11 +2,9 @@
 
 namespace EasyApiBundle\Util\Tests;
 
-use Doctrine\ORM\EntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Persistence\ObjectRepository;
-use EasyApiBundle\Util\CoreUtilsTrait;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -19,10 +17,8 @@ trait TestUtilsTrait
     abstract protected static function getContainer();
 
     /**
-     * @param string $id
-     * @param int $invalidBehavior
-     *
      * @return object
+     *
      * @throws \Exception
      */
     protected static function get(string $id, int $invalidBehavior = Container::EXCEPTION_ON_INVALID_REFERENCE)
@@ -44,16 +40,15 @@ trait TestUtilsTrait
 
     /**
      * @return ObjectManager|object
+     *
      * @throws \Exception
      */
-    protected static function getEntityManager()
+    protected static function getEntityManager(string $name = null)
     {
-        return self::getDoctrine()->getManager();
+        return self::getDoctrine()->getManager($name);
     }
 
     /**
-     * @param string $repository
-     *
      * @return ObjectRepository
      */
     protected static function getRepository(string $repository)
@@ -76,7 +71,6 @@ trait TestUtilsTrait
     }
 
     /**
-     * @return AdapterInterface
      * @throws \Exception
      */
     protected static function getCache(): AdapterInterface

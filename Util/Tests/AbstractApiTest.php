@@ -3,7 +3,6 @@
 namespace EasyApiBundle\Util\Tests;
 
 use Doctrine\DBAL\Driver\Exception;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -84,17 +83,18 @@ abstract class AbstractApiTest extends WebTestCase
 
     /**
      * @var bool
+     *
      * @todo set private in php 7.4
      */
     protected static $debug = false;
 
-    /** @var int  */
+    /** @var int */
     protected static $debugLevel = self::DEBUG_LEVEL_ADVANCED;
 
-    /** @var bool  */
+    /** @var bool */
     protected static $showQuery = false;
 
-    /** @var int  */
+    /** @var int */
     protected static $debugTop = 0;
 
     /** @var array */
@@ -102,6 +102,7 @@ abstract class AbstractApiTest extends WebTestCase
 
     /**
      * Symfony env, should be TEST.
+     *
      * @var string
      */
     protected static $env = 'TEST';
@@ -172,8 +173,7 @@ abstract class AbstractApiTest extends WebTestCase
 
     /**
      * Check if engine is initialized.
-     *
-     * @return bool
+     * @throws \Exception
      */
     final protected static function isInitialized(): bool
     {
@@ -191,12 +191,9 @@ abstract class AbstractApiTest extends WebTestCase
     final protected static function initialize(): void
     {
         self::logStep();
-        static::$client = self::createClient(['debug' => static::$useProfiler]);
-        if (static::$useProfiler) {
-            static::$client->enableProfiler();
-        }
-        self::$router = static::getContainer()->get('router');
-        self::$application = new Application(static::getContainer()->get('kernel'));
+        static::rebootClient();
+
+        self::$application = new Application(static::$kernel);
         self::$application->setAutoExit(false);
         self::$projectDir = static::getContainer()->getParameter('kernel.project_dir');
 
@@ -209,8 +206,19 @@ abstract class AbstractApiTest extends WebTestCase
         static::$debug = static::getContainer()->getParameter('easy_api.tests.debug') || in_array('--debug', $argv, true);
     }
 
+    protected static function rebootClient(): void
+    {
+        static::ensureKernelShutdown();
+        static::$client = self::createClient(['debug' => static::$useProfiler]);
+        if (static::$useProfiler) {
+            static::$client->enableProfiler();
+        }
+        self::$router = static::getContainer()->get('router');
+    }
+
     /**
-     * sf3 polyfill for sf4
+     * sf3 polyfill for sf4.
+     *
      * @return Container|ContainerInterface|null
      */
     protected static function getContainerInstance(): ?ContainerInterface
@@ -254,8 +262,6 @@ abstract class AbstractApiTest extends WebTestCase
 
     /**
      * Show an error line and write it in log file.
-     *
-     * @param string $message
      */
     final protected static function logError(string $message): void
     {
@@ -272,11 +278,7 @@ abstract class AbstractApiTest extends WebTestCase
     /**
      * Count entities.
      *
-     * @param string $entityName
-     * @param null   $condition
-     * @param array $parameters
-     *
-     * @return int
+     * @param null $condition
      *
      * @throws NonUniqueResultException|NoResultException
      */
@@ -297,8 +299,6 @@ abstract class AbstractApiTest extends WebTestCase
     }
 
     /**
-     * @param string|null $className
-     * @return int
      * @throws Exception
      * @throws \Doctrine\DBAL\Exception
      */
@@ -312,8 +312,6 @@ abstract class AbstractApiTest extends WebTestCase
     }
 
     /**
-     * @param string|null $className
-     * @return int|null
      * @throws Exception
      */
     protected static function getNextEntityId(string $className = null): ?int
@@ -333,14 +331,11 @@ abstract class AbstractApiTest extends WebTestCase
         self::logStep();
         self::doSetup();
 
-        static::ensureKernelShutdown();
-        static::$client = self::createClient(['debug' => static::$useProfiler]);
-
         self::$launchFirstSetup = false;
     }
 
     /**
-     * Initialize $executeSetupOnAllTest, override it to change it
+     * Initialize $executeSetupOnAllTest, override it to change it.
      */
     protected static function initExecuteSetupOnAllTest()
     {
@@ -350,7 +345,7 @@ abstract class AbstractApiTest extends WebTestCase
     }
 
     /**
-     * Initialize $loadDataOnSetup, override it to change it
+     * Initialize $loadDataOnSetup, override it to change it.
      */
     protected static function initLoadDataOnSetup()
     {
@@ -365,6 +360,8 @@ abstract class AbstractApiTest extends WebTestCase
     protected function setUp(): void
     {
         self::logStep();
+
+        static::rebootClient();
 
         if (true === static::$loadDataOnSetup && (true === static::$executeSetupOnAllTest || (false === static::$executeSetupOnAllTest && false === static::$launchFirstSetup))) {
             static::loadData();
@@ -405,9 +402,6 @@ abstract class AbstractApiTest extends WebTestCase
 
     /**
      * Define user & password for tests.
-     *
-     * @param string|null $user
-     * @param string|null $password
      */
     protected static function defineUserPassword(string $user = null, string $password = null): void
     {
@@ -430,14 +424,10 @@ abstract class AbstractApiTest extends WebTestCase
 
     /**
      * Get FileBag for the filename.
-     *
-     * @param array $filenames
-     *
-     * @return FileBag
      */
     protected function getFileBag(array $filenames): FileBag
     {
-        $fileDir = static::getContainer()->getParameter('kernel.project_dir') . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'artifacts';
+        $fileDir = static::getContainer()->getParameter('kernel.project_dir').DIRECTORY_SEPARATOR.'tests'.DIRECTORY_SEPARATOR.'artifacts';
         $fileBag = new FileBag();
         foreach ($filenames as $field => $filename) {
             $fileBag->addFile($field, $fileDir.DIRECTORY_SEPARATOR.$filename, $filename);
@@ -448,9 +438,6 @@ abstract class AbstractApiTest extends WebTestCase
 
     // endregion
 
-    /**
-     * @return string
-     */
     protected static function getArtifactsDir(): string
     {
         $artifactTestDir = static::$artifactTestDir ? DIRECTORY_SEPARATOR.static::$artifactTestDir : '';
@@ -459,8 +446,6 @@ abstract class AbstractApiTest extends WebTestCase
     }
 
     /**
-     * @param string $filename
-     *
      * @return bool|string
      */
     protected static function getArtifactFileContent(string $filename): ?string
@@ -468,17 +453,11 @@ abstract class AbstractApiTest extends WebTestCase
         return file_get_contents(static::getArtifactsDir().DIRECTORY_SEPARATOR.$filename);
     }
 
-    /**
-     * @return array
-     */
     protected static function getRequiredFields(): array
     {
         return static::requiredFields;
     }
 
-    /**
-     * @return string
-     */
     protected static function getDomainUrl(): string
     {
         $scheme = static::getContainer()->getParameter('router.request_context.scheme');
@@ -487,9 +466,6 @@ abstract class AbstractApiTest extends WebTestCase
         return "{$scheme}://{$host}";
     }
 
-    /**
-     * @return KernelInterface
-     */
     protected static function getKernel(): KernelInterface
     {
         if (null == static::$kernel) {
