@@ -80,7 +80,7 @@ abstract class AbstractMediaType extends AbstractApiType
     {
         // Create a real file in temporary directory
         $tmpFilePath = '/tmp/'.md5(uniqid());
-        $fileData = base64_decode(preg_replace('/^data:[a-zA-Z0-9\-\/\.]+;base64,/', '', $base64));
+        $fileData = base64_decode(preg_replace('/^data:[a-zA-Z0-9\-\/\.\+]+;base64,/', '', $base64));
         (new Filesystem())->dumpFile($tmpFilePath, $fileData);
         // add extension (mime_content_type doesn't work with docx)
         $mimeType = finfo_buffer(finfo_open(), $fileData, FILEINFO_MIME_TYPE);

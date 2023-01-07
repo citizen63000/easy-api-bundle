@@ -2,8 +2,6 @@
 
 namespace EasyApiBundle\DependencyInjection;
 
-use FOS\UserBundle\Form\Type;
-use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -19,11 +17,10 @@ class Configuration implements ConfigurationInterface
     /**
      * {@inheritdoc}
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('easy_api');
-        $rootNode
+        $treeBuilder = new TreeBuilder('easy_api');
+        $treeBuilder->getRootNode()
             ->children()
 
                 ->booleanNode('authentication')->defaultTrue()->end()

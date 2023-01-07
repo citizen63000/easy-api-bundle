@@ -201,11 +201,29 @@ trait crudFunctionsTestTrait
     }
 
     /**
+     * @param array $params
+     * @return array
+     */
+    protected static function generateGetRouteParameters(array $params = []): array
+    {
+        return ['name' => static::getGetRouteName(), 'params' => $params];
+    }
+
+    /**
      * @return string
      */
     protected static function getGetListRouteName()
     {
         return static::baseRouteName.'_list';
+    }
+
+    /**
+     * @param array $params
+     * @return array
+     */
+    protected static function generateGetListRouteParameters(array $params = []): array
+    {
+        return ['name' => static::getGetListRouteName(), 'params' => $params];
     }
 
     /**
@@ -238,6 +256,15 @@ trait crudFunctionsTestTrait
     protected static function getDeleteRouteName()
     {
         return static::baseRouteName.'_delete';
+    }
+
+    /**
+     * @param array $params
+     * @return array
+     */
+    protected static function generateDeleteRouteParameters(array $params = []): array
+    {
+        return ['name' => static::getDeleteRouteName(), 'params' => $params];
     }
 
     /**

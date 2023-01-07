@@ -12,7 +12,7 @@ trait DeleteTestFunctionsTrait
     /**
      * Set $executeSetupOnAllTest to false
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
         static::$executeSetupOnAllTest = false;
@@ -42,20 +42,20 @@ trait DeleteTestFunctionsTrait
         $allParams = $params + $additionalParameters;
 
         // count before delete
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetListRouteName()], $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(static::generateGetListRouteParameters(), $userLogin, $userPassword);
         static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
-        $nbResults = $apiOutput->getHeaderLine('X-Total-Results');
+        $nbResults = (int) $apiOutput->getHeaderLine('X-Total-Results');
 
         // delete entity
-        $apiOutput = self::httpDeleteWithLogin(['name' => static::getDeleteRouteName(), 'params' => $allParams], $userLogin, $userPassword);
+        $apiOutput = self::httpDeleteWithLogin(static::generateDeleteRouteParameters($allParams), $userLogin, $userPassword);
         static::assertEquals(Response::HTTP_NO_CONTENT, $apiOutput->getStatusCode());
 
         // try to get after delete
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => $params], $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(static::generateGetRouteParameters($params), $userLogin, $userPassword);
         static::assertEquals(Response::HTTP_NOT_FOUND, $apiOutput->getStatusCode());
 
         // count after delete
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetListRouteName()], $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(static::generateGetListRouteParameters(), $userLogin, $userPassword);
         static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
         static::assertEquals($nbResults-1, $apiOutput->getHeaderLine('X-Total-Results'));
     }
@@ -84,7 +84,7 @@ trait DeleteTestFunctionsTrait
     }
 
     /**
-     * DELETE - Error case - 401 - Without authentication.
+     * DELETE - Error case - Without authentication.
      * @param int|null $id
      */
     public function doTestDeleteWithoutAuthentication(int $id = null): void
@@ -93,7 +93,7 @@ trait DeleteTestFunctionsTrait
     }
 
     /**
-     * DELETE - Error case - 401 - Without authentication.
+     * DELETE - Error case - Without authentication.
      * @param array $params
      */
     public function doTestGenericDeleteWithoutAuthentication(array $params): void
@@ -103,7 +103,7 @@ trait DeleteTestFunctionsTrait
     }
 
     /**
-     * DELETE - Error case - 403 - Missing right.
+     * DELETE - Error case - Missing right.
      * @param int|null $id
      * @param string|null $userLogin
      * @param string|null $userPassword
@@ -114,7 +114,7 @@ trait DeleteTestFunctionsTrait
     }
 
     /**
-     * DELETE - Error case - 403 - Missing right.
+     * DELETE - Error case - Missing right.
      * @param array $params
      * @param string|null $userLogin
      * @param string|null $userPassword

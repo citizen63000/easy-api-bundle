@@ -13,11 +13,12 @@ trait CrudDownloadControllerTrait
      *
      * @Symfony\Component\Routing\Annotation\Route("/{id}/download", methods={"GET"}, requirements={"id"="\d+"}, name="_download", )
      *
-     * @Swagger\Annotations\Response(
+     * @OpenApi\Annotations\Response(
      *     response=200,
      *     description="Successful operation"
      * ),
-     *
+     * @OpenApi\Annotations\Response(response="404", description="Entity not found"),
+     * @OpenApi\Annotations\Response(response="405", description="Method not allowed"),
      * @param Request $request
      *
      * @return Response

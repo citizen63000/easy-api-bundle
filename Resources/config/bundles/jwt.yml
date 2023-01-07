@@ -9,10 +9,3 @@ lexik_jwt_authentication:
     token_extractors:
         authorization_header:
             prefix:   "%jwt_token_authorization_header_prefix%"
-
-gesdinet_jwt_refresh_token:
-    firewall: token-refresh
-    user_provider: fos_user.user_provider.username_email
-    token_parameter_name: refreshToken
-    single_use: true
-    ttl: "%jwt_refresh_token_ttl%"

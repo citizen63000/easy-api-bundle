@@ -1,6 +1,6 @@
 <?php
 
-namespace EasyApiBundle\Model\Maker;
+namespace EasyApiBundle\Model;
 
 class EntityConfiguration
 {

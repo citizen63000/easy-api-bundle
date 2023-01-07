@@ -2,8 +2,8 @@
 
 namespace EasyApiBundle\Util\Tests;
 
-use Symfony\Component\HttpFoundation\File\MimeType\FileinfoMimeTypeGuesser;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Mime\FileinfoMimeTypeGuesser;
 
 class FileBag
 {
@@ -12,21 +12,20 @@ class FileBag
     /**
      * Add a file.
      *
-     * @param string $fieldName  The field form name
-     * @param string $filePath
-     * @param null   $fileName   The filename to the file
-     * @param array  $headers    Additional headers
+     * @param string $fieldName The field form name
+     * @param null   $fileName  The filename to the file
+     * @param array  $headers   Additional headers
      */
     public function addFile(string $fieldName, string $filePath, $fileName = null, array $headers = [])
     {
-        $mimeTypeGuesser         = new FileinfoMimeTypeGuesser();
-        $uploadedFile            = new UploadedFile($filePath, $fileName, $mimeTypeGuesser->guess($filePath), null, null, true);
+        $mimeTypeGuesser = new FileinfoMimeTypeGuesser();
+        $uploadedFile = new UploadedFile($filePath, $fileName, $mimeTypeGuesser->guessMimeType($filePath), null, true);
 
         $file = [
             'name' => $fieldName,
             'file' => $uploadedFile,
             'headers' => $headers,
-            'filename' => $fileName
+            'filename' => $fileName,
         ];
 
         $this->data[] = $file;
@@ -34,8 +33,6 @@ class FileBag
 
     /**
      * Get data.
-     *
-     * @return array
      */
     public function getData(): array
     {

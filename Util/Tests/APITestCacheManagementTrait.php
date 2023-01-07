@@ -2,20 +2,18 @@
 
 namespace EasyApiBundle\Util\Tests;
 
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Cache\Adapter\AbstractAdapter;
 
 trait APITestCacheManagementTrait
 {
-    /** @var bool */
-    protected static $useCache = true;
-
-    /** @var AbstractAdapter */
-    protected static $cache;
+    protected static bool $useCache = true;
+    protected static ?AbstractAdapter $cache = null;
 
     /**
-     * Initialize self::$cache
+     * Initialize self::$cache.
      */
-    protected static function initializeCache() :void
+    protected static function initializeCache(): void
     {
         if (null === self::$cache) {
             self::$cache = self::$container->get('cache.app');
@@ -25,6 +23,7 @@ trait APITestCacheManagementTrait
     /**
      * @param $key
      * @return mixed
+     * @throws InvalidArgumentException
      */
     protected static function getCachedData($key)
     {

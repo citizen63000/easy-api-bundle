@@ -4,7 +4,7 @@ namespace EasyApiBundle\Controller\User;
 
 use Nelmio\ApiDocBundle\Annotation\Model;
 use EasyApiBundle\Controller\AbstractApiController;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
@@ -21,19 +21,14 @@ class UserManagementController extends AbstractApiController
      *
      * @Route("/me", methods={"GET"}, name="_get_me", )
      *
-     * @SWG\Response(
+     * @OA\Response(
      *     response=200,
      *     description="Successful operation",
-     *     @SWG\Schema(ref=@Model(type="static::entityClass", groups={"static::serializationGroups"}))
+     *     @Model(type=self::entityClass, groups=self::serializationGroups)
      * ),
      *
-     * @SWG\Response(response="401", ref="#/definitions/401"),
-     * @SWG\Response(response="403", ref="#/definitions/403"),
-     * @SWG\Response(response="415", ref="#/definitions/415"),
-     * @SWG\Response(response="422", ref="#/definitions/422")
-     *
-     * @return Response
-     *
+     * @OA\Response(response="404", description="Entity not found"),
+     * @OA\Response(response="405", description="Method not allowed"),
      */
     public function getMeAction(): Response
     {

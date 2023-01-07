@@ -4,6 +4,7 @@ namespace EasyApiBundle\Util\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use OpenApi\Annotations as OA;
 
 trait CrudFilteredListControllerTrait
 {
@@ -13,27 +14,25 @@ trait CrudFilteredListControllerTrait
      * @Symfony\Component\Routing\Annotation\Route(methods={"GET"}, name="_list")
      *
      * @EasyApiBundle\Annotation\GetFormFilterParameter(
-     *     type="static::entityFilterTypeClass",
-     *     entityClass="static::entityClass",
-     *     fields={"static::filterFields"},
-     *     sortFields={"static::filterSortFields"}
+     *     type=self::entityFilterTypeClass,
+     *     entityClass=self::entityClass,
+     *     fields=self::filterFields,
+     *     sortFields=self::filterSortFields
      *  )
-     * @Swagger\Annotations\Response(
+     * @OA\Response(
      *     response=200,
      *     description="Successful operation",
-     *     @Swagger\Annotations\Schema(
+     *     @OA\JsonContent(
      *         type="array",
-     *         @Swagger\Annotations\Items(
+     *         @OA\Items(
      *              ref=@Nelmio\ApiDocBundle\Annotation\Model(
-     *                  type="static::entityClass",
-     *                  groups={"static::listSerializationGroups"}
+     *                  type=self::entityClass,
+     *                  groups=self::listSerializationGroups
      *              )
      *          )
      *     )
      * )
-     * @Swagger\Annotations\Response(response="404", ref="#/definitions/404"),
-     * @Swagger\Annotations\Response(response="405", ref="#/definitions/405"),
-     * @Swagger\Annotations\Response(response="415", ref="#/definitions/415")
+     * @OA\Response(response="405", description="Method not allowed"),
      *
      * @param Request $request
      *

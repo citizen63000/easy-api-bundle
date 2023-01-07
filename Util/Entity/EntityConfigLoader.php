@@ -1,9 +1,8 @@
 <?php
 
-namespace EasyApiBundle\Util\Maker;
+namespace EasyApiBundle\Util\Entity;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Embedded;
@@ -16,8 +15,8 @@ use Doctrine\ORM\Mapping\MappedSuperclass;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Mapping\Table;
-use EasyApiBundle\Model\Maker\EntityConfiguration;
-use EasyApiBundle\Model\Maker\EntityField;
+use EasyApiBundle\Model\EntityConfiguration;
+use EasyApiBundle\Model\EntityField;
 use EasyApiBundle\Util\StringUtils\CaseConverter;
 use EasyApiBundle\Util\StringUtils\Inflector;
 use Exception;
@@ -26,14 +25,10 @@ use ReflectionProperty;
 
 class EntityConfigLoader
 {
-    /**
-     * @var EntityConfiguration
-     */
+    /** @var EntityConfiguration */
     protected $config;
 
-    /**
-     * @var array
-     */
+    /** @var string[]  */
     protected static $possibleNativeTypes = ['float', 'string', 'integer', 'int', 'bool', 'DateTime[<>-a-zA-Z]*'];
 
     /**
@@ -46,7 +41,6 @@ class EntityConfigLoader
      * @param string|null $inheritanceType
      * @param string|null $context
      * @return EntityConfiguration
-     * @throws DBALException
      */
     public static function createEntityConfigFromDatabase(EntityManager $em, string $bundle ,string $entityName, string $tableName, string $schema = null, string $parentEntityName = null, string $inheritanceType = null, string $context =null): EntityConfiguration
     {
@@ -56,7 +50,7 @@ class EntityConfigLoader
         $config->setEntityName($entityName);
 
         // namespace
-        if(null !== $context) {
+        if (null !== $context) {
             $contextNamespace = str_replace('/', '\\', $context);
             $config->setNamespace("{$bundle}\Entity\\{$contextNamespace}");
         } else {
@@ -64,7 +58,7 @@ class EntityConfigLoader
         }
 
         //parent
-        if(!empty($parentEntityName)) {
+        if (!empty($parentEntityName)) {
             $config->setParentEntity(self::findAndCreateFromEntityName($parentEntityName, $bundle));
         }
 
@@ -72,7 +66,7 @@ class EntityConfigLoader
         $dbLoader = new DatabaseConfigurationLoader($em);
         $tableDescription = $dbLoader->load($tableName, $schema);
         foreach ($tableDescription['columns'] as $column) {
-            if(preg_match('/([_a-zA-Z0-9]+)_(id|code)$/', $column['Field'], $matches)) {
+            if (preg_match('/([_a-zA-Z0-9]+)_(id|code)$/', $column['Field'], $matches)) {
                 $config = static::addManyToOneOrOneToOne($config, $column['Field'], $matches[2], CaseConverter::convertSnakeCaseToPascalCase($matches[1]));
             } else {
                 $config = static::addNativeField($config, $column);
@@ -111,14 +105,14 @@ class EntityConfigLoader
         $field->setTypeFromMysqlType($field->getNativeType());
         $field->setDefault($column['Default']);
 
-        if('PRI' === $column['Key']) {
+        if ('PRI' === $column['Key']) {
             $field->setIsPrimary(true);
-            if(isset($column['Extra']) && 'auto_increment' === $column['Extra']) {
+            if (isset($column['Extra']) && 'auto_increment' === $column['Extra']) {
                 $field->setIsAutoIncremented(true);
             }
         }
 
-        if('created_at' === $column['Field']) {
+        if ('created_at' === $column['Field']) {
             $config->setIsTimestampable(true);
         }
 
@@ -137,17 +131,17 @@ class EntityConfigLoader
      */
     protected static function addManyToOneOrOneToOne(EntityConfiguration $config, string $columnName, string $referencedColumnName, string $entityName, string $bundle = null): EntityConfiguration
     {
-        if("{$config->getTableName()}_id" === $columnName) {
+        if ("{$config->getTableName()}_id" === $columnName) {
             // self-referenced entity
             $entityConfig = $config;
         } else {
             $entityConfig = self::findAndCreateFromEntityName($entityName, $bundle);
         }
 
-        if(null !== $entityConfig) {
+        if (null !== $entityConfig) {
 
             $relationType = 'manyToOne';
-            if($entityConfig->hasField(lcfirst($config->getEntityName()))) {
+            if ($entityConfig->hasField(lcfirst($config->getEntityName()))) {
                 $relationType = 'oneToOne';
             } else {
                 // @TODO search unique index on this field

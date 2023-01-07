@@ -2,187 +2,184 @@
 
 namespace EasyApiBundle\Entity\User;
 
+use EasyApiBundle\Entity\AbstractBaseUniqueEntity;
 use Doctrine\ORM\Mapping as ORM;
-use FOS\UserBundle\Model\User as FosUser;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Core\Encoder\EncoderAwareInterface;
-use Gedmo\Mapping\Annotation as Gedmo;
-use \DateTime;
+use \Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\MappedSuperclass
  * @UniqueEntity(fields="username", message=EasyApiBundle\Util\ApiProblem::USER_USERNAME_ALREADY_EXISTS)
  * @UniqueEntity(fields="email", message=EasyApiBundle\Util\ApiProblem::USER_EMAIL_ALREADY_EXISTS)
  */
-abstract class AbstractUser extends FosUser implements EncoderAwareInterface
+abstract class AbstractUser extends AbstractBaseUniqueEntity implements UserInterface
 {
-    const ANONYMOUS_PREFIX = 'anonymous_';
-    const ROLE_BASIC_USER = 'ROLE_BASIC_USER';
-    const ROLE_ADMIN = 'ROLE_ADMIN';
+    public const ROLE_BASIC_USER = 'ROLE_BASIC_USER';
+    public const ROLE_DEFAULT = 'ROLE_USER';
+    public const ROLE_ADMIN = 'ROLE_ADMIN';
+    public const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
 
     /**
-     * @var int
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
+     * @var string|null
+     * @ORM\Column(type="string")
      */
-    protected $id;
+    protected ?string $username = null;
 
     /**
-     * @var \DateTime
-     * @Gedmo\Timestampable(on="create")
-     * @ORM\Column(type="datetime")
+     * @var string|null
+     * @ORM\Column(type="string")
      */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime
-     * @Gedmo\Timestampable(on="update")
-     * @ORM\Column(type="datetime")
-     */
-    protected $updatedAt;
+    protected ?string $email = null;
 
     /**
      * @var bool
      * @ORM\Column(type="boolean")
      */
-    protected $anonymous = false;
+    protected bool $enabled = false;
 
     /**
-     * @var string
-     * @ORM\Column(type="string")
+     * @var array
+     * @ORM\Column(type="array")
      */
-    protected $encoder = '1';
+    protected array $roles = [];
 
-    /**
-     * @param FOSUser $fosUser
-     * @return AbstractUser
-     */
-    public function updateFromFosUser(FOSUser $fosUser): AbstractUser
+    /** Implement it if necessary */
+    public function getPassword()
     {
-        $this->setId($fosUser->getId());
-        $this->setUsername($fosUser->getUsername());
-        $this->setUsernameCanonical($fosUser->getUsernameCanonical());
-        $this->setPassword($fosUser->getPassword());
-        $this->setPlainPassword($fosUser->getPlainPassword());
-        $this->setEmail($fosUser->getEmail());
-        $this->setEmailCanonical($fosUser->getEmailCanonical());
-        $this->setRoles($fosUser->getRoles());
-        $this->setSalt($fosUser->getSalt());
-        $this->setLastLogin($fosUser->getLastLogin());
-
-        return $this;
     }
 
-    /**
-     * Get id.
-     *
-     * @return int|null
-     */
-    public function getId(): ?int
+    /** Implement it if necessary */
+    public function getSalt()
     {
-        return $this->id;
     }
 
-    /**
-     * Set id.
-     *
-     * @param int|null $id
-     *
-     * @return self
-     */
-    public function setId(?int $id): AbstractUser
+    /** Implement it if necessary */
+    public function eraseCredentials()
     {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    /**
-     * @return DateTime
-     */
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
-    }
-
-    /**
-     * @param DateTime $createdAt
-     */
-    public function setCreatedAt(DateTime $createdAt)
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getUpdatedAt(): DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    /**
-     * @param DateTime $updatedAt
-     */
-    public function setUpdatedAt(DateTime $updatedAt)
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
-    /**
-     * Set anonymous.
-     *
-     * @param bool $anonymous
-     *
-     * @return AbstractUser
-     */
-    public function setAnonymous(bool $anonymous): AbstractUser
-    {
-        $this->anonymous = $anonymous;
-
-        return $this;
-    }
-
-    /**
-     * Returns true if the user is anonymous.
-     *
-     * @return bool
-     */
-    public function isAnonymous(): bool
-    {
-        return $this->anonymous;
     }
 
     /**
      * @return string
      */
-    public function getEncoder(): string
+    public function __toString()
     {
-        return $this->encoder;
-    }
-
-    /**
-     * @param string $encoder
-     */
-    public function setEncoder(string $encoder)
-    {
-        $this->encoder = $encoder;
+        return (string) $this->getUsername();
     }
 
     /**
      * @return string
      */
-    public function getEncoderName(): string
+    public function getUsername(): string
     {
-        return $this->encoder;
+        return $this->username;
+    }
+
+    /**
+     * @param string|null $username
+     */
+    public function setUsername(?string $username): void
+    {
+        $this->username = $username;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param string|null $email
+     */
+    public function setEmail(?string $email): void
+    {
+        $this->email = $email;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRoles(): array
+    {
+        return $this->roles;
+    }
+
+    /**
+     * @param array $roles
+     */
+    public function setRoles(array $roles): void
+    {
+        $this->roles = $roles;
+    }
+
+    /**
+     * @param string $role
+     * @return $this
+     */
+    public function addRole(string $role): self
+    {
+        $role = strtoupper($role);
+        if (!in_array($role, $this->roles, true)) {
+            $this->roles[] = $role;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $role
+     * @return $this
+     */
+    public function removeRole($role): self
+    {
+        if (false !== $key = array_search(strtoupper($role), $this->roles, true)) {
+            unset($this->roles[$key]);
+            $this->roles = array_values($this->roles);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $role
+     * @return bool
+     */
+    public function hasRole(string $role): bool
+    {
+        return in_array(strtoupper($role), $this->getRoles(), true);
     }
 
     /**
      * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param bool $enabled
+     */
+    public function setEnabled(bool $enabled = false): void
+    {
+        $this->enabled = $enabled;
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function isAdmin(): bool
     {
-        return $this->hasRole(self::ROLE_ADMIN) || $this->isSuperAdmin();
+        return $this->hasRole(static::ROLE_ADMIN) || $this->hasRole(static::ROLE_SUPER_ADMIN);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole(static::ROLE_SUPER_ADMIN);
     }
 }

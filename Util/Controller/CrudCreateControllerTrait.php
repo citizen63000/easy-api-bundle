@@ -12,26 +12,22 @@ trait CrudCreateControllerTrait
      *
      * @Symfony\Component\Routing\Annotation\Route(methods={"POST"}, name="_create")
      *
-     * @Swagger\Annotations\Parameter(
+     * @OpenApi\Annotations\Parameter(
      *     name="data",
-     *     in="body",
+     *     in="query",
      *     description="Create data.",
      *     required=true,
-     *     @Swagger\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type="static::entityCreateTypeClass"))
+     *     @OpenApi\Annotations\Schema(ref=@Nelmio\ApiDocBundle\Annotation\Model(type=self::entityCreateTypeClass))
      * ),
-     * @Swagger\Annotations\Response(
+     * @OpenApi\Annotations\Response(
      *     response=201,
      *     description="Successful operation",
-     *     @Swagger\Annotations\Schema(
-     *          ref=@Nelmio\ApiDocBundle\Annotation\Model(
-     *              type="static::entityClass",
-     *              groups={"static::serializationGroups"}
-     *          )
+     *     @Nelmio\ApiDocBundle\Annotation\Model(
+     *          type=self::entityClass,
+     *          groups=self::serializationGroups
      *      )
      * ),
-     * @Swagger\Annotations\Response(response="404", ref="#/definitions/404"),
-     * @Swagger\Annotations\Response(response="405", ref="#/definitions/405"),
-     * @Swagger\Annotations\Response(response="415", ref="#/definitions/415")
+     * @OpenApi\Annotations\Response(response="405", description="Method not allowed"),
      *
      * @param Request $request
      *

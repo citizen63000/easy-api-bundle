@@ -1,6 +1,6 @@
 <?php
 
-namespace EasyApiBundle\Model\Maker;
+namespace EasyApiBundle\Model;
 
 use Doctrine\Common\Inflector\Inflector;
 use Ramsey\Uuid\Uuid;
@@ -209,7 +209,7 @@ class EntityField
     }
 
     /**
-     * @param string $inverseTableColumnName
+     * @param string|null $inverseTableColumnName
      */
     public function setInverseTableColumnName(?string $inverseTableColumnName): void
     {
@@ -408,6 +408,9 @@ class EntityField
         $this->default = $default;
     }
 
+    /**
+     * @return bool|mixed|null
+     */
     public function getDefaultValue()
     {
         if ('boolean' === $this->getType()) {
@@ -420,7 +423,7 @@ class EntityField
     }
 
     /**
-     * @return int
+     * @return null|int
      */
     public function getLength(): ?int
     {
@@ -428,7 +431,7 @@ class EntityField
     }
 
     /**
-     * @param int $length
+     * @param null|int $length
      */
     public function setLength(?int $length)
     {
@@ -444,7 +447,7 @@ class EntityField
     }
 
     /**
-     * @param int $precision
+     * @param null|int $precision
      */
     public function setPrecision(?int $precision)
     {
@@ -460,7 +463,7 @@ class EntityField
     }
 
     /**
-     * @param int $scale
+     * @param null|int $scale
      */
     public function setScale(?int $scale)
     {
@@ -470,7 +473,7 @@ class EntityField
     /**
      * @return string
      */
-    public function getGetterName()
+    public function getGetterName(): string
     {
         return 'boolean' === $this->getType() ? ('is' === substr($this->name, 0, 2) ? $this->name : 'is'.ucfirst($this->name)) : 'get'.ucfirst($this->name);
     }
@@ -505,7 +508,6 @@ class EntityField
 
     /**
      * Get type for the serializer.
-     *
      * @return string
      */
     public function getSerializerType()
@@ -540,8 +542,8 @@ class EntityField
 
     /**
      * @param bool $forceNew
-     *
      * @return int|mixed|string
+     * @throws \Exception
      */
     public function getRandomValue($forceNew = false)
     {
@@ -562,7 +564,6 @@ class EntityField
 
     /**
      * @return array|int|UuidInterface
-     *
      * @throws \Exception
      */
     protected function generateRandomValue()
@@ -614,10 +615,8 @@ class EntityField
 
     /**
      * Generate random integer with range.
-     *
      * @param $min
      * @param $max
-     *
      * @return array
      */
     protected function uniqueRandomNumbersWithinRange($min, $max)
@@ -657,7 +656,6 @@ class EntityField
 
     /**
      * Return converted type for Entity class.
-     *
      * @return mixed|string|null
      */
     public function getTypeForClass()
@@ -693,7 +691,6 @@ class EntityField
 
     /**
      * Get the entity class name without namespace.
-     *
      * @return string|null
      */
     public function getEntityClassName()

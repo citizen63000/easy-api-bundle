@@ -4,9 +4,9 @@ namespace EasyApiBundle\Form\Type;
 
 use Doctrine\ORM\EntityNotFoundException;
 use EasyApiBundle\Form\Model\FilterModel;
-use EasyApiBundle\Model\Maker\EntityField;
+use EasyApiBundle\Model\EntityField;
 use EasyApiBundle\Util\ApiProblem;
-use EasyApiBundle\Util\Maker\EntityConfigLoader;
+use EasyApiBundle\Util\Entity\EntityConfigLoader;
 use EasyApiBundle\Validator\Filter\SortConstraint;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -169,7 +169,7 @@ abstract class AbstractFilterType extends AbstractApiType
      * @param EntityField $field
      * @param string $fieldName
      */
-    protected function addFilterField(FormBuilderInterface $builder, EntityField $field, string $fieldName)
+    protected function addFilterField(FormBuilderInterface $builder, EntityField $field, string $fieldName): void
     {
         if ($field->isNativeType()) {
             $method = self::convertEntityNativeTypeToFormFieldMethod($field->getType());

@@ -12,19 +12,16 @@ trait CrudCloneControllerTrait
      *
      * @Symfony\Component\Routing\Annotation\Route("/clone/{id}", methods={"POST"}, name="_clone")
      *
-     * @Swagger\Annotations\Response(
+     * @OpenApi\Annotations\Response(
      *     response=201,
      *     description="Successful operation",
-     *     @Swagger\Annotations\Schema(
-     *          ref=@Nelmio\ApiDocBundle\Annotation\Model(
-     *              type="static::entityClass",
-     *              groups={"static::serializationGroups"}
-     *          )
+     *     @Nelmio\ApiDocBundle\Annotation\Model(
+     *          type=self::entityClass,
+     *          groups=self::serializationGroups
      *      )
      * ),
-     * @Swagger\Annotations\Response(response="404", ref="#/definitions/404"),
-     * @Swagger\Annotations\Response(response="405", ref="#/definitions/405"),
-     * @Swagger\Annotations\Response(response="415", ref="#/definitions/415")
+     * @OpenApi\Annotations\Response(response="404", description="Entity not found"),
+     * @OpenApi\Annotations\Response(response="405", description="Method not allowed"),
      *
      * @param Request $request
      *

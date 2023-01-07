@@ -67,7 +67,7 @@ class FormErrorsSerializer
                 }
 
                 if ($causeEx instanceof \Exception) {
-                    $this->logger->addWarning(
+                    $this->logger->warning(
                         sprintf('%s at line %d : %s', $causeEx->getFile(), $causeEx->getLine(), $causeEx->getMessage()),
                         ['form' => $form->getName()]
                     );

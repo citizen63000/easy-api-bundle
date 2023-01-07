@@ -115,16 +115,6 @@ class ApiOutput
     }
 
     /**
-     * Returns the messages of a mailer.
-     *
-     * @return \Swift_Message[] the messages
-     */
-    public function getMailerMessages(): array
-    {
-        return $this->getProfile()->getCollector('swiftmailer')->getMessages();
-    }
-
-    /**
      * Retrieves all message header values.
      * @return ResponseHeaderBag|null
      */

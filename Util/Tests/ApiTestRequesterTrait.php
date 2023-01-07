@@ -3,7 +3,6 @@
 namespace EasyApiBundle\Util\Tests;
 
 use EasyApiBundle\Services\JWS\JWSProvider;
-use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -53,17 +52,16 @@ trait ApiTestRequesterTrait
      *
      * @param string $method HTTP method
      * @param string|array $route Route to call
-     * @param array|string $content Content body if needed
+     * @param null $content Content body if needed
      * @param bool $withToken Defines if a token is required or not (need to login first)
-     * @param string $formatIn Input data format <=> Content-type header, see {@link Format} (Default : JSON)
-     * @param string $formatOut Output data format <=> Accept header, see {@link Format} (Default : JSON)
-     * @param array $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
+     * @param string|null $formatIn Input data format <=> Content-type header, see {@link Format} (Default : JSON)
+     * @param string|null $formatOut Output data format <=> Accept header, see {@link Format} (Default : JSON)
+     * @param array|null $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
      *                                       defined by formatIn and formatOut if necessary)
      *
      * @return ApiOutput
      *
      * @throws \Exception
-     *
      * @see https://github.com/DarwinOnLine/symfony-flex-api/blob/master/symfony/tests/AbstractApiTest.php
      * @see https://github.com/DarwinOnLine/symfony-flex-api/blob/master/symfony/src/Utils/ApiOutput.php
      */
@@ -122,7 +120,7 @@ trait ApiTestRequesterTrait
         $profiler = $client->getProfile();
         if (!$profiler) {
             if (!static::$container->has('profiler')) {
-                throw new \Exception('You must enable the profiler in the configuration to use it.');
+                throw new \Exception('You must enable the profiler (profiler: {collect: true }) in the configuration to use it in tests.');
             } else {
                 throw new \Exception('Impossible to load the profiler in the client.');
             }
@@ -133,9 +131,10 @@ trait ApiTestRequesterTrait
 
         self::logDebug(
             "\e[33m[API]\e[0m\t🌐 [\e[33m".strtoupper($method)."\e[0m]".(strlen($method) > 3 ? "\t" : "\t\t")."\e[34m{$url}\e[0m"
-            .(self::DEBUG_LEVEL_ADVANCED === static::$debugLevel ? "\n\t\t\tHeaders : \e[33m".json_encode($server, true)."\e[0m" : '')
+            .(self::DEBUG_LEVEL_ADVANCED === static::$debugLevel ? "\n\t\t\tHeaders sent : \e[33m".json_encode($server, true)."\e[0m" : '')
             .((null !== $content && self::DEBUG_LEVEL_ADVANCED === static::$debugLevel) ? "\n\t\t\tSubmitted data : \e[33m{$body}\e[0m" : '')
-            ."\n\t\t\tStatus : \e[33m{$output->getResponse()->getStatusCode()}\e[0m\n\t\t\tResponse : \e[33m{$output->getData(true)}\e[0m\n\t\t\tRequest time : {$requestTotalTime} seconds{$profilerLink}"
+            ."\n\t\t\tResponse status : \e[33m{$output->getResponse()->getStatusCode()}\e[0m\n\t\t\tResponse headers : \e[33m".json_encode($output->getHeaders()->all(), true)."\e[0m"
+            ."\n\t\t\tResponse : \e[33m{$output->getData(true)}\e[0m\n\t\t\tRequest time : {$requestTotalTime} seconds{$profilerLink}"
         );
 
         return $output;
@@ -212,7 +211,7 @@ trait ApiTestRequesterTrait
             $credentials = ['username' => $username, 'password' => $password];
 
             self::logDebug("\e[32m[USR]\e[0m🔑 Log in with : \e[32m{$username}\e[0m // \e[32m{$password}\e[0m", self::DEBUG_LEVEL_ADVANCED);
-            $response = self::executeRequest('POST', ['name' => 'fos_user_security_check'], $credentials, false);
+            $response = self::executeRequest('POST', ['name' => static::TOKEN_ROUTE_NAME], $credentials, false);
             $tokenAuth = $response->getData();
 
             if (null === $tokenAuth) {
