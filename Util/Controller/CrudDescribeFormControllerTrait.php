@@ -20,13 +20,9 @@ trait CrudDescribeFormControllerTrait
      *
      * @OpenApi\Annotations\Response(response="404", description="Entity not found"),
      * @OpenApi\Annotations\Response(response="405", description="Method not allowed"),
-     *
-     * @param Request $request
-     *
-     * @return Response
      */
-    public function describeFormAction(Request $request): Response
+    public function describeForm(Request $request): Response
     {
-        return $this->getDescribeFormAction($request);
+        return $this->doGetDescribeForm($request);
     }
 }

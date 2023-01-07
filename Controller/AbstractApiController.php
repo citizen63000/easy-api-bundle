@@ -20,7 +20,9 @@ use EasyApiBundle\Util\Forms\FormSerializer;
 use EasyApiBundle\Util\Forms\SerializedForm;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Psr\Cache\InvalidArgumentException;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -70,7 +72,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
     /** @var string */
     public const filterService = ListFilter::class;
 
-    /** @var ?string */
+    /** @var ?array */
     public const defaultFilterSort = null;
 
     /** @var bool */
@@ -81,12 +83,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
         return $this->container;
     }
 
-    /**
-     * @return object|null
-     *
-     * @throws NotFoundHttpException
-     */
-    protected function getEntityOfRequest(Request $request)
+    protected function getEntityOfRequest(Request $request): ?object
     {
         $entity = $this->getRepository(static::entityClass)->find($request->get('id'));
 
@@ -97,10 +94,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
         return $entity;
     }
 
-    /**
-     * @param $entity
-     */
-    protected function getEntityAction(Request $request, $entity, array $serializationGroups = null): Response
+    protected function doGetEntity(Request $request, $entity, array $serializationGroups = null): Response
     {
         return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [], Response::HTTP_OK, [], static::useSerializerCache);
     }
@@ -119,18 +113,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
         return static::renderEntityResponse($entities, $serializationGroups ?? static::listSerializationGroups);
     }
 
-    /**
-     * @param Request $request
-     * @param string|null $entityFilterTypeClass
-     * @param string|null $entityClass
-     * @param array|null $fields
-     * @param array|null $sortFields
-     * @param array|null $serializationGroups
-     * @param FilterModel|null $entityFilterModel
-     *
-     * @return Response|null
-     */
-    protected function getEntityFilteredListAction(
+    protected function doGetEntityFilteredList(
         Request $request,
         string $entityFilterTypeClass = null,
         string $entityClass = null,
@@ -168,10 +151,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
         $this->throwUnprocessableEntity($form);
     }
 
-    /**
-     * @param null $entity
-     */
-    protected function createEntityAction(Request $request, $entity = null, string $entityTypeClass = null, array $serializationGroups = null): Response
+    protected function doCreateEntity(Request $request, $entity = null, string $entityTypeClass = null, array $serializationGroups = null): Response
     {
         $form = $this->createForm($entityTypeClass ?? static::entityCreateTypeClass, $entity);
 
@@ -190,10 +170,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
         $this->throwUnprocessableEntity($form);
     }
 
-    /**
-     * @param $entity
-     */
-    protected function updateEntityAction(Request $request, $entity, string $entityTypeClass = null, array $serializationGroups = null): Response
+    protected function doUpdateEntity(Request $request, $entity, string $entityTypeClass = null, array $serializationGroups = null): Response
     {
         $form = $this->createForm($entityTypeClass ?? static::entityUpdateTypeClass, $entity);
 
@@ -212,10 +189,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
         $this->throwUnprocessableEntity($form);
     }
 
-    /**
-     * @param $entity
-     */
-    protected function deleteEntityAction($entity): Response
+    protected function doDeleteEntity($entity): Response
     {
         if (static::useSerializerCache) {
             $this->clearSerializerCache($entity);
@@ -226,25 +200,19 @@ abstract class AbstractApiController extends AbstractFOSRestController
         return static::renderResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @param $entity
-     */
-    protected function cloneEntityAction($entity, array $serializationGroups = null): Response
+    protected function doCloneEntity($entity, array $serializationGroups = null): Response
     {
         $entity = $this->persistAndFlush(clone $entity);
 
         return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [], Response::HTTP_CREATED);
     }
 
-    /**
-     * @param $entity
-     */
-    protected function downloadMediaAction(AbstractMedia $entity): Response
+    protected function doDownloadMedia(AbstractMedia $entity): Response
     {
         return $this->renderFileStreamedResponse($this->container->get(FileManager::class)->getFileSystemPath($entity), $entity->getFilename());
     }
 
-    protected function getDescribeFormAction(Request $request): Response
+    protected function doGetDescribeForm(Request $request): Response
     {
         $method = strtoupper($request->query->get('method', 'POST'));
 
@@ -264,6 +232,10 @@ abstract class AbstractApiController extends AbstractFOSRestController
         return $describer->normalize($this->createForm($class));
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     protected function createPaginateResponse(array $results, int $nbResults, array $serializationGroups = ['Default'], array $headers = []): Response
     {
         $serializer = $this->container->get('serializer');
@@ -301,7 +273,12 @@ abstract class AbstractApiController extends AbstractFOSRestController
 
     /**
      * @param $entity
+     * @param array|null $serializationGroups
      * @param array|null $context Additional context like AbstractNormalizer::IGNORED_ATTRIBUTES list or AbstractNormalizer::ATTRIBUTES list
+     * @param int $status
+     * @param array $headers
+     * @param bool $useCache
+     * @return Response
      */
     protected function renderEntityResponse($entity, array $serializationGroups = null, array $context = null, int $status = 200, array $headers = [], bool $useCache = false): Response
     {
@@ -314,9 +291,6 @@ abstract class AbstractApiController extends AbstractFOSRestController
         return $this->renderResponse($this->serializeEntity($entity, $context, $useCache), $status, $headers);
     }
 
-    /**
-     * @param $entity
-     */
     protected function serializeEntity($entity, array $context, bool $useCache = false, bool $forceCacheReload = false): string
     {
         if ($entity instanceof AbstractBaseEntity) {
@@ -326,9 +300,6 @@ abstract class AbstractApiController extends AbstractFOSRestController
         }
     }
 
-    /**
-     * @param $entity
-     */
     protected function clearSerializerCache($entity): void
     {
         if (static::useSerializerCache) {
@@ -339,11 +310,19 @@ abstract class AbstractApiController extends AbstractFOSRestController
         }
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     protected function renderFileStreamedResponse(string $path, string $filename): Response
     {
         return $this->container->get(FileManager::class)->getFileStreamedResponse($path, $filename);
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function getSerializer(): SerializerInterface
     {
         return $this->container->get('serializer');
@@ -351,7 +330,6 @@ abstract class AbstractApiController extends AbstractFOSRestController
 
     /**
      * Add dynamically needed services.
-     *
      * @return string[]
      */
     public static function getSubscribedServices(): array

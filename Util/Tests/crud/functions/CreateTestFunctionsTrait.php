@@ -43,12 +43,12 @@ trait CreateTestFunctionsTrait
      * @param string $filename
      * @param array $params
      * @param array $expectedErrors
-     * @param int|string $expectedStatusCode
+     * @param int $expectedStatusCode
      * @param string|null $userLogin
      * @param string|null $userPassword
      * @throws \Exception
      */
-    protected function doTestCreateInvalid(string $filename, array $params = [], array $expectedErrors, string $expectedStatusCode = Response::HTTP_UNPROCESSABLE_ENTITY, string $userLogin = null, string $userPassword = null): void
+    protected function doTestCreateInvalid(string $filename, array $params = [], array $expectedErrors, int $expectedStatusCode = Response::HTTP_UNPROCESSABLE_ENTITY, string $userLogin = null, string $userPassword = null): void
     {
         $data = $this->getDataSent($filename, self::$createActionType);
         $apiOutput = self::httpPostWithLogin(['name' => static::getCreateRouteName(), 'params' => $params], $userLogin, $userPassword, $data);

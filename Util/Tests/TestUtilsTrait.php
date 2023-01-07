@@ -3,53 +3,78 @@
 namespace EasyApiBundle\Util\Tests;
 
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
 use Doctrine\Persistence\ObjectRepository;
-use EasyApiBundle\Util\CoreUtilsTrait;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait TestUtilsTrait
 {
-    use CoreUtilsTrait;
+    /**
+     * @return ContainerInterface
+     */
+    abstract protected static function getContainer();
+
+    /**
+     * @return object
+     *
+     * @throws \Exception
+     */
+    protected static function get(string $id, int $invalidBehavior = Container::EXCEPTION_ON_INVALID_REFERENCE)
+    {
+        return static::getContainer()->get($id, $invalidBehavior);
+    }
 
     /**
      * @return ManagerRegistry|null
      */
-    protected function getDoctrine()
+    protected static function getDoctrine()
     {
         try {
-            return $this->getContainer()->get('doctrine');
+            return static::getContainer()->get('doctrine');
         } catch (\Exception $e) {
             return null;
         }
     }
 
     /**
-     * @param string $repository
+     * @return ObjectManager|object
      *
-     * @return ObjectRepository
-     */
-    protected function getRepository(string $repository)
-    {
-        return self::$entityManager->getRepository($repository);
-    }
-
-    /**
-     * @return Container
-     */
-    protected function getContainer()
-    {
-        return static::$container;
-    }
-
-    /**
-     * @param string $id
-     * @param int $invalidBehavior
-     *
-     * @return object
      * @throws \Exception
      */
-    protected function get(string $id, int $invalidBehavior = Container::EXCEPTION_ON_INVALID_REFERENCE)
+    protected static function getEntityManager(string $name = null)
     {
-        return $this->getContainer()->get($id, $invalidBehavior);
+        return self::getDoctrine()->getManager($name);
+    }
+
+    /**
+     * @return ObjectRepository
+     */
+    protected static function getRepository(string $repository)
+    {
+        return self::getEntityManager()->getRepository($repository);
+    }
+
+    /**
+     * @param $entity
+     *
+     * @return mixed
+     */
+    protected static function persistAndFlush($entity)
+    {
+        $em = self::getEntityManager();
+        $em->persist($entity);
+        $em->flush();
+
+        return $entity;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    protected static function getCache(): AdapterInterface
+    {
+        return static::getContainer()->get('cache.app');
     }
 }

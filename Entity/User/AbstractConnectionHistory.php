@@ -4,7 +4,7 @@ namespace EasyApiBundle\Entity\User;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use \DateTime;
+use \DateTimeInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -123,18 +123,18 @@ abstract class AbstractConnectionHistory
     protected bool $isTouch = false;
 
     /**
-     * @var \DateTime|null
+     * @var DateTimeInterface|null
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
      */
-    protected ?DateTime $loginDate = null;
+    protected ?DateTimeInterface $loginDate = null;
 
     /**
-     * @var \DateTime|null
+     * @var DateTimeInterface|null
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
      */
-    protected ?DateTime $lastActionDate = null;
+    protected ?DateTimeInterface $lastActionDate = null;
 
     /**
      * Get id.
@@ -423,33 +423,33 @@ abstract class AbstractConnectionHistory
     }
 
     /**
-     * @return \DateTime
+     * @return DateTimeInterface
      */
-    public function getLoginDate() :DateTime
+    public function getLoginDate() :DateTimeInterface
     {
         return $this->loginDate;
     }
 
     /**
-     * @param DateTime $loginDate
+     * @param DateTimeInterface $loginDate
      */
-    public function setLoginDate(DateTime $loginDate)
+    public function setLoginDate(DateTimeInterface $loginDate)
     {
         $this->loginDate = $loginDate;
     }
 
     /**
-     * @return DateTime
+     * @return DateTimeInterface
      */
-    public function getLastActionDate() :DateTime
+    public function getLastActionDate() :DateTimeInterface
     {
         return $this->lastActionDate;
     }
 
     /**
-     * @param DateTime $lastActionDate
+     * @param DateTimeInterface $lastActionDate
      */
-    public function setLastActionDate(DateTime $lastActionDate)
+    public function setLastActionDate(DateTimeInterface $lastActionDate)
     {
         $this->lastActionDate = $lastActionDate;
     }

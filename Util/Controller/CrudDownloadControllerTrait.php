@@ -1,6 +1,5 @@
 <?php
 
-
 namespace EasyApiBundle\Util\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -19,12 +18,9 @@ trait CrudDownloadControllerTrait
      * ),
      * @OpenApi\Annotations\Response(response="404", description="Entity not found"),
      * @OpenApi\Annotations\Response(response="405", description="Method not allowed"),
-     * @param Request $request
-     *
-     * @return Response
      */
-    public function downloadAction(Request $request): Response
+    public function download(Request $request): Response
     {
-        return $this->downloadMediaAction($this->getEntityOfRequest($request));
+        return $this->doDownloadMedia($this->getEntityOfRequest($request));
     }
 }

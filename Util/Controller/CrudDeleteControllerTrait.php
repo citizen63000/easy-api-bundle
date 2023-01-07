@@ -17,13 +17,9 @@ trait CrudDeleteControllerTrait
      *     description="Successful operation",
      * ),
      * @OpenApi\Annotations\Response(response="404", description="Entity not found"),
-     *
-     * @param Request $entity
-     *
-     * @return Response
      */
-    public function deleteAction(Request $request)
+    public function delete(Request $request): Response
     {
-        return $this->deleteEntityAction($this->getEntityOfRequest($request));
+        return $this->doDeleteEntity($this->getEntityOfRequest($request));
     }
 }

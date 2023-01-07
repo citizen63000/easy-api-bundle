@@ -68,7 +68,7 @@ trait ApiTestDataLoaderTrait
      */
     private static function cleanDb(): void
     {
-        $stmt = self::$entityManager->getConnection()->executeQuery(self::retrieveNotEmptyTablesQuery());
+        $stmt = static::getEntityManager()->getConnection()->executeQuery(self::retrieveNotEmptyTablesQuery());
         $tables = $stmt->fetchFirstColumn();
 
         if ($stmt->rowCount() > 0) {
@@ -121,7 +121,7 @@ trait ApiTestDataLoaderTrait
                 $sql .= " OR CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) IN ({$sqlRefsToClean})";
             }
 
-            $stmt = self::$entityManager->getConnection()->executeQuery($sql);
+            $stmt = static::getEntityManager()->getConnection()->executeQuery($sql);
             $tables = $stmt->fetchFirstColumn();
             $listingQueries = [];
 
@@ -212,7 +212,7 @@ trait ApiTestDataLoaderTrait
      */
     final protected static function executeSQLQuery(string $query, bool $debugNewLine = false, bool $showQuery = false, string $managerName = null): void
     {
-        $em = null === $managerName ? static::$entityManager : static::getContainerInstance()->get('doctrine')->getManager($managerName);
+        $em = static::getEntityManager($managerName);
 
         if (static::$debug && $showQuery) {
             self::logDebug("\e[32m[SQL]\e[0m ▶ \e[32m{$query}\e[0m");
@@ -237,7 +237,7 @@ trait ApiTestDataLoaderTrait
             exit(E_CORE_ERROR);
         }
 
-        self::$entityManager->flush();
+        static::getEntityManager()->flush();
     }
 
     /**

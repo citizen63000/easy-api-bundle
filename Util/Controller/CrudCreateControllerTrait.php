@@ -28,13 +28,9 @@ trait CrudCreateControllerTrait
      *      )
      * ),
      * @OpenApi\Annotations\Response(response="405", description="Method not allowed"),
-     *
-     * @param Request $request
-     *
-     * @return Response
      */
-    public function createAction(Request $request)
+    public function create(Request $request): Response
     {
-        return $this->createEntityAction($request);
+        return $this->doCreateEntity($request);
     }
 }

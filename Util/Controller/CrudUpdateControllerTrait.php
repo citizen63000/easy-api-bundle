@@ -29,13 +29,9 @@ trait CrudUpdateControllerTrait
      * ),
      * @OpenApi\Annotations\Response(response="404", description="Entity not found"),
      * @OpenApi\Annotations\Response(response="405", description="Method not allowed"),
-     *
-     * @param Request          $request
-     *
-     * @return Response
      */
-    public function updateAction(Request $request)
+    public function update(Request $request): Response
     {
-        return $this->updateEntityAction($request, $this->getEntityOfRequest($request));
+        return $this->doUpdateEntity($request, $this->getEntityOfRequest($request));
     }
 }

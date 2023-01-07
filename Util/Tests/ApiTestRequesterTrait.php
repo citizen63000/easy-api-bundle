@@ -26,8 +26,8 @@ trait ApiTestRequesterTrait
     protected static function initializeRequester(): void
     {
         self::initializeCache();
-        self::$jwtTokenAuthorizationHeaderPrefix = self::$container->getParameter('jwt_token_authorization_header_prefix');
-        self::$jwsProvider = self::$container->get('app.jwt_authentication.jws_provider');
+        self::$jwtTokenAuthorizationHeaderPrefix = static::getContainer()->getParameter('jwt_token_authorization_header_prefix');
+        self::$jwsProvider = static::getContainer()->get('app.jwt_authentication.jws_provider');
     }
 
     /**
@@ -105,10 +105,7 @@ trait ApiTestRequesterTrait
         $files = ($content instanceof FileBag) ? $content->getFiles() : [];
         $url = \is_string($route) && 0 === mb_strpos($route, 'http') ? $route : self::getUrl($route);
 
-        $client = self::createClient(['debug' => static::$useProfiler]);
-        if (static::$useProfiler) {
-            $client->enableProfiler();
-        }
+        $client = static::$client;
 
         $requestBeginTime = microtime(true);
         $client->request($method, $url, [], $files, $server, $body);
@@ -150,7 +147,7 @@ trait ApiTestRequesterTrait
             return "\e[0m\n\t\t\tProfiler : \e[33m"
                 .static::getDomainUrl()
                 .'/app_'
-                .self::$container->getParameter('kernel.environment')
+                .static::getContainer()->getParameter('kernel.environment')
                 .'.php'
                 .self::$router->generate('_profiler', ['token' => $token])
                 ."\e[0m"
@@ -168,7 +165,7 @@ trait ApiTestRequesterTrait
      *
      * @return string|null
      */
-    protected static function getUrl($route, int $referenceType = UrlGeneratorInterface::RELATIVE_PATH): ?string
+    protected static function getUrl($route, int $referenceType = UrlGeneratorInterface::ABSOLUTE_URL): ?string
     {
         if (is_array($route)) {
             $routeName = $route['name'] ?? '';
@@ -454,7 +451,7 @@ trait ApiTestRequesterTrait
         }
 
         $strArguments = implode(' ', $convertedArguments);
-        $projectDir = self::$container->getParameter('kernel.project_dir');
+        $projectDir = static::getContainer()->getParameter('kernel.project_dir');
 
         $requestBeginTime = microtime(true);
         $command = "bin/console {$commandName} {$strArguments}";

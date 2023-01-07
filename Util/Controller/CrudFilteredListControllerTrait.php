@@ -33,13 +33,9 @@ trait CrudFilteredListControllerTrait
      *     )
      * )
      * @OA\Response(response="405", description="Method not allowed"),
-     *
-     * @param Request $request
-     *
-     * @return Response
      */
-    public function listAction(Request $request)
+    public function list(Request $request): Response
     {
-        return $this->getEntityFilteredListAction($request);
+        return $this->doGetEntityFilteredList($request);
     }
 }

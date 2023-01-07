@@ -22,12 +22,9 @@ trait CrudGetControllerTrait
      * ),
      * @OpenApi\Annotations\Response(response="404", description="Entity not found"),
      * @OpenApi\Annotations\Response(response="405", description="Method not allowed"),
-     * @param Request $request
-     *
-     * @return Response
      */
-    public function getAction(Request $request)
+    public function read(Request $request): Response
     {
-        return $this->getEntityAction($request, $this->getEntityOfRequest($request));
+        return $this->doGetEntity($request, $this->getEntityOfRequest($request));
     }
 }
