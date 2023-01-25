@@ -14,18 +14,20 @@ class UsernameEmailProvider extends UserProvider
      */
     protected function findUser(string $username): ?UserInterface
     {
+        $username = mb_strtolower($username);
+
         /** @var QueryBuilder $qb */
         $qb = $this->entityManager->getRepository($this->getUserClass())->createQueryBuilder('u');
 
         $or = $qb->expr()->orX();
-        $or->add($qb->expr()->eq('u.email', $qb->expr()->literal($username)));
-        $or->add($qb->expr()->eq('u.username', $qb->expr()->literal($username)));
+        $or->add($qb->expr()->eq($qb->expr()->lower('u.email'), $qb->expr()->literal($username)));
+        $or->add($qb->expr()->eq($qb->expr()->lower('u.username'), $qb->expr()->literal($username)));
 
         $qb->andWhere($or);
 
         try {
             return $qb->getQuery()->getSingleResult();
-        } catch (NoResultException | NonUniqueResultException $e) {
+        } catch (NoResultException|NonUniqueResultException $e) {
             return null;
         }
     }
