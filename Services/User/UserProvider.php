@@ -10,16 +10,12 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class UserProvider implements UserProviderInterface
 {
-    /** @var EntityManagerInterface  */
     protected EntityManagerInterface $entityManager;
 
-    /** @var string  */
     protected string $userClass;
 
     /**
      * UserProvider constructor.
-     * @param EntityManagerInterface $entityManager
-     * @param string $userClass
      */
     public function __construct(EntityManagerInterface $entityManager, string $userClass)
     {
@@ -27,9 +23,6 @@ class UserProvider implements UserProviderInterface
         $this->userClass = $userClass;
     }
 
-    /**
-     * @return string|null
-     */
     protected function getUserClass(): ?string
     {
         return $this->userClass;
@@ -37,6 +30,7 @@ class UserProvider implements UserProviderInterface
 
     /**
      * @param string $username
+     *
      * @return UserInterface
      */
     public function loadUserByUsername($username)
@@ -51,7 +45,6 @@ class UserProvider implements UserProviderInterface
     }
 
     /**
-     * @param UserInterface $user
      * @return UserInterface|null
      */
     public function refreshUser(UserInterface $user)
@@ -69,7 +62,6 @@ class UserProvider implements UserProviderInterface
 
     /**
      * @param string $class
-     * @return bool
      */
     public function supportsClass($class): bool
     {
@@ -78,10 +70,6 @@ class UserProvider implements UserProviderInterface
         return $userClass === $class || is_subclass_of($class, $userClass);
     }
 
-    /**
-     * @param string $username
-     * @return UserInterface|null
-     */
     protected function findUser(string $username): ?UserInterface
     {
         return $this->entityManager->getRepository($this->getUserClass())->findByUsername($username);
