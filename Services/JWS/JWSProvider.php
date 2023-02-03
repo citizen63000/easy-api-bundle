@@ -7,45 +7,30 @@ use Lexik\Bundle\JWTAuthenticationBundle\Services\JWSProvider\JWSProviderInterfa
 use Lexik\Bundle\JWTAuthenticationBundle\Services\KeyLoader\KeyLoaderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Signature\CreatedJWS;
 use Lexik\Bundle\JWTAuthenticationBundle\Signature\LoadedJWS;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Namshi\JOSE\JWS;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class JWSProvider implements JWSProviderInterface
 {
-    /** @var KeyLoaderInterface */
     protected KeyLoaderInterface $keyLoader;
 
-    /** @var string */
     protected string $cryptoEngine;
 
-    /** @var string */
     protected string $signatureAlgorithm;
 
-    /** @var int */
     protected int $ttl;
 
-    /** @var string */
     protected string $authorizationHeaderPrefix;
 
-    /** @var TokenStorageInterface */
     protected TokenStorageInterface $tokenStorage;
 
-    /** @var EntityManager */
     protected EntityManager $em;
 
-    /** @var string */
     protected string $userClass;
 
-    /** @var string */
     protected string $userIdentityField;
 
-    /**
-     * @param KeyLoaderInterface $keyLoader
-     * @param string $cryptoEngine
-     * @param string $signatureAlgorithm
-     * @param string $authorizationHeaderPrefix
-     */
     public function __construct(KeyLoaderInterface $keyLoader, string $cryptoEngine, string $signatureAlgorithm, int $ttl, string $authorizationHeaderPrefix, TokenStorageInterface $tokenStorage, EntityManager $entityManager, string $userClass, string $userIdentityField)
     {
         $cryptoEngine = 'openssl' === $cryptoEngine ? 'OpenSSL' : 'SecLib';
@@ -78,23 +63,12 @@ class JWSProvider implements JWSProviderInterface
         );
     }
 
-    /**
-     * @param string $cryptoEngine
-     * @param string $signatureAlgorithm
-     *
-     * @return bool
-     */
     private function isAlgorithmSupportedForEngine(string $cryptoEngine, string $signatureAlgorithm): bool
     {
         return class_exists("Namshi\\JOSE\\Signer\\{$cryptoEngine}\\{$signatureAlgorithm}");
     }
 
-    /**
-     * @param array $payload
-     * @param array $header
-     * @return null
-     */
-    public function create(array $payload, array $header = [])
+    public function create(array $payload, array $header = []): ?CreatedJWS
     {
         $jws = new JWS([
             'alg' => $this->signatureAlgorithm,
@@ -104,7 +78,7 @@ class JWSProvider implements JWSProviderInterface
         $token = $this->tokenStorage->getToken();
         $user = (null !== $token) ? $token->getUser() : null;
 
-        if (null === $user || (is_string($user) && $user === 'anon.')) {
+        if (null === $user || (is_string($user) && 'anon.' === $user)) {
             $user = $this->em->getRepository($this->userClass)->findOneBy([$this->userIdentityField => $payload[$this->userIdentityField]]);
         }
 
