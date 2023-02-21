@@ -2,9 +2,9 @@
 
 namespace EasyApiBundle\Entity\User;
 
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use \DateTimeInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -13,7 +13,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 abstract class AbstractConnectionHistory
 {
     /**
-     * @var int|null
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -21,116 +20,97 @@ abstract class AbstractConnectionHistory
     protected ?int $id = null;
 
     /**
-     * @var UserInterface|null
      * @ORM\ManyToOne(targetEntity="EasyApiBundle\Entity\User\User", cascade={})
      */
     protected ?UserInterface $user = null;
 
     /**
-     * @var bool
      * @ORM\Column(type="boolean")
      */
     protected bool $isSso = false;
 
     /**
-     * @var string|null
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     protected ?string $ip = null;
 
     /**
-     * @var string|null
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     protected ?string $userAgent = null;
 
     /**
-     * @var string|null
      * @ORM\Column(type="string")
      */
     protected ?string $tokenValue = null;
 
     /**
-     * @var string|null
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     protected ?string $browserName = null;
 
     /**
-     * @var string|null
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     protected ?string $browserVersion = null;
 
     /**
-     * @var string|null
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     protected ?string $browserEngineName = null;
 
     /**
-     * @var string|null
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     protected ?string $browserEngineVersion = null;
 
     /**
-     * @var string|null
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     protected ?string $operatingSystemName = null;
 
     /**
-     * @var string|null
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     protected ?string $operatingSystemVersion = null;
 
     /**
-     * @var string|null
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     protected ?string $deviceModel = null;
 
     /**
-     * @var string|null
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     protected ?string $deviceVersion = null;
 
     /**
-     * @var string|null
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     protected ?string $deviceBrand = null;
 
     /**
-     * @var string|null
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     protected ?string $deviceType = null;
 
     /**
-     * @var bool
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable=true)
      */
     protected bool $isMobile = false;
 
     /**
-     * @var bool
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable=true)
      */
     protected bool $isTouch = false;
 
     /**
-     * @var DateTimeInterface|null
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
      */
     protected ?DateTimeInterface $loginDate = null;
 
     /**
-     * @var DateTimeInterface|null
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
      */
@@ -138,8 +118,6 @@ abstract class AbstractConnectionHistory
 
     /**
      * Get id.
-     *
-     * @return int|null
      */
     public function getId(): ?int
     {
@@ -158,25 +136,17 @@ abstract class AbstractConnectionHistory
 
     /**
      * Set user.
-     *
-     * @param UserInterface $user
      */
     public function setUser(UserInterface $user)
     {
         $this->user = $user;
     }
 
-    /**
-     * @return bool
-     */
     public function isSso(): bool
     {
         return $this->isSso;
     }
 
-    /**
-     * @param bool $isSso
-     */
     public function setIsSso(bool $isSso)
     {
         $this->isSso = $isSso;
@@ -190,9 +160,6 @@ abstract class AbstractConnectionHistory
         return $this->userAgent;
     }
 
-    /**
-     * @param string|null $userAgent
-     */
     public function setUserAgent(?string $userAgent)
     {
         $this->userAgent = $userAgent;
@@ -201,46 +168,31 @@ abstract class AbstractConnectionHistory
     /**
      * @return string
      */
-    public function getTokenValue() :?string
+    public function getTokenValue(): ?string
     {
         return $this->tokenValue;
     }
 
-    /**
-     * @param string|null $tokenValue
-     */
     public function setTokenValue(?string $tokenValue)
     {
         $this->tokenValue = $tokenValue;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getIp() :?string
+    public function getIp(): ?string
     {
         return $this->ip;
     }
 
-    /**
-     * @param string|null $ip
-     */
     public function setIp(?string $ip)
     {
         $this->ip = $ip;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getBrowserName() :?string
+    public function getBrowserName(): ?string
     {
         return $this->browserName;
     }
 
-    /**
-     * @param string|null $browserName
-     */
     public function setBrowserName(?string $browserName)
     {
         $this->browserName = $browserName;
@@ -249,14 +201,11 @@ abstract class AbstractConnectionHistory
     /**
      * @return string
      */
-    public function getBrowserVersion() :?string
+    public function getBrowserVersion(): ?string
     {
         return $this->browserVersion;
     }
 
-    /**
-     * @param string|null $browserVersion
-     */
     public function setBrowserVersion(?string $browserVersion)
     {
         $this->browserVersion = $browserVersion;
@@ -265,14 +214,11 @@ abstract class AbstractConnectionHistory
     /**
      * @return string
      */
-    public function getBrowserEngineName() :?string
+    public function getBrowserEngineName(): ?string
     {
         return $this->browserEngineName;
     }
 
-    /**
-     * @param string|null $browserEngineName
-     */
     public function setBrowserEngineName(?string $browserEngineName)
     {
         $this->browserEngineName = $browserEngineName;
@@ -281,14 +227,11 @@ abstract class AbstractConnectionHistory
     /**
      * @return string
      */
-    public function getBrowserEngineVersion() :?string
+    public function getBrowserEngineVersion(): ?string
     {
         return $this->browserEngineVersion;
     }
 
-    /**
-     * @param string|null $browserEngineVersion
-     */
     public function setBrowserEngineVersion(?string $browserEngineVersion)
     {
         $this->browserEngineVersion = $browserEngineVersion;
@@ -297,14 +240,11 @@ abstract class AbstractConnectionHistory
     /**
      * @return string
      */
-    public function getOperatingSystemName() :?string
+    public function getOperatingSystemName(): ?string
     {
         return $this->operatingSystemName;
     }
 
-    /**
-     * @param string|null $operatingSystemName
-     */
     public function setOperatingSystemName(?string $operatingSystemName)
     {
         $this->operatingSystemName = $operatingSystemName;
@@ -313,14 +253,11 @@ abstract class AbstractConnectionHistory
     /**
      * @return string
      */
-    public function getOperatingSystemVersion() :?string
+    public function getOperatingSystemVersion(): ?string
     {
         return $this->operatingSystemVersion;
     }
 
-    /**
-     * @param string|null $operatingSystemVersion
-     */
     public function setOperatingSystemVersion(?string $operatingSystemVersion)
     {
         $this->operatingSystemVersion = $operatingSystemVersion;
@@ -329,14 +266,11 @@ abstract class AbstractConnectionHistory
     /**
      * @return string
      */
-    public function getDeviceModel() :?string
+    public function getDeviceModel(): ?string
     {
         return $this->deviceModel;
     }
 
-    /**
-     * @param string|null $deviceModel
-     */
     public function setDeviceModel(?string $deviceModel)
     {
         $this->deviceModel = $deviceModel;
@@ -345,14 +279,11 @@ abstract class AbstractConnectionHistory
     /**
      * @return string
      */
-    public function getDeviceVersion() :?string
+    public function getDeviceVersion(): ?string
     {
         return $this->deviceVersion;
     }
 
-    /**
-     * @param string|null $deviceVersion
-     */
     public function setDeviceVersion(?string $deviceVersion)
     {
         $this->deviceVersion = $deviceVersion;
@@ -361,14 +292,11 @@ abstract class AbstractConnectionHistory
     /**
      * @return string
      */
-    public function getDeviceBrand() :?string
+    public function getDeviceBrand(): ?string
     {
         return $this->deviceBrand;
     }
 
-    /**
-     * @param string|null $deviceBrand
-     */
     public function setDeviceBrand(?string $deviceBrand)
     {
         $this->deviceBrand = $deviceBrand;
@@ -377,14 +305,11 @@ abstract class AbstractConnectionHistory
     /**
      * @return string
      */
-    public function getDeviceType() :?string
+    public function getDeviceType(): ?string
     {
         return $this->deviceType;
     }
 
-    /**
-     * @param string|null $deviceType
-     */
     public function setDeviceType(?string $deviceType)
     {
         $this->deviceType = $deviceType;
@@ -393,7 +318,7 @@ abstract class AbstractConnectionHistory
     /**
      * @return bool
      */
-    public function isMobile() :?bool
+    public function isMobile(): ?bool
     {
         return $this->isMobile;
     }
@@ -409,7 +334,7 @@ abstract class AbstractConnectionHistory
     /**
      * @return bool
      */
-    public function isTouch() :?bool
+    public function isTouch(): ?bool
     {
         return $this->isTouch;
     }
@@ -422,33 +347,21 @@ abstract class AbstractConnectionHistory
         $this->isTouch = $isTouch;
     }
 
-    /**
-     * @return DateTimeInterface
-     */
-    public function getLoginDate() :DateTimeInterface
+    public function getLoginDate(): DateTimeInterface
     {
         return $this->loginDate;
     }
 
-    /**
-     * @param DateTimeInterface $loginDate
-     */
     public function setLoginDate(DateTimeInterface $loginDate)
     {
         $this->loginDate = $loginDate;
     }
 
-    /**
-     * @return DateTimeInterface
-     */
-    public function getLastActionDate() :DateTimeInterface
+    public function getLastActionDate(): DateTimeInterface
     {
         return $this->lastActionDate;
     }
 
-    /**
-     * @param DateTimeInterface $lastActionDate
-     */
     public function setLastActionDate(DateTimeInterface $lastActionDate)
     {
         $this->lastActionDate = $lastActionDate;
