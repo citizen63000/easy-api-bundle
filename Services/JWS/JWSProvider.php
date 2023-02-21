@@ -31,7 +31,7 @@ class JWSProvider implements JWSProviderInterface
 
     protected string $userIdentityField;
 
-    public function __construct(KeyLoaderInterface $keyLoader, string $cryptoEngine, string $signatureAlgorithm, int $ttl, string $authorizationHeaderPrefix, TokenStorageInterface $tokenStorage, EntityManager $entityManager, string $userClass, string $userIdentityField)
+    public function __construct(KeyLoaderInterface $keyLoader, string $cryptoEngine, string $signatureAlgorithm, $ttl, string $authorizationHeaderPrefix, TokenStorageInterface $tokenStorage, EntityManager $entityManager, string $userClass, string $userIdentityField)
     {
         $cryptoEngine = 'openssl' === $cryptoEngine ? 'OpenSSL' : 'SecLib';
 
@@ -42,7 +42,7 @@ class JWSProvider implements JWSProviderInterface
         $this->keyLoader = $keyLoader;
         $this->cryptoEngine = $cryptoEngine;
         $this->signatureAlgorithm = $signatureAlgorithm;
-        $this->ttl = $ttl;
+        $this->ttl = (int) $ttl;
         $this->authorizationHeaderPrefix = $authorizationHeaderPrefix;
         $this->tokenStorage = $tokenStorage;
         $this->em = $entityManager;
