@@ -13,7 +13,7 @@ abstract class AbstractCommand extends Command
     use CoreUtilsTrait;
     protected ?ContainerInterface $container;
 
-    public function __construct(string $name = null, ContainerInterface $container)
+    public function __construct(string $name = null, ContainerInterface $container = null)
     {
         parent::__construct($name);
         $this->container = $container;
