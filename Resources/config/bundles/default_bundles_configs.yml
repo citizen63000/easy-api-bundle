@@ -1,7 +1,0 @@
-imports:
-    - { resource: framework.yml }
-    - { resource: doctrine.yml }
-    - { resource: jwt.yml }
-    - { resource: fosrest.yml }
-    - { resource: twig.yml }
-    - { resource: upload.yml }
