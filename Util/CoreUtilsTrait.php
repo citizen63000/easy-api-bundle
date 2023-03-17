@@ -3,10 +3,9 @@
 namespace EasyApiBundle\Util;
 
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\ORM\EntityRepository;
+use Doctrine\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectRepository;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
-use \Symfony\Component\DependencyInjection\ContainerInterface;
-use \Doctrine\Persistence\ObjectManager;
 
 trait CoreUtilsTrait
 {
@@ -14,11 +13,6 @@ trait CoreUtilsTrait
      * @return ManagerRegistry
      */
     abstract protected function getDoctrine();
-
-    /**
-     * @return ContainerInterface
-     */
-    abstract protected function getContainer();
 
     /**
      * @return ObjectManager|object
@@ -30,9 +24,7 @@ trait CoreUtilsTrait
     }
 
     /**
-     * @param string $repository
-     *
-     * @return EntityRepository
+     * @return ObjectRepository
      */
     protected function getRepository(string $repository)
     {
@@ -43,6 +35,8 @@ trait CoreUtilsTrait
      * @param $entity
      *
      * @return mixed
+     *
+     * @throws \Exception
      */
     protected function persistAndFlush($entity)
     {
@@ -55,6 +49,8 @@ trait CoreUtilsTrait
 
     /**
      * @param $entity
+     *
+     * @throws \Exception
      */
     protected function removeAndFlush($entity)
     {
@@ -63,16 +59,12 @@ trait CoreUtilsTrait
         $em->flush();
     }
 
-    /**
-     * @return string
-     */
     protected function getUserClassname(): string
     {
         return $this->getParameter('easy_api.user_class');
     }
 
     /**
-     * @return AdapterInterface
      * @throws \Exception
      */
     protected function getCache(): AdapterInterface

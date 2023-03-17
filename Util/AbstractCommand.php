@@ -1,22 +1,26 @@
 <?php
 
-
 namespace EasyApiBundle\Util;
 
+use Doctrine\Bundle\DoctrineBundle\Registry;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Container;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-abstract class AbstractCommand extends ContainerAwareCommand
+abstract class AbstractCommand extends Command
 {
     use CoreUtilsTrait;
+    protected ?ContainerInterface $container;
+
+    public function __construct(string $name = null, ContainerInterface $container)
+    {
+        parent::__construct($name);
+        $this->container = $container;
+    }
 
     /**
      * Write log with time.
-     *
-     * @param OutputInterface $output
-     * @param string          $message
-     * @param int             $option
      */
     public function writeLog(OutputInterface $output, string $message, int $option = 0)
     {
@@ -24,9 +28,6 @@ abstract class AbstractCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param string $id
-     * @param int    $invalidBehavior
-     *
      * @return object
      */
     protected function get(string $id, int $invalidBehavior = Container::EXCEPTION_ON_INVALID_REFERENCE)
@@ -37,7 +38,7 @@ abstract class AbstractCommand extends ContainerAwareCommand
     /**
      * Shortcut to return the Doctrine Registry service.
      *
-     * @return \Doctrine\Bundle\DoctrineBundle\Registry|object
+     * @return Registry|object
      */
     protected function getDoctrine()
     {
@@ -49,12 +50,10 @@ abstract class AbstractCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param string $name
      * @return mixed
      */
     public function getParameter(string $name)
     {
         return $this->getContainer()->getParameter($name);
     }
-
 }
