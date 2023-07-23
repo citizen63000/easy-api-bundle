@@ -3,11 +3,12 @@
 namespace EasyApiBundle\Util\Tests;
 
 use EasyApiBundle\Services\JWS\JWSProvider;
+use PHPUnit\Framework\Exception;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 trait ApiTestRequesterTrait
 {
@@ -38,30 +39,25 @@ trait ApiTestRequesterTrait
         return self::$jwtTokenAuthorizationHeaderPrefix;
     }
 
-    /**
-     * @param string $token
-     * @return string
-     */
     protected static function getAuthorizationStringFromToken(string $token): string
     {
-        return self::getAuthorizationTokenPrefix() . " {$token}";
+        return self::getAuthorizationTokenPrefix()." {$token}";
     }
 
     /**
      * Executes a request with a method, an url, a token, a content body and a format.
      *
-     * @param string $method HTTP method
-     * @param string|array $route Route to call
-     * @param null $content Content body if needed
-     * @param bool $withToken Defines if a token is required or not (need to login first)
-     * @param string|null $formatIn Input data format <=> Content-type header, see {@link Format} (Default : JSON)
-     * @param string|null $formatOut Output data format <=> Accept header, see {@link Format} (Default : JSON)
-     * @param array|null $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
+     * @param string       $method           HTTP method
+     * @param string|array $route            Route to call
+     * @param null         $content          Content body if needed
+     * @param bool         $withToken        Defines if a token is required or not (need to login first)
+     * @param string|null  $formatIn         Input data format <=> Content-type header, see {@link Format} (Default : JSON)
+     * @param string|null  $formatOut        Output data format <=> Accept header, see {@link Format} (Default : JSON)
+     * @param array|null   $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
      *                                       defined by formatIn and formatOut if necessary)
      *
-     * @return ApiOutput
-     *
      * @throws \Exception
+     *
      * @see https://github.com/DarwinOnLine/symfony-flex-api/blob/master/symfony/tests/AbstractApiTest.php
      * @see https://github.com/DarwinOnLine/symfony-flex-api/blob/master/symfony/src/Utils/ApiOutput.php
      */
@@ -73,8 +69,7 @@ trait ApiTestRequesterTrait
         ?string $formatIn = Format::JSON,
         ?string $formatOut = Format::JSON,
         ?array $extraHttpHeaders = []
-    ): ApiOutput
-    {
+    ): ApiOutput {
         //Headers initialization
         $server = [];
 
@@ -137,10 +132,6 @@ trait ApiTestRequesterTrait
         return $output;
     }
 
-    /**
-     * @param ApiOutput $output
-     * @return string
-     */
     protected static function getProfilerLink(ApiOutput $output): string
     {
         if (true === static::$debug && $token = $output->getHeaders()->get('x-debug-token')) {
@@ -161,9 +152,6 @@ trait ApiTestRequesterTrait
      * Gets URI from Symfony route.
      *
      * @param string|array $route
-     * @param int          $referenceType
-     *
-     * @return string|null
      */
     protected static function getUrl($route, int $referenceType = UrlGeneratorInterface::ABSOLUTE_URL): ?string
     {
@@ -181,30 +169,16 @@ trait ApiTestRequesterTrait
     }
 
     /**
-     * Login via API with a specific user and password.
-     *
-     * @param string $username
-     * @param string $password
-     * @param bool $useCache
-     * @param bool $useDefaultTokens
-     *
-     * @return string
+     * @deprecated
+     * Login using API with a specific user and password
      *
      * @throws \Exception
      */
-    protected static function loginHttp(string $username, string $password, bool $useCache = true, bool $useDefaultTokens = true): string
+    protected static function loginHttp(string $username, string $password, bool $useCache = true): string
     {
-        // use default tokens to speedup login or if using external authentication
-        if ($useDefaultTokens && isset(static::$defaultTokens[$username])) {
-            if (!self::isTokenExpired(static::$defaultTokens[$username])) {
-                return static::$defaultTokens[$username];
-            }
-        }
-
         // use token in cache or generate it
-        $cachedToken = self::getCachedData("test.token.{$username}_{$password}");
+        $cachedToken = self::getCachedData("test.token.{$username}");
         if (!$cachedToken->isHit() || self::isTokenExpired($cachedToken->get()) || !$useCache) {
-
             $credentials = ['username' => $username, 'password' => $password];
 
             self::logDebug("\e[32m[USR]\e[0m🔑 Log in with : \e[32m{$username}\e[0m // \e[32m{$password}\e[0m", self::DEBUG_LEVEL_ADVANCED);
@@ -226,21 +200,50 @@ trait ApiTestRequesterTrait
         return $cachedToken->get();
     }
 
+    protected static function generateToken(string $username, bool $useCache = true, bool $useDefaultTokens = true): string
+    {
+        $userClass = static::getContainer()->getParameter('easy_api.user_class');
+        $user = static::getRepository($userClass)->findOneByUsername($username);
+        $jwsProvider = static::get('app.jwt_authentication.jws_provider');
+        $userIdentityField = static::getContainer()->getParameter('lexik_jwt_authentication.user_identity_field');
+        $userIdentityFieldGetter = 'get'.ucfirst($userIdentityField);
+        $tokenInstance = $jwsProvider->create(['roles' => $user->getRoles(), $userIdentityField => $user->$userIdentityFieldGetter()]);
+        $token = $tokenInstance->getToken();
+
+        if (null == $token) {
+            var_dump($token);
+            throw new Exception("Token generation failed for user $username");
+        }
+
+        return $token;
+    }
+
     /**
      * Get authentication token.
      *
-     * @return string
      * @throws \Exception
-     * @todo possible improvement : cache the generated datetime for the token and compare with this date
      *
+     * @todo possible improvement : store the generated datetime for the token and compare with this date
      */
-    protected static function getToken(): string
+    protected static function getToken(string $username = null, bool $useCache = true, bool $useDefaultTokens = true): string
     {
-        if (null === static::$token) {
-            $cachedToken = static::getCachedData('test.token.'.static::$user);
-            if (!$cachedToken->isHit() || self::isTokenExpired($cachedToken->get()) || !static::$useCache) {
-                static::$token = static::loginHttp(static::$user, static::$password, false);
-                $cachedToken->set(static::$token);
+        $useCache = $useCache ?? static::$useCache;
+        if (null !== $username || null === static::$token) {
+            $username = $username ?? static::$user;
+
+            // use default tokens to speedup login or if using external authentication
+            if ($useDefaultTokens && isset(static::$defaultTokens[$username])) {
+                if (!static::isTokenExpired(static::$defaultTokens[$username])) {
+                    return static::$defaultTokens[$username];
+                }
+            }
+
+            $cachedToken = static::getCachedData("test.token.{$username}");
+            if (!$cachedToken->isHit() || null === $cachedToken->get() || static::isTokenExpired($cachedToken->get()) || !$useCache) {
+                static::$token = static::generateToken($username, false);
+                if ($username === static::$user) {
+                    $cachedToken->set(static::$token);
+                }
                 static::$cache->save($cachedToken);
             } else {
                 static::$token = $cachedToken->get();
@@ -250,10 +253,6 @@ trait ApiTestRequesterTrait
         return static::$token;
     }
 
-    /**
-     * @param string $token
-     * @return bool
-     */
     protected static function isTokenExpired(string $token): bool
     {
         return self::$jwsProvider->load($token)->isExpired();
@@ -262,13 +261,12 @@ trait ApiTestRequesterTrait
     /**
      * Executes GET request for an URL with a token to get.
      *
-     * @param string|array $route Route to perform the GET
-     * @param bool $withToken Defines if a token is required or not (need to login first)
-     * @param string $formatOut Output data format <=> Accept header (Default : JSON)
-     * @param array $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
+     * @param string|array $route            Route to perform the GET
+     * @param bool         $withToken        Defines if a token is required or not (need to login first)
+     * @param string       $formatOut        Output data format <=> Accept header (Default : JSON)
+     * @param array        $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
      *                                       defined by formatIn and formatOut if necessary)
      *
-     * @return ApiOutput
      * @throws \Exception
      */
     public static function httpGet($route, bool $withToken = true, string $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
@@ -279,21 +277,15 @@ trait ApiTestRequesterTrait
     /**
      * @param $route
      * @param $userLogin
-     * @param $userPassword
      * @param string $formatOut
      * @param array $extraHttpHeaders
      * @return ApiOutput
      * @throws \Exception
      */
-    public static function httpGetWithLogin($route, $userLogin, $userPassword, string $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
+    public static function httpGetWithLogin($route, $userLogin, string $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
     {
-        if (null !== $userLogin && null === $userPassword) {
-            throw new \Exception('ApiTestRequesterTrait::httpGetWithLogin : $userPassword parameter cannot be null if $userLogin parameters is not null');
-        }
-
         $userLogin = $userLogin ?? static::$user;
-        $userPassword = $userPassword ?? static::$password;
-        $token = self::loginHttp($userLogin, $userPassword);
+        $token = self::getToken($userLogin);
 
         return static::httpGet($route, false, $formatOut, $extraHttpHeaders + ['Authorization' => static::getAuthorizationStringFromToken($token)]);
     }
@@ -301,14 +293,14 @@ trait ApiTestRequesterTrait
     /**
      * Executes POST request for an URL with a token to get.
      *
-     * @param string|array $route Route to perform the POST
-     * @param mixed $content Content to submit
-     * @param bool $withToken Defines if a token is required or not (need to login first)
-     * @param string $formatIn Input data format <=> Content-type header (Default : JSON)
-     * @param string $formatOut Output data format <=> Accept header (Default : JSON)
-     * @param array $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
+     * @param string|array $route            Route to perform the POST
+     * @param mixed        $content          Content to submit
+     * @param bool         $withToken        Defines if a token is required or not (need to login first)
+     * @param string       $formatIn         Input data format <=> Content-type header (Default : JSON)
+     * @param string       $formatOut        Output data format <=> Accept header (Default : JSON)
+     * @param array        $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
      *                                       defined by formatIn and formatOut if necessary)
-     * @return ApiOutput
+     *
      * @throws \Exception
      */
     public static function httpPost($route, $content = [], bool $withToken = true, string $formatIn = Format::JSON, string $formatOut = Format::JSON, array $extraHttpHeaders = []): ApiOutput
@@ -319,23 +311,14 @@ trait ApiTestRequesterTrait
     /**
      * @param $route
      * @param $userLogin
-     * @param $userPassword
      * @param array|string $content
-     * @param array $extraHttpHeaders
-     * @param string $formatIn
-     * @param string $formatOut
-     * @return ApiOutput
+     *
      * @throws \Exception
      */
-    public static function httpPostWithLogin($route, $userLogin, $userPassword, $content = [], array $extraHttpHeaders = [], string $formatIn = Format::JSON, string $formatOut = Format::JSON): ApiOutput
+    public static function httpPostWithLogin($route, $userLogin, $content = [], array $extraHttpHeaders = [], string $formatIn = Format::JSON, string $formatOut = Format::JSON): ApiOutput
     {
-        if (null !== $userLogin && null === $userPassword) {
-            throw new \Exception('ApiTestRequesterTrait::httpPostWithLogin : $userPassword parameter cannot be null if $userLogin parameters is not null');
-        }
-
         $userLogin = $userLogin ?? static::$user;
-        $userPassword = $userPassword ?? static::$password;
-        $token = self::loginHttp($userLogin, $userPassword);
+        $token = self::getToken($userLogin);
 
         return static::httpPost($route, $content, false, $formatIn, $formatOut, $extraHttpHeaders + ['Authorization' => static::getAuthorizationStringFromToken($token)]);
     }
@@ -343,15 +326,13 @@ trait ApiTestRequesterTrait
     /**
      * Executes PUT request for an URL with a token to get.
      *
-     * @param string|array $route Route to perform the POST
-     * @param mixed $content Content to submit
-     * @param bool $withToken Defines if a token is required or not (need to login first)
-     * @param string $formatIn Input data format <=> Content-type header (Default : JSON)
-     * @param string $formatOut Output data format <=> Accept header (Default : JSON)
-     * @param array $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
+     * @param string|array $route            Route to perform the POST
+     * @param mixed        $content          Content to submit
+     * @param bool         $withToken        Defines if a token is required or not (need to login first)
+     * @param string       $formatIn         Input data format <=> Content-type header (Default : JSON)
+     * @param string       $formatOut        Output data format <=> Accept header (Default : JSON)
+     * @param array        $extraHttpHeaders Extra HTTP headers to use (can override Accept and Content-Type
      *                                       defined by formatIn and formatOut if necessary)
-     *
-     * @return ApiOutput
      *
      * @throws \Exception
      */
@@ -363,23 +344,16 @@ trait ApiTestRequesterTrait
     /**
      * @param $route
      * @param $userLogin
-     * @param $userPassword
      * @param array|string $content
-     * @param array $extraHttpHeaders
      * @param string $formatIn
      * @param string $formatOut
-     * @return ApiOutput
+     *
      * @throws \Exception
      */
-    public static function httpPutWithLogin($route, $userLogin, $userPassword, $content = [], array $extraHttpHeaders = [], $formatIn = Format::JSON, $formatOut = Format::JSON): ApiOutput
+    public static function httpPutWithLogin($route, $userLogin, $content = [], array $extraHttpHeaders = [], string $formatIn = Format::JSON, string $formatOut = Format::JSON): ApiOutput
     {
-        if (null !== $userLogin && null === $userPassword) {
-            throw new \Exception('ApiTestRequesterTrait::httpPutWithLogin : $userPassword parameter cannot be null if $userLogin parameters is not null');
-        }
-
         $userLogin = $userLogin ?? static::$user;
-        $userPassword = $userPassword ?? static::$password;
-        $token = self::loginHttp($userLogin, $userPassword);
+        $token = self::getToken($userLogin);
 
         return static::httpPut($route, $content, false, $formatIn, $formatOut, $extraHttpHeaders + ['Authorization' => static::getAuthorizationStringFromToken($token)]);
     }
@@ -387,11 +361,8 @@ trait ApiTestRequesterTrait
     /**
      * Executes DELETE request for an URL with a token to get.
      *
-     * @param string|array $route Route to perform the DELETE
-     * @param bool $withToken Defines if a token is required or not (need to login first)
-     * @param array $extraHttpHeaders
-     *
-     * @return ApiOutput
+     * @param string|array $route     Route to perform the DELETE
+     * @param bool         $withToken Defines if a token is required or not (need to login first)
      *
      * @throws \Exception
      */
@@ -403,31 +374,22 @@ trait ApiTestRequesterTrait
     /**
      * @param $route
      * @param $userLogin
-     * @param $userPassword
-     * @param array $extraHttpHeaders
-     * @return ApiOutput
+     *
      * @throws \Exception
      */
-    public static function httpDeleteWithLogin($route, $userLogin, $userPassword, array $extraHttpHeaders = []): ApiOutput
+    public static function httpDeleteWithLogin($route, $userLogin, array $extraHttpHeaders = []): ApiOutput
     {
-        if (null === $userPassword && null !== $userLogin) {
-            throwException(new \Exception('$userPassword parameter cannot be null if $userLogin parameters is not null'));
-        }
-
         $userLogin = $userLogin ?? static::$user;
-        $userPassword = $userPassword ?? static::$password;
-        $token = self::loginHttp($userLogin, $userPassword);
+        $token = self::getToken($userLogin);
 
         return static::httpDelete($route, false, $extraHttpHeaders + ['Authorization' => static::getAuthorizationStringFromToken($token)]);
     }
 
     /**
-     * Execute command nativly by changing current directory to be on root project directory
+     * Execute command nativly by changing current directory to be on root project directory.
      *
      * @param string $commandName ex "generator:entity:full"
-     * @param array $arguments ex : "['customer_task', 'CustomerTask', 'APITaskBundle', 'Task', '--no-dump', '--target' => '{ti}']"
-     *
-     * @return CommandOutput
+     * @param array  $arguments   ex : "['customer_task', 'CustomerTask', 'APITaskBundle', 'Task', '--no-dump', '--target' => '{ti}']"
      *
      * @throws \Exception
      */
@@ -442,7 +404,7 @@ trait ApiTestRequesterTrait
                     $convertedArguments[] = $v;
                 }
             } else {
-                throw new \Exception("--env option must be test");
+                throw new \Exception('--env option must be test');
             }
         }
 
@@ -472,12 +434,10 @@ trait ApiTestRequesterTrait
     }
 
     /**
-     * Call command by using Symfony (be careful the current directory is not the root directory of the project
+     * Call command by using Symfony (be careful the current directory is not the root directory of the project.
      *
      * @param string $commandName ex: "generator:entity:full"
-     * @param array $arguments ex: "['table_name' => 'customer_task', 'entity_name'=> 'CustomerTask', ... '--no-dump','--target' => '{ti}']"
-     *
-     * @return CommandOutput
+     * @param array  $arguments   ex: "['table_name' => 'customer_task', 'entity_name'=> 'CustomerTask', ... '--no-dump','--target' => '{ti}']"
      *
      * @throws \Exception
      */

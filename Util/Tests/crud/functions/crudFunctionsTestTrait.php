@@ -295,11 +295,11 @@ trait crudFunctionsTestTrait
      * @param int $id
      * @param string $filename
      * @param string|null $userLogin
-     * @param string|null $userPassword
+
      */
-    protected function doTestGetAfterSave(int $id, string $filename, string $userLogin = null, string $userPassword = null)
+    protected function doTestGetAfterSave(int $id, string $filename, string $userLogin = null)
     {
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $id]], $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetRouteName(), 'params' => ['id' => $id]], $userLogin);
         static::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
         $result = $apiOutput->getData();
         $expectedResult = $this->getExpectedResponse($filename, static::$createActionType, $result, true);

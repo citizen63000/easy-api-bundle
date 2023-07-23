@@ -15,12 +15,12 @@ trait GetListTestFunctionsTrait
      * @param string|null $filename
      * @param array|null $params
      * @param string|null $userLogin
-     * @param string|null $userPassword
+
      * @return ApiOutput
      */
-    protected function doTestGetList(string $filename, array $params = [], string $userLogin = null, string $userPassword = null): ApiOutput
+    protected function doTestGetList(string $filename, array $params = [], string $userLogin = null): ApiOutput
     {
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetListRouteName(), 'params' => $params], $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetListRouteName(), 'params' => $params], $userLogin);
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
 
@@ -38,10 +38,10 @@ trait GetListTestFunctionsTrait
      * @param int|null $limit
      * @param array $params
      * @param string|null $userLogin
-     * @param string|null $userPassword
+
      * @return ApiOutput
      */
-    protected function doTestGetListPaginate(string $filename, int $page = null, int $limit = null, array $params = [], string $userLogin = null, string $userPassword = null): ApiOutput
+    protected function doTestGetListPaginate(string $filename, int $page = null, int $limit = null, array $params = [], string $userLogin = null): ApiOutput
     {
         try {
             $pagination = [];
@@ -51,7 +51,7 @@ trait GetListTestFunctionsTrait
             if (null !== $limit) {
                 $pagination['limit'] = $limit;
             }
-            return $this->doTestGetList($filename, $pagination + $params, $userLogin, $userPassword);
+            return $this->doTestGetList($filename, $pagination + $params, $userLogin);
         } catch (ReflectionException $e) {
             echo $e->getMessage();
         }
@@ -65,12 +65,12 @@ trait GetListTestFunctionsTrait
      * @param string|null $sort
      * @param array $params
      * @param string|null $userLogin
-     * @param string|null $userPassword
+
      * @return ApiOutput
      */
-    protected function doTestGetListFiltered(string $filename, int $page = null, int $limit = null, array $filters = [], string $sort = null, array $params = [], string $userLogin = null, string $userPassword = null): ApiOutput
+    protected function doTestGetListFiltered(string $filename, int $page = null, int $limit = null, array $filters = [], string $sort = null, array $params = [], string $userLogin = null): ApiOutput
     {
-        return $this->doTestGetListPaginate($filename, $page, $limit, $filters + ['sort' => $sort] + $params, $userLogin, $userPassword);
+        return $this->doTestGetListPaginate($filename, $page, $limit, $filters + ['sort' => $sort] + $params, $userLogin);
     }
 
     /**
@@ -88,17 +88,16 @@ trait GetListTestFunctionsTrait
     /**
      * GET - Error case - 403 - Missing right.
      * @param string|null $userLogin
-     * @param string|null $userPassword
+
      * @return ApiOutput
      */
-    protected function doTestGetWithoutRight(string $userLogin = null, string $userPassword = null): ApiOutput
+    protected function doTestGetWithoutRight(string $userLogin = null): ApiOutput
     {
-        if (null === $userLogin && null === $userPassword) {
+        if (null === $userLogin) {
             $userLogin = static::USER_NORULES_TEST_USERNAME;
-            $userPassword = static::USER_NORULES_TEST_PASSWORD;
         }
 
-        $apiOutput = self::httpGetWithLogin(['name' => static::getGetListRouteName(), 'params' => []], $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(['name' => static::getGetListRouteName(), 'params' => []], $userLogin);
 
         static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
 

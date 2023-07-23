@@ -16,13 +16,13 @@ trait CloneTestFunctionsTrait
      * @param array $params
      * @param bool $testGetAfterClone
      * @param string|null $userLogin
-     * @param string|null $userPassword
+
      */
-    protected function doTestClone(int $id = null, string $filename = 'clone.json', array $params = [], bool $testGetAfterClone = true, string $userLogin = null, string $userPassword = null): void
+    protected function doTestClone(int $id = null, string $filename = 'clone.json', array $params = [], bool $testGetAfterClone = true, string $userLogin = null): void
     {
         // Request
         $params += ['id' => $id ?? static::defaultEntityId];
-        $apiOutput = self::httpPostWithLogin(['name' => static::getCloneRouteName(), 'params' => $params], $userLogin, $userPassword);
+        $apiOutput = self::httpPostWithLogin(['name' => static::getCloneRouteName(), 'params' => $params], $userLogin);
 
         // Assert result
         static::assertEquals(Response::HTTP_CREATED, $apiOutput->getStatusCode());
@@ -33,7 +33,7 @@ trait CloneTestFunctionsTrait
 
         // Get after create
         if($testGetAfterClone) {
-            $this->doTestGetAfterSave($expectedResult['id'], $filename, $userLogin, $userPassword);
+            $this->doTestGetAfterSave($expectedResult['id'], $filename, $userLogin);
         }
     }
 
@@ -52,18 +52,17 @@ trait CloneTestFunctionsTrait
      * POST - Error case - 403 - Missing right.
      * @param array $params
      * @param string|null $userLogin
-     * @param string|null $userPassword
+
      */
-    protected function doTestCloneWithoutRight(array $params = [], string $userLogin = null, string $userPassword = null): void
+    protected function doTestCloneWithoutRight(array $params = [], string $userLogin = null): void
     {
         $params += ['id' => $id ?? static::defaultEntityId];
 
-        if (null === $userLogin && null === $userPassword) {
+        if (null === $userLogin) {
             $userLogin = static::USER_NORULES_TEST_USERNAME;
-            $userPassword = static::USER_NORULES_TEST_PASSWORD;
         }
 
-        $apiOutput = self::httpPostWithLogin(['name' => static::getCloneRouteName(), 'params' => $params], $userLogin, $userPassword, []);
+        $apiOutput = self::httpPostWithLogin(['name' => static::getCloneRouteName(), 'params' => $params], $userLogin);
 
         static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
     }
@@ -73,16 +72,16 @@ trait CloneTestFunctionsTrait
      * @param int|null $id
      * @param array $params
      * @param string|null $userLogin
-     * @param string|null $userPassword
+
      * @param array $messages
      * @param int $errorCode
      * @throws \Exception
      */
-    protected function doTestCloneForbiddenAction(int $id = null, array $params = [], string $userLogin = null, string $userPassword = null, $messages = [ApiProblem::RESTRICTED_ACCESS], $errorCode = Response::HTTP_UNPROCESSABLE_ENTITY): void
+    protected function doTestCloneForbiddenAction(int $id = null, array $params = [], string $userLogin = null, $messages = [ApiProblem::RESTRICTED_ACCESS], $errorCode = Response::HTTP_UNPROCESSABLE_ENTITY): void
     {
         $params += ['id' => $id ?? static::defaultEntityId];
 
-        $apiOutput = self::httpPostWithLogin(['name' => static::getCloneRouteName(), 'params' => $params], $userLogin, $userPassword);
+        $apiOutput = self::httpPostWithLogin(['name' => static::getCloneRouteName(), 'params' => $params], $userLogin);
 
         static::assertApiProblemError($apiOutput, $errorCode, $messages);
     }

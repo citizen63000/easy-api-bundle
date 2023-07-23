@@ -15,11 +15,11 @@ trait DownloadTestFunctionsTrait
      * @param string|null $filename
      * @param string|null $folder
      * @param string|null $userLogin
-     * @param string|null $userPassword
+
      */
-    public function doTestDownload(int $id = null, string $filename = null, string $folder = null, string $userLogin = null, string $userPassword = null): void
+    public function doTestDownload(int $id = null, string $filename = null, string $folder = null, string $userLogin = null): void
     {
-        self::doTestGenericDownload(['id' => $id ?? static::defaultEntityId], $filename, $folder, $userLogin, $userPassword);
+        self::doTestGenericDownload(['id' => $id ?? static::defaultEntityId], $filename, $folder, $userLogin);
     }
 
     /**
@@ -27,10 +27,10 @@ trait DownloadTestFunctionsTrait
      * @param string|null $filename
      * @param string|null $folder
      * @param string|null $userLogin
-     * @param string|null $userPassword
+
      * @todo dev comment lines
      */
-    public function doTestGenericDownload(array $params = [], string $filename = null, string $folder = null, string $userLogin = null, string $userPassword = null)
+    public function doTestGenericDownload(array $params = [], string $filename = null, string $folder = null, string $userLogin = null)
     {
         if(null !== $filename && null !== $folder) {
             $src = self::$projectDir."/tests/artifacts/$folder/$filename";
@@ -42,7 +42,7 @@ trait DownloadTestFunctionsTrait
         }
 
         /** @var ApiOutput $apiOutput */
-        $apiOutput = self::httpGetWithLogin(['name' => static::getDownloadRouteName(), 'params' => $params], $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(['name' => static::getDownloadRouteName(), 'params' => $params], $userLogin);
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
 //        $result = $apiOutput->getData();

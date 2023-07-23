@@ -22,12 +22,11 @@ trait DescribeFormTestFunctionsTrait
      * @param string $method
      * @param array $params
      * @param string|null $userLogin
-     * @param string|null $userPassword
      */
-    protected function doGetTest(string $method, array $params = [], string $userLogin = null, string $userPassword = null)
+    protected function doGetTest(string $method, array $params = [], string $userLogin = null)
     {
         $params['method'] = $method;
-        $apiOutput = self::httpGetWithLogin(['name' => static::getDescribeFormRouteName(), 'params' => $params], $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(['name' => static::getDescribeFormRouteName(), 'params' => $params], $userLogin);
 
         $result = $apiOutput->getData();
 
@@ -42,22 +41,22 @@ trait DescribeFormTestFunctionsTrait
      * Nominal case for post form.
      * @param array $params
      * @param string|null $userLogin
-     * @param string|null $userPassword
+
      */
-    public function doTestGetDescribeFormForPost(array $params = [], string $userLogin = null, string $userPassword = null): void
+    public function doTestGetDescribeFormForPost(array $params = [], string $userLogin = null): void
     {
-        $this->doGetTest('POST', $params, $userLogin, $userPassword);
+        $this->doGetTest('POST', $params, $userLogin);
     }
 
     /**
      * Nominal case for put form.
      * @param array $params
      * @param string|null $userLogin
-     * @param string|null $userPassword
+
      */
-    public function doTestGetDescribeFormForPut(array $params = [], string $userLogin = null, string $userPassword = null): void
+    public function doTestGetDescribeFormForPut(array $params = [], string $userLogin = null): void
     {
-        $this->doGetTest('PUT', $params, $userLogin, $userPassword);
+        $this->doGetTest('PUT', $params, $userLogin);
     }
 
     /**
@@ -73,17 +72,16 @@ trait DescribeFormTestFunctionsTrait
     /**
      * GET - Error case - 403 - Missing ADMIN role.
      * @param string|null $userLogin
-     * @param string|null $userPassword
+
      * @param array $params
      */
-    public function doTestGetDescribeFormWithoutRight(string $userLogin = null, string $userPassword = null, array $params = []): void
+    public function doTestGetDescribeFormWithoutRight(string $userLogin = null, array $params = []): void
     {
-        if(null === $userLogin && null === $userPassword) {
+        if(null === $userLogin) {
             $userLogin = static::USER_NORULES_TEST_USERNAME;
-            $userPassword = static::USER_NORULES_TEST_PASSWORD;
         }
 
-        $apiOutput = self::httpGetWithLogin(['name' => static::getDescribeFormRouteName(), 'params' => $params], $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(['name' => static::getDescribeFormRouteName(), 'params' => $params], $userLogin);
 
         static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
     }

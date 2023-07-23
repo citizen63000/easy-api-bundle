@@ -14,22 +14,20 @@ trait GetTestFunctionsTrait
      * @param int|null $id
      * @param string|null $filename
      * @param string|null $userLogin
-     * @param string|null $userPassword
      */
-    public function doTestGet(int $id = null, string $filename = 'nominalCase.json', string $userLogin = null, string $userPassword = null): void
+    public function doTestGet(int $id = null, string $filename = 'nominalCase.json', string $userLogin = null): void
     {
-        self::doTestGenericGet(['id' => $id ?? static::defaultEntityId], $filename, $userLogin, $userPassword);
+        self::doTestGenericGet(['id' => $id ?? static::defaultEntityId], $filename, $userLogin);
     }
 
     /**
      * @param array $params
      * @param string|null $filename
      * @param string|null $userLogin
-     * @param string|null $userPassword
      */
-    public function doTestGenericGet(array $params = [], string $filename = 'nominalCase.json', string $userLogin = null, string $userPassword = null)
+    public function doTestGenericGet(array $params = [], string $filename = 'nominalCase.json', string $userLogin = null)
     {
-        $apiOutput = self::httpGetWithLogin(static::generateGetRouteParameters($params), $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(static::generateGetRouteParameters($params), $userLogin);
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
         $result = $apiOutput->getData();
@@ -43,21 +41,19 @@ trait GetTestFunctionsTrait
      * GET - Error case - not found.
      * @param int|null $id
      * @param string|null $userLogin
-     * @param string|null $userPassword
      */
-    public function doTestGetNotFound(int $id = null, string $userLogin = null, string $userPassword = null): void
+    public function doTestGetNotFound(int $id = null, string $userLogin = null): void
     {
-        self::doTestGenericGetNotFound(['id' => $id ?? 99999999], $userLogin, $userPassword);
+        self::doTestGenericGetNotFound(['id' => $id ?? 99999999], $userLogin);
     }
 
     /**
      * @param array $params
      * @param string|null $userLogin
-     * @param string|null $userPassword
      */
-    public function doTestGenericGetNotFound(array $params = [], string $userLogin = null, string $userPassword = null): void
+    public function doTestGenericGetNotFound(array $params = [], string $userLogin = null): void
     {
-        $apiOutput = self::httpGetWithLogin(static::generateGetRouteParameters($params), $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(static::generateGetRouteParameters($params), $userLogin);
         static::assertApiProblemError($apiOutput, Response::HTTP_NOT_FOUND, [sprintf(ApiProblem::ENTITY_NOT_FOUND, 'entity')]);
     }
 
@@ -84,27 +80,24 @@ trait GetTestFunctionsTrait
      * GET - Error case - Missing right.
      * @param int|null $id
      * @param string|null $userLogin
-     * @param string|null $userPassword
      */
-    public function doTestGetWithoutRight(int $id = null, string $userLogin = null, string $userPassword = null): void
+    public function doTestGetWithoutRight(int $id = null, string $userLogin = null): void
     {
-        self::doTestGenericGetWithoutRight(['id' => $id ?? static::defaultEntityId], $userLogin, $userPassword);
+        self::doTestGenericGetWithoutRight(['id' => $id ?? static::defaultEntityId], $userLogin);
     }
 
     /**
      * GET - Error case - Missing right.
      * @param array $params
      * @param string|null $userLogin
-     * @param string|null $userPassword
      */
-    public function doTestGenericGetWithoutRight(array $params = [], string $userLogin = null, string $userPassword = null): void
+    public function doTestGenericGetWithoutRight(array $params = [], string $userLogin = null): void
     {
-        if(null === $userLogin && null === $userPassword) {
+        if (null === $userLogin) {
             $userLogin = static::USER_NORULES_TEST_USERNAME;
-            $userPassword = static::USER_NORULES_TEST_PASSWORD;
         }
 
-        $apiOutput = self::httpGetWithLogin(static::generateGetRouteParameters($params), $userLogin, $userPassword);
+        $apiOutput = self::httpGetWithLogin(static::generateGetRouteParameters($params), $userLogin);
 
         static::assertApiProblemError($apiOutput, Response::HTTP_FORBIDDEN, [ApiProblem::RESTRICTED_ACCESS]);
     }
