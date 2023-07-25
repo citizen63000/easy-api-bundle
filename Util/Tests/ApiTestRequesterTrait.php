@@ -211,7 +211,6 @@ trait ApiTestRequesterTrait
         $token = $tokenInstance->getToken();
 
         if (null == $token) {
-            var_dump($token);
             throw new Exception("Token generation failed for user $username");
         }
 
@@ -227,30 +226,33 @@ trait ApiTestRequesterTrait
      */
     protected static function getToken(string $username = null, bool $useCache = true, bool $useDefaultTokens = true): string
     {
-        $useCache = $useCache ?? static::$useCache;
-        if (null !== $username || null === static::$token) {
-            $username = $username ?? static::$user;
+        $username = $username ?? static::$user;
+        return static::generateToken($username, false);
 
-            // use default tokens to speedup login or if using external authentication
-            if ($useDefaultTokens && isset(static::$defaultTokens[$username])) {
-                if (!static::isTokenExpired(static::$defaultTokens[$username])) {
-                    return static::$defaultTokens[$username];
-                }
-            }
-
-            $cachedToken = static::getCachedData("test.token.{$username}");
-            if (!$cachedToken->isHit() || null === $cachedToken->get() || static::isTokenExpired($cachedToken->get()) || !$useCache) {
-                static::$token = static::generateToken($username, false);
-                if ($username === static::$user) {
-                    $cachedToken->set(static::$token);
-                }
-                static::$cache->save($cachedToken);
-            } else {
-                static::$token = $cachedToken->get();
-            }
-        }
-
-        return static::$token;
+//        $useCache = $useCache ?? static::$useCache;
+//        if (null !== $username || null === static::$token) {
+//            $username = $username ?? static::$user;
+//
+//            // use default tokens to speedup login or if using external authentication
+//            if ($useDefaultTokens && isset(static::$defaultTokens[$username])) {
+//                if (!static::isTokenExpired(static::$defaultTokens[$username])) {
+//                    return static::$defaultTokens[$username];
+//                }
+//            }
+//
+//            $cachedToken = static::getCachedData("test.token.{$username}");
+//            if (!$cachedToken->isHit() || null === $cachedToken->get() || static::isTokenExpired($cachedToken->get()) || !$useCache) {
+//                static::$token = static::generateToken($username, false);
+//                if ($username === static::$user) {
+//                    $cachedToken->set(static::$token);
+//                }
+//                static::$cache->save($cachedToken);
+//            } else {
+//                static::$token = $cachedToken->get();
+//            }
+//        }
+//
+//        return static::$token;
     }
 
     protected static function isTokenExpired(string $token): bool
