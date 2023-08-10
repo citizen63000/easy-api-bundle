@@ -41,8 +41,10 @@ trait DownloadTestFunctionsTrait
             copy($src, "$destDir/$filename");
         }
 
+        ob_start();
         /** @var ApiOutput $apiOutput */
         $apiOutput = self::httpGetWithLogin(['name' => static::getDownloadRouteName(), 'params' => $params], $userLogin);
+        ob_get_clean();
 
         self::assertEquals(Response::HTTP_OK, $apiOutput->getStatusCode());
 //        $result = $apiOutput->getData();
