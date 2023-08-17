@@ -232,8 +232,8 @@ abstract class AbstractFilterType extends AbstractApiType
     protected function addIntegerFilter(FormBuilderInterface $builder, string $name): FormBuilderInterface
     {
         $builder->add($name, IntegerType::class, ['required' => false,]);
-        $builder->add("{$name}__min", IntegerType::class, ['required' => false,]);
-        $builder->add("{$name}__max", IntegerType::class, ['required' => false,]);
+        $builder->add("{$name}__min", IntegerType::class, ['required' => false]);
+        $builder->add("{$name}__max", IntegerType::class, ['required' => false]);
 
         return $builder;
     }
@@ -272,8 +272,8 @@ abstract class AbstractFilterType extends AbstractApiType
     protected function addDateFilter(FormBuilderInterface $builder, string $name): FormBuilderInterface
     {
         $builder->add($name, DateType::class, ['required' => false,]);
-        $builder->add("{$name}__min", DateType::class, ['required' => false,]);
-        $builder->add("{$name}__max", DateType::class, ['required' => false,]);
+        $builder->add("{$name}__min", DateType::class, ['required' => false, 'widget' => 'single_text', 'format' => 'yyyy-MM-DD']);
+        $builder->add("{$name}__max", DateType::class, ['required' => false, 'widget' => 'single_text', 'format' => 'yyyy-MM-DD']);
 
         return $builder;
     }
@@ -286,8 +286,8 @@ abstract class AbstractFilterType extends AbstractApiType
     protected function addDateTimeFilter(FormBuilderInterface $builder, string $name): FormBuilderInterface
     {
         $builder->add($name, DateTimeType::class, ['required' => false,]);
-        $builder->add("{$name}__min", DateTimeType::class, ['required' => false,]);
-        $builder->add("{$name}__max", DateTimeType::class, ['required' => false,]);
+        $builder->add("{$name}__min", DateTimeType::class, ['required' => false, 'widget' => 'single_text']);
+        $builder->add("{$name}__max", DateTimeType::class, ['required' => false, 'widget' => 'single_text']);
 
         return $builder;
     }

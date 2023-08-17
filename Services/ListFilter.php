@@ -42,7 +42,7 @@ class ListFilter extends AbstractService
                     $this->$method($qb, $model->$fieldName);
                 } else {
                     // linked entity var
-                    if ($pos = strpos($fieldName, '_')) {
+                    if ($pos = strpos($fieldName, '_') && !($pos = strpos($fieldName, '__'))) {
                         $this->linkedEntityFilter($qb, $field->getConfig(), $fieldName, $model, $joins);
                     } else {
                         // field itself
@@ -161,7 +161,7 @@ class ListFilter extends AbstractService
     {
         $realFieldName = substr($entityFieldName, 0, $operatorPosition);
         $operator = substr($entityFieldName, $operatorPosition + 1);
-        $exprOperator = 'min' === $operator ? 'gt' : 'lte';
+        $exprOperator = '_min' === $operator ? 'gt' : 'lte';
         $alias = ":{$classAlias}_{$exprOperator}_{$entityFieldName}";
         $qb->andWhere($qb->expr()->$exprOperator("{$classAlias}.{$realFieldName}", $alias));
         $qb->setParameter($alias, $model->$fieldName);
