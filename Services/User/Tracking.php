@@ -20,7 +20,7 @@ class Tracking extends AbstractService
 
     protected LoggerInterface $logger;
 
-    public function __construct(ContainerInterface $container, TokenStorageInterface $tokenStorage = null, LoggerInterface $logger)
+    public function __construct(ContainerInterface $container, LoggerInterface $logger, TokenStorageInterface $tokenStorage = null)
     {
         parent::__construct($container, $tokenStorage);
         $this->logger = $logger;
