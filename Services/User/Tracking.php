@@ -2,29 +2,34 @@
 
 namespace EasyApiBundle\Services\User;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use EasyApiBundle\Entity\User\AbstractConnectionHistory;
 use EasyApiBundle\Entity\User\AbstractConnectionHistory as ConnectionHistory;
 use EasyApiBundle\Services\AbstractService;
 use Namshi\JOSE\JWS;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class Tracking extends AbstractService
 {
-    const CONNECTION_HISTORY_CLASS_PARAMETER = 'easy_api.user_tracking.connection_history_class';
-    const TRACKING_ENABLE_PARAMETER = 'easy_api.user_tracking.enable';
+    public const CONNECTION_HISTORY_CLASS_PARAMETER = 'easy_api.user_tracking.connection_history_class';
+    public const TRACKING_ENABLE_PARAMETER = 'easy_api.user_tracking.enable';
+
+    protected LoggerInterface $logger;
+
+    public function __construct(ContainerInterface $container, TokenStorageInterface $tokenStorage = null, LoggerInterface $logger)
+    {
+        parent::__construct($container, $tokenStorage);
+        $this->logger = $logger;
+    }
 
     /**
-     * @param UserInterface $user
-     * @param Request $request
-     * @param string $token
-     * @param bool $isSSO
-     *
-     * @return ConnectionHistory
-     *
      * @throws \Exception
      */
-    public function logConnection(UserInterface $user, Request $request, string $token, bool $isSSO = false): ConnectionHistory
+    public function logConnection(UserInterface $user, Request $request, string $token, bool $isSSO = false): ?ConnectionHistory
     {
         $connectionHistoryClass = $this->getParameter(self::CONNECTION_HISTORY_CLASS_PARAMETER);
 
@@ -42,17 +47,17 @@ class Tracking extends AbstractService
         $connectionHistory->setLoginDate(new \DateTime());
         $connectionHistory->setLastActionDate($connectionHistory->getLoginDate());
 
-        $this->PersistAndFlush($connectionHistory);
+        try {
+            $this->PersistAndFlush($connectionHistory);
+        } catch (UniqueConstraintViolationException|\Exception $e) {
+            $this->logger->error($e->getMessage());
+        }
 
         return $connectionHistory;
     }
 
     /**
      * Update date when user execute action.
-     *
-     * @param UserInterface $user
-     * @param Request $request
-     * @param string $token
      *
      * @throws \Exception
      */
@@ -80,14 +85,14 @@ class Tracking extends AbstractService
     }
 
     /**
-     * take JTI (token identifier) if exist in payload, if not exists use payload as identifier
-     * @param string $token
+     * take JTI (token identifier) if exist in payload, if not exists use payload as identifier.
+     *
      * @return mixed|string
      */
     public function getTokenIdentifier(string $token)
     {
         $payload = JWS::load($token)->getPayload();
-        if(isset($payload['session_state'])) {
+        if (isset($payload['session_state'])) {
             return $payload['session_state'];
         }
 
