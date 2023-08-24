@@ -114,7 +114,6 @@ services:
 
   EasyApiBundle\Services\User\Tracking:
     public: true
-    arguments: ['@service_container', '@security.token_storage']
 
   EasyApiBundle\Controller\User\:
     resource: '../../Controller/User'
