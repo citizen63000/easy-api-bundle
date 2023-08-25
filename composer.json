@@ -2,6 +2,7 @@
   "name": "citizen63000/easy-api-bundle",
   "description": "Complete API bundle to create easily your API",
   "keywords": ["api", "rest"],
+  "license": "MIT",
   "type": "symfony-bundle",
   "authors": [
     {
