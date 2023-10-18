@@ -22,12 +22,10 @@ class ListFilter extends AbstractService
     public const classAlias = 'e';
 
     /**
-     * @return mixed
-     *
      * @throws ORM\NoResultException
      * @throws ORM\NonUniqueResultException
      */
-    final public function filter(FormInterface $filterForm, string $entityClass)
+    final public function filter(FormInterface $filterForm, string $entityClass): FilterResult
     {
         /** @var FilterModel $model */
         $model = $filterForm->getData();

@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "php": ">=7.4.3",
+    "php": "^8.1",
     "ext-fileinfo": "*",
     "symfony/asset": "^5.4",
     "symfony/console": "^5.4",
