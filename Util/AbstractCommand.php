@@ -32,7 +32,7 @@ abstract class AbstractCommand extends Command
      */
     protected function get(string $id, int $invalidBehavior = Container::EXCEPTION_ON_INVALID_REFERENCE)
     {
-        return $this->getContainer()->get($id, $invalidBehavior);
+        return $this->container->get($id, $invalidBehavior);
     }
 
     /**
@@ -42,11 +42,11 @@ abstract class AbstractCommand extends Command
      */
     protected function getDoctrine()
     {
-        if (!$this->getContainer()->has('doctrine')) {
+        if (!$this->container->has('doctrine')) {
             throw new \LogicException('The DoctrineBundle is not registered in your application. Try running "composer require symfony/orm-pack".');
         }
 
-        return $this->getContainer()->get('doctrine');
+        return $this->container->get('doctrine');
     }
 
     /**
@@ -54,6 +54,6 @@ abstract class AbstractCommand extends Command
      */
     public function getParameter(string $name)
     {
-        return $this->getContainer()->getParameter($name);
+        return $this->container->getParameter($name);
     }
 }
