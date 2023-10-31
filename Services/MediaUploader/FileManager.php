@@ -2,8 +2,12 @@
 
 namespace EasyApiBundle\Services\MediaUploader;
 
+use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use EasyApiBundle\Exception\ApiProblemException;
 use EasyApiBundle\Util\ApiProblem;
+use PHPUnit\Util\Exception;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Vich\UploaderBundle\Storage\StorageInterface;
@@ -15,6 +19,26 @@ class FileManager
     public function __construct(StorageInterface $fileSystemStorage)
     {
         $this->fileSystemStorage = $fileSystemStorage;
+    }
+
+    public function createFromWebUrl(string $class, string $url): AbstractMedia
+    {
+        /** @var AbstractMedia $media */
+        $media = new $class;
+        if (!$media instanceof AbstractMedia) {
+            throw new Exception(sprintf('%s must be an instance of AbstractMedia', $class));
+        }
+
+        $fileData = file_get_contents($url);
+        $tmpFilePath = '/tmp/'.md5(uniqid());
+        (new Filesystem())->dumpFile($tmpFilePath, $fileData);
+        $mimeType = finfo_buffer(finfo_open(), $fileData, FILEINFO_MIME_TYPE);
+        $fileInfo = pathinfo(parse_url($url, PHP_URL_PATH));
+        $originalFileName = "{$fileInfo['filename']}.{$fileInfo['extension']}";
+        $uploadedFile = new UploadedFile($tmpFilePath, $originalFileName, $mimeType, null, true);
+        $media->setFile($uploadedFile);
+
+        return $media;
     }
 
     /**
