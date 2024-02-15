@@ -298,7 +298,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
             $context[AbstractNormalizer::GROUPS] = $serializationGroups;
         }
 
-        if (null !== $serializationAttributes) {
+        if (!empty($serializationAttributes)) {
             $context[AbstractNormalizer::ATTRIBUTES] = $serializationAttributes;
         }
 
