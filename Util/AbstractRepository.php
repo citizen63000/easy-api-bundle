@@ -134,7 +134,7 @@ abstract class AbstractRepository extends EntityRepository
      * @return mixed
      * @throws NonUniqueResultException|NoResultException
      */
-    public function filter(FilterModel $search, $count = false, QueryBuilder $qb)
+    public function filter(FilterModel $search, $count = false, QueryBuilder $qb = null)
     {
         $qb = $qb ?? $this->createQueryBuilder('q');
 
