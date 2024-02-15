@@ -94,23 +94,23 @@ abstract class AbstractApiController extends AbstractFOSRestController
         return $entity;
     }
 
-    protected function doGetEntity(Request $request, $entity, array $serializationGroups = null): Response
+    protected function doGetEntity(Request $request, $entity, array $serializationGroups = null, array $serializationAttributes = null): Response
     {
-        return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [], Response::HTTP_OK, [], static::useSerializerCache);
+        return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, $serializationAttributes ?? static::serializationAttributes, [], Response::HTTP_OK, [], static::useSerializerCache);
     }
 
-    protected function getEntityListAction(string $entityClass = null, array $serializationGroups = null): Response
+    protected function getEntityListAction(string $entityClass = null, array $serializationGroups = null, array $serializationAttributes = null): Response
     {
         $entities = $this->getRepository($entityClass ?? static::entityClass)->findAll();
 
-        return static::renderEntityResponse($entities, $serializationGroups ?? static::listSerializationGroups);
+        return static::renderEntityResponse($entities, $serializationGroups ?? static::listSerializationGroups, $serializationAttributes ?? static::serializationAttributes);
     }
 
-    protected function getEntityListOrderedAction(string $entityClass = null, array $serializationGroups = null): Response
+    protected function getEntityListOrderedAction(string $entityClass = null, array $serializationGroups = null, array $serializationAttributes = null): Response
     {
         $entities = $this->getRepository($entityClass ?? static::entityClass)->findBy([], ['rank' => 'ASC']);
 
-        return static::renderEntityResponse($entities, $serializationGroups ?? static::listSerializationGroups);
+        return static::renderEntityResponse($entities, $serializationGroups ?? static::listSerializationGroups, $serializationAttributes ?? static::serializationAttributes);
     }
 
     protected function doGetEntityFilteredList(
@@ -120,6 +120,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
         array $fields = null,
         array $sortFields = null,
         array $serializationGroups = null,
+        array $serializationAttributes = null,
         FilterModel $entityFilterModel = null
     ): Response {
         // type & model
@@ -145,13 +146,13 @@ abstract class AbstractApiController extends AbstractFOSRestController
                 $result = new FilterResult();
             }
 
-            return $this->createPaginateResponse($result->getResults(), $result->getNbResults(), $serializationGroups);
+            return $this->createPaginateResponse($result->getResults(), $result->getNbResults(), $serializationGroups, $serializationAttributes);
         }
 
         $this->throwUnprocessableEntity($form);
     }
 
-    protected function doCreateEntity(Request $request, $entity = null, string $entityTypeClass = null, array $serializationGroups = null): Response
+    protected function doCreateEntity(Request $request, $entity = null, string $entityTypeClass = null, array $serializationGroups = null, array $serializationAttributes = null): Response
     {
         $form = $this->createForm($entityTypeClass ?? static::entityCreateTypeClass, $entity);
 
@@ -164,13 +165,13 @@ abstract class AbstractApiController extends AbstractFOSRestController
                 $this->clearSerializerCache($entity);
             }
 
-            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [], Response::HTTP_CREATED);
+            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, $serializationAttributes ?? static::serializationAttributes, [], Response::HTTP_CREATED);
         }
 
         $this->throwUnprocessableEntity($form);
     }
 
-    protected function doUpdateEntity(Request $request, $entity, string $entityTypeClass = null, array $serializationGroups = null): Response
+    protected function doUpdateEntity(Request $request, $entity, string $entityTypeClass = null, array $serializationGroups = null, array $serializationAttributes = null): Response
     {
         $form = $this->createForm($entityTypeClass ?? static::entityUpdateTypeClass, $entity);
 
@@ -183,7 +184,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
                 $this->clearSerializerCache($entity);
             }
 
-            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [], Response::HTTP_OK);
+            return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, $serializationAttributes ?? static::serializationAttributes, [], Response::HTTP_OK);
         }
 
         $this->throwUnprocessableEntity($form);
@@ -200,11 +201,11 @@ abstract class AbstractApiController extends AbstractFOSRestController
         return static::renderResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    protected function doCloneEntity($entity, array $serializationGroups = null): Response
+    protected function doCloneEntity($entity, array $serializationGroups = null, array $serializationAttributes = null): Response
     {
         $entity = $this->persistAndFlush(clone $entity);
 
-        return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, [], Response::HTTP_CREATED);
+        return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, $serializationAttributes ?? static::serializationAttributes, [], Response::HTTP_CREATED);
     }
 
     protected function doDownloadMedia(AbstractMedia $entity): Response
@@ -236,10 +237,18 @@ abstract class AbstractApiController extends AbstractFOSRestController
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    protected function createPaginateResponse(array $results, int $nbResults, array $serializationGroups = ['Default'], array $headers = []): Response
+    protected function createPaginateResponse(array $results, int $nbResults, array $serializationGroups = null, array $serializationAttributes = null, array $headers = []): Response
     {
+        $context = [];
+
+        if (null !== $serializationAttributes) {
+            $context[AbstractNormalizer::ATTRIBUTES] = $serializationAttributes;
+        } else {
+            $context[AbstractNormalizer::GROUPS] = $serializationGroups ?? ['Default'];
+        }
+
         $serializer = $this->container->get('serializer');
-        $data = $serializer->serialize($results, 'json', [AbstractNormalizer::GROUPS => $serializationGroups]);
+        $data = $serializer->serialize($results, 'json', $context);
         $headers['X-Total-Results'] = $nbResults;
 
         $response = new Response($data);
@@ -274,18 +283,23 @@ abstract class AbstractApiController extends AbstractFOSRestController
     /**
      * @param $entity
      * @param array|null $serializationGroups
+     * @param array|null $serializationAttributes
      * @param array|null $context Additional context like AbstractNormalizer::IGNORED_ATTRIBUTES list or AbstractNormalizer::ATTRIBUTES list
      * @param int $status
      * @param array $headers
      * @param bool $useCache
      * @return Response
      */
-    protected function renderEntityResponse($entity, array $serializationGroups = null, array $context = null, int $status = 200, array $headers = [], bool $useCache = false): Response
+    protected function renderEntityResponse($entity, array $serializationGroups = null, array $serializationAttributes = null, array $context = null, int $status = 200, array $headers = [], bool $useCache = false): Response
     {
         $context = $context ?? [];
 
         if (null !== $serializationGroups) {
             $context[AbstractNormalizer::GROUPS] = $serializationGroups;
+        }
+
+        if (null !== $serializationAttributes) {
+            $context[AbstractNormalizer::ATTRIBUTES] = $serializationAttributes;
         }
 
         return $this->renderResponse($this->serializeEntity($entity, $context, $useCache), $status, $headers);
