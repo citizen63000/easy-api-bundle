@@ -52,7 +52,7 @@
   "config": {
     "discard-changes": true,
     "platform": {
-      "php": "7.4.3"
+      "php": "8.1"
     },
     "sort-packages": true
   },
