@@ -8,7 +8,6 @@ interface MediaContainerInterface
 {
     /**
      * Return Uuid of entity
-     * @return UuidInterface
      */
     public function getUuid() :?UuidInterface;
 }

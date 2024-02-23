@@ -6,7 +6,6 @@ use Doctrine\ORM\Mapping as ORM;
 use EasyApiBundle\Entity\AbstractBaseEntity;
 use EasyApiBundle\Entity\AbstractBaseUniqueEntity;
 use EasyApiBundle\Services\MediaUploader\FileManager;
-use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Filesystem\Filesystem;
@@ -56,21 +55,18 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     protected const fileNamer = OrignameNamer::class;
 
     /**
-     * @var UuidInterface
      * @ORM\Column(name="uuid", type="uuid", length=255, nullable=false)
      * @Groups({"abstract_media_full", "abstract_media_short", "abstract_media_uuid"})
      */
-    protected $uuid;
+    protected ?string $uuid;
 
     /**
-     * @var string
      * @ORM\Column(name="filename", type="string", length=255, nullable=true)
      * @Groups({"abstract_media_full", "abstract_media_short", "abstract_media_filename"})
      */
     private ?string $filename = null;
 
     /**
-     * @var string
      * @ORM\Column(name="original_filename", type="string", length=255, nullable=true)
      * @Groups({"abstract_media_full", "abstract_media_original_filename"})
      */
@@ -100,7 +96,8 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     /**
      * @param FileManager $fileManager
      */
-    public function setFileManager(FileManager $fileManager) {
+    public function setFileManager(FileManager $fileManager): void
+    {
         $this->fileManager = $fileManager;
     }
 
@@ -126,9 +123,6 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
         }
     }
 
-    /**
-     * @return string|null
-     */
     protected function getClonedFilename(): ?string
     {
         if (null !== $this->originalFilename) {
@@ -140,73 +134,46 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
         return $this->getFilename();
     }
 
-    /**
-     * @return string
-     */
     public function getFilename(): ?string
     {
         return $this->filename;
     }
 
-    /**
-     * @param string|null $filename
-     */
     public function setFilename(?string $filename): void
     {
         $this->filename = $filename;
     }
 
-    /**
-     * @return string|null
-     */
     public function getOriginalFilename(): ?string
     {
         return $this->originalFilename;
     }
 
-    /**
-     * @param string|null $originalFilename
-     */
     public function setOriginalFilename(?string $originalFilename): void
     {
         $this->originalFilename = $originalFilename;
     }
 
-    /**
-     * @return File
-     */
     public function getFile(): ?File
     {
         return $this->file;
     }
 
-    /**
-     * @param File|null $file
-     */
     public function setFile(?File $file): void
     {
         $this->file = $file;
     }
 
-    /**
-     * @return string
-     */
     public function getDirectoryName(): ?string
     {
         return $this->directoryName;
     }
 
-    /**
-     * @param string $directoryName
-     */
     public function setDirectoryName(string $directoryName): void
     {
         $this->directoryName = $directoryName;
     }
 
-    /**
-     * @return string
-     */
     public function getDirectoryValue(): ?string
     {
         return $this->directoryValue;
@@ -228,25 +195,16 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
         return $this->containerEntity;
     }
 
-    /**
-     * @param MediaContainerInterface $containerEntity
-     */
     public function setContainerEntity(MediaContainerInterface $containerEntity): void
     {
         $this->containerEntity = $containerEntity;
     }
 
-    /**
-     * @return string
-     */
     public function getDirectoryNamer(): ?string
     {
         return static::directoryNamer;
     }
 
-    /**
-     * @return string
-     */
     public function getFileNamer(): ?string
     {
         return static::fileNamer;
@@ -254,80 +212,52 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
 
     /**
      * Implement this if you want to use vich file namer "PropertyNamer"
-     * @return string
      */
     public function generateFileName(): string
     {
         return 'you_must_implement_generateFileName_method';
     }
 
-    /**
-     * @return array
-     */
     public static function getMimeTypes(): array
     {
         return static::$mimeTypes;
     }
 
-    /**
-     * @return string|null
-     */
     public static function getMaxSize(): ?string
     {
         return static::$maxsize;
     }
 
-    /**
-     * @return bool
-     */
     public static function isImage(): ?bool
     {
         return self::$isImage;
     }
 
-    /**
-     * @return int|null
-     */
     public static function getMinWidth(): ?int
     {
         return self::$minWidth;
     }
 
-    /**
-     * @return int|null
-     */
     public static function getMinHeight(): ?int
     {
         return self::$minHeight;
     }
 
-    /**
-     * @return int|null
-     */
     public static function getMaxWidth(): ?int
     {
         return self::$maxWidth;
     }
 
-    /**
-     * @return int|null
-     */
     public static function getMaxHeight(): ?int
     {
         return self::$maxHeight;
     }
 
-    /**
-     * @return int|null
-     */
     public static function getMinRatio(): ?int
     {
         return self::$minRatio;
     }
 
-    /**
-     * @return int|null
-     */
     public static function getMaxRatio(): ?int
     {
         return self::$maxRatio;
