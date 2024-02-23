@@ -2,15 +2,15 @@
 
 namespace EasyApiBundle\Util\StringUtils;
 
-use Doctrine\Common\Inflector\Inflector as SfInflector;
+use Symfony\Component\String\Inflector\EnglishInflector;
 
 class Inflector
 {
-    /**
-     * @param string $word
-     */
-    public static function pluralize(string $word)
+    public static function pluralize(string $word): string
     {
-        return SfInflector::pluralize($word);
+        $inflector = new EnglishInflector();
+        $results = $inflector->pluralize($word);
+
+        return $results[0] ?? $word;
     }
 }

@@ -8,8 +8,6 @@ class CaseConverter
 {
     /**
      * @example my_variable_name => MyVariableName
-     * @param string $str
-     * @return string
      */
     public static function convertSnakeCaseToPascalCase(string $str): string
     {
@@ -18,19 +16,12 @@ class CaseConverter
 
     /**
      * @example my-variable-name => MyVariableName
-     * @param string $str
-     * @return string
      */
     public static function convertSpinalCaseToPascalCase(string $str): string
     {
         return static::convertDelimitedTextToPascalCase($str, '-');
     }
 
-    /**
-     * @param string $str
-     * @param string $delimiter
-     * @return string
-     */
     public static function convertDelimitedTextToPascalCase(string $str, string $delimiter): string
     {
         $words = explode($delimiter, $str);
@@ -45,8 +36,6 @@ class CaseConverter
 
     /**
      * @example my_variable_name => myVariableName
-     * @param string $str
-     * @return string
      */
     public static function convertSnakeCaseToCamelCase(string $str): string
     {
@@ -55,45 +44,32 @@ class CaseConverter
 
     /**
      * @example my-variable-name
-     * @param string $str
-     *
-     * @return string
      */
-    public static function convertToSpinalCase(string $str)
+    public static function convertToSpinalCase(string $str): string
     {
         return strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'], '$1-$2', $str));
     }
 
     /**
      * @example MyVariableName => my-variable-name
-     *
-     * @param string $str
-     *
-     * @return string
      */
-    public static function convertPascalCaseToSpinalCase(string $str)
+    public static function convertPascalCaseToSpinalCase(string $str): string
     {
         return strtolower(preg_replace('/([a-z\d])([A-Z])/', '$1-$2', $str));
     }
 
     /**
      * @example my_variable_name
-     *
-     * @param string $str
-     *
-     * @return string
      */
-    public static function convertToSnakeCase(string $str)
+    public static function convertToSnakeCase(string $str): string
     {
         return strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'], '$1_$2', $str));
     }
 
     /**
      * @example myVariableName => my_variable_name
-     * @param string $str
-     * @return string
      */
-    public static function convertCamelCaseToSnakeCase(string $str)
+    public static function convertCamelCaseToSnakeCase(string $str): string
     {
         return (new CamelCaseToSnakeCaseNameConverter())->normalize($str);
     }
