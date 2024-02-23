@@ -9,6 +9,8 @@ use Doctrine\ORM\Mapping\Embedded;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\InheritanceType;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\JoinColumns;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\MappedSuperclass;
@@ -322,8 +324,13 @@ class EntityConfigLoader
                         $field->setPrecision($annotation->precision);
                         $field->setScale($annotation->scale);
                         $field->setIsRequired(!$annotation->nullable);
-                        if(count($annotation->options)) {
+                        if (count($annotation->options)) {
 
+                        }
+                        break;
+                    case JoinColumns::class:
+                        if (isset($annotation->value[0]) && JoinColumn::class == get_class($annotation->value[0])) {
+                            $field->setIsRequired(!$annotation->value[0]->nullable);
                         }
                         break;
                     case ManyToOne::class:
