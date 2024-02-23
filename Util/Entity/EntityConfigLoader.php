@@ -251,7 +251,7 @@ class EntityConfigLoader
      */
     public static function createEntityConfigFromAnnotations(?string $filepath, ?string $fullName = null): EntityConfiguration
     {
-        if(null !== $filepath) {
+        if (null !== $filepath) {
             try {
                 $fileContent = file_get_contents($filepath);
                 preg_match('/namespace ([a-zA-Z\\\]+);/', $fileContent, $matches);
@@ -326,9 +326,7 @@ class EntityConfigLoader
                         $field->setLength($annotation->length);
                         $field->setPrecision($annotation->precision);
                         $field->setScale($annotation->scale);
-//                        $field->setUnique($annotation->unique);
-//                        $field->setNullable($annotation->nullable);
-
+                        $field->setIsRequired(!$annotation->nullable);
                         if(count($annotation->options)) {
 
                         }
