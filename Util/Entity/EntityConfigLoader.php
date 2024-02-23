@@ -66,7 +66,7 @@ class EntityConfigLoader
         $tableDescription = $dbLoader->load($tableName, $schema);
         foreach ($tableDescription['columns'] as $column) {
             if (preg_match('/([_a-zA-Z0-9]+)_(id|code)$/', $column['Field'], $matches)) {
-                $config = static::addManyToOneOrOneToOne($config, $column['Field'], $matches[2], CaseConverter::convertSnakeCaseToPascalCase($matches[1]));
+                $config = static::addManyToOneOrOneToOne($config, $column, $matches[2], CaseConverter::convertSnakeCaseToPascalCase($matches[1]));
             } else {
                 $config = static::addNativeField($config, $column);
             }
@@ -96,7 +96,7 @@ class EntityConfigLoader
         $field = new EntityField();
         $field->setTableColumnName($column['Field']);
         $field->setName(CaseConverter::convertSnakeCaseToCamelCase($column['Field']));
-        $field->setIsRequired(true);
+        $field->setIsRequired($column['Null'] == 'NO');
 
         $field->setNativeType($column['Type']);
         $field->setIsNativeType(true);
@@ -120,15 +120,9 @@ class EntityConfigLoader
         return $config;
     }
 
-    /**
-     * @param EntityConfiguration $config
-     * @param string $columnName
-     * @param string $referencedColumnName
-     * @param string $entityName
-     * @return EntityConfiguration
-     */
-    protected static function addManyToOneOrOneToOne(EntityConfiguration $config, string $columnName, string $referencedColumnName, string $entityName): EntityConfiguration
+    protected static function addManyToOneOrOneToOne(EntityConfiguration $config, array $column, string $referencedColumnName, string $entityName): EntityConfiguration
     {
+        $columnName = $column['Field'];
         if ("{$config->getTableName()}_id" === $columnName) {
             // self-referenced entity
             $entityConfig = $config;
@@ -151,6 +145,7 @@ class EntityConfigLoader
             $newField->setType($newField->getEntityClassName());
             $newField->setRelationType($relationType);
             $newField->setIsNativeType(false);
+            $newField->setIsRequired($column['Null'] == 'NO');
             $newField->setTableColumnName($columnName);
             $newField->setReferencedColumnName($referencedColumnName);
 
