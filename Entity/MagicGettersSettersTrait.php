@@ -11,6 +11,6 @@ trait MagicGettersSettersTrait
 
     public function __set($property, $value)
     {
-        $this->property= $value;
+        $this->property = $value;
     }
 }
