@@ -73,23 +73,24 @@ class DatabaseConfigurationLoader
      */
     protected function loadRelations(string $tableName, string $schema = null): array
     {
+        $sqlSchemaConstraint = $schema ? "REFERENCED_TABLE_SCHEMA = '{$schema}' AND " : '';
         $sql = "SELECT TABLE_SCHEMA, TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME
                 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-                WHERE REFERENCED_TABLE_SCHEMA = '{$schema}' AND REFERENCED_TABLE_NAME = '{$tableName}'";
+                WHERE {$sqlSchemaConstraint}REFERENCED_TABLE_NAME = '{$tableName}'";
 
         $stmt = $this->em->getConnection()->executeQuery($sql);
         $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         foreach ($results as $key => $result) {
-            if(preg_match("/{$tableName}/", $result['TABLE_NAME'])) {
-
+            
+            if (preg_match("/{$tableName}/", $result['TABLE_NAME'])) {
                 $sql = "SELECT TABLE_SCHEMA, TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME
                                 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
                                 WHERE TABLE_SCHEMA = '{$result['TABLE_SCHEMA']}' AND TABLE_NAME = '{$result['TABLE_NAME']}'";
                 $foreignKeys = $this->em->getConnection()->executeQuery($sql)->fetchAll(\PDO::FETCH_ASSOC);
 
                 foreach ($foreignKeys as $foreignKey) {
-                    if("{$foreignKey['REFERENCED_TABLE_NAME']}_{$tableName}" === $result['TABLE_NAME'] || "{$tableName}_{$foreignKey['REFERENCED_TABLE_NAME']}" === $result['TABLE_NAME']) {
+                    if ("{$foreignKey['REFERENCED_TABLE_NAME']}_{$tableName}" === $result['TABLE_NAME'] || "{$tableName}_{$foreignKey['REFERENCED_TABLE_NAME']}" === $result['TABLE_NAME']) {
                         $results[$key]['target']['REFERENCED_TABLE_NAME'] = $foreignKey['REFERENCED_TABLE_NAME'];
                         $results[$key]['target']['COLUMN_NAME'] = $foreignKey['COLUMN_NAME'];
                         $results[$key]['target']['REFERENCED_COLUMN_NAME'] = $foreignKey['REFERENCED_COLUMN_NAME'];

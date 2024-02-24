@@ -13,4 +13,12 @@ class Inflector
 
         return $results[0] ?? $word;
     }
+    
+    public static function singularize(string $word): string
+    {
+        $inflector = new EnglishInflector();
+        $results = $inflector->singularize($word);
+
+        return $results[0] ?? $word;
+    }
 }

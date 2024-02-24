@@ -2,7 +2,7 @@
 
 namespace EasyApiBundle\Model;
 
-use Doctrine\Common\Inflector\Inflector;
+use EasyApiBundle\Util\StringUtils\Inflector;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
