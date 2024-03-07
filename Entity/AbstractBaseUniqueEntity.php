@@ -11,7 +11,7 @@ abstract class AbstractBaseUniqueEntity extends AbstractBaseEntity
     /**
      * @ORM\Column(type="uuid", nullable=false)
      */
-    protected ?string $uuid;
+    protected ?UuidInterface $uuid;
 
     public function __construct()
     {
