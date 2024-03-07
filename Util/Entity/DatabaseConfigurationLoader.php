@@ -2,31 +2,20 @@
 
 namespace EasyApiBundle\Util\Entity;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManager;
 
 class DatabaseConfigurationLoader
 {
+    private EntityManager $em;
 
-    /**
-     * @var EntityManager
-     */
-    private $em;
-
-    /**
-     * DatabaseConfigurationLoader constructor.
-     * @param EntityManager $em
-     */
     public function __construct(EntityManager $em)
     {
         $this->em = $em;
     }
 
     /**
-     * @param string $tableName
-     * @param string|null $schema
-     * @return array
-     * @throws DBALException
+     * @throws Exception
      */
     public function load(string $tableName, string $schema = null): array
     {
@@ -39,10 +28,7 @@ class DatabaseConfigurationLoader
     }
 
     /**
-     * @param string $tableName
-     * @param string|null $schema
-     * @return array
-     * @throws DBALException
+     * @throws Exception
      */
     protected function loadColumns(string $tableName, string $schema = null): array
     {
@@ -52,10 +38,7 @@ class DatabaseConfigurationLoader
     }
 
     /**
-     * @param string $tableName
-     * @param string|null $schema
-     * @return array
-     * @throws DBALException
+     * @throws Exception
      */
     protected function loadIndexes(string $tableName, string $schema = null): array
     {
@@ -66,10 +49,6 @@ class DatabaseConfigurationLoader
 
     /**
      * Foreign Keys having table in target
-     * @param string $tableName
-     * @param string|null $schema
-     * @return array
-     * @throws DBALException
      */
     protected function loadRelations(string $tableName, string $schema = null): array
     {

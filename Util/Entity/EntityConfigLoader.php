@@ -28,20 +28,13 @@ use ReflectionProperty;
 class EntityConfigLoader
 {
     /** @var EntityConfiguration */
-    protected $config;
+    protected EntityConfiguration $config;
 
     /** @var string[]  */
-    protected static $possibleNativeTypes = ['float', 'string', 'integer', 'int', 'bool', 'DateTime[<>-a-zA-Z]*'];
+    protected static array $possibleNativeTypes = ['float', 'string', 'integer', 'int', 'bool', 'DateTime[<>-a-zA-Z]*'];
 
     /**
-     * @param EntityManager $em
-     * @param string $entityName
-     * @param string $tableName
-     * @param string|null $schema
-     * @param string|null $parentEntityName
-     * @param string|null $inheritanceType
-     * @param string|null $context
-     * @return EntityConfiguration
+     * @throws \Doctrine\DBAL\Exception
      */
     public static function createEntityConfigFromDatabase(EntityManager $em, string $entityName, string $tableName, string $schema = null, string $parentEntityName = null, string $inheritanceType = null, string $context =null): EntityConfiguration
     {
@@ -80,19 +73,14 @@ class EntityConfigLoader
         }
 
         // discriminatorType
-//        if (isset($content[key($content)]['inheritanceType'])) {
-//            $config->setIsParentEntity(true);
-//            $config->setInheritanceType($content[key($content)]['inheritanceType']);
-//        }
+        //        if (isset($content[key($content)]['inheritanceType'])) {
+        //            $config->setIsParentEntity(true);
+        //            $config->setInheritanceType($content[key($content)]['inheritanceType']);
+        //        }
 
         return $config;
     }
 
-    /**
-     * @param EntityConfiguration $config
-     * @param array $column
-     * @return EntityConfiguration
-     */
     protected static function addNativeField(EntityConfiguration $config, array $column): EntityConfiguration
     {
         $field = new EntityField();
@@ -157,17 +145,12 @@ class EntityConfigLoader
         return $config;
     }
 
-    /**
-     * @param EntityConfiguration $config
-     * @param array $relation
-     * @return EntityConfiguration
-     */
     protected static function addOneToManyAndManyToMany(EntityConfiguration $config, array $relation): EntityConfiguration
     {
         $newField = new entityField();
 
         // ManyToMany
-        if(preg_match("/{$config->getTableName()}/", $relation['TABLE_NAME']) && isset($relation['target'])) {
+        if (preg_match("/{$config->getTableName()}/", $relation['TABLE_NAME']) && isset($relation['target'])) {
             $relationType = 'manyToMany';
             $newField->setName(Inflector::pluralize(CaseConverter::convertSnakeCaseToCamelCase($relation['target']['REFERENCED_TABLE_NAME'])));
             $newField->setReferencedColumnName($relation['REFERENCED_COLUMN_NAME']);
@@ -200,12 +183,7 @@ class EntityConfigLoader
         return $config;
     }
 
-    /**
-     * @param $entityName
-     * @param string $type
-     * @return EntityConfiguration|null
-     */
-    public static function findAndCreateFromEntityName($entityName, $type = 'annotations'): ?EntityConfiguration
+    public static function findAndCreateFromEntityName(string $entityName, string $type = 'annotations'): ?EntityConfiguration
     {
         switch ($type) {
             case 'annotations':
@@ -215,6 +193,9 @@ class EntityConfigLoader
         }
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     protected static function findAndCreateFromEntityNameFromAnnotations(string $entityName): ?EntityConfiguration
     {
         if ($filePath = self::findConfigEntityFileInBundle($entityName)) {
@@ -225,11 +206,9 @@ class EntityConfigLoader
     }
 
     /**
-     * @param string $filePath
-     * @param string $type
-     * @return EntityConfiguration|null
+     * @throws \ReflectionException
      */
-    protected static function createEntityConfigFromFileContent(string $filePath, $type = 'annotations'): ?EntityConfiguration
+    protected static function createEntityConfigFromFileContent(string $filePath, string $type = 'annotations'): ?EntityConfiguration
     {
         switch ($type) {
             case 'annotations':
@@ -241,9 +220,6 @@ class EntityConfigLoader
     }
 
     /**
-     * @param string|null $filepath
-     * @param string|null $fullName
-     * @return EntityConfiguration
      * @throws \ReflectionException
      */
     public static function createEntityConfigFromAnnotations(?string $filepath, ?string $fullName = null): EntityConfiguration
@@ -266,17 +242,16 @@ class EntityConfigLoader
 
     /**
      * @todo finish it by adding all annotations options
-     * @param string $fullName
-     * @return EntityConfiguration
      * @throws \ReflectionException
      */
-    public static function createEntityConfigFromEntityFullName(string $fullName)
+    public static function createEntityConfigFromEntityFullName(string $fullName): EntityConfiguration
     {
         $conf = new EntityConfiguration();
         try {
             $r = new ReflectionClass($fullName);
         } catch (Exception $e) {
-            echo 'Impossible de charger la classe'.$fullName;die;
+            echo "Impossible de charger la classe $fullName";
+            die;
         }
 
         // class annotations
@@ -287,7 +262,7 @@ class EntityConfigLoader
             switch (get_class($annotation)) {
                 case Table::class:
                     $conf->setTableName($annotation->name);
-                    if(isset($annotation->schema)) {
+                    if (isset($annotation->schema)) {
                         $conf->setSchema($annotation->schema);
                     }
                     break;
@@ -402,12 +377,12 @@ class EntityConfigLoader
             $conf->addField($field);
         }
 
-        if($parentClass = $r->getParentClass()) {
+        if ($parentClass = $r->getParentClass()) {
             $parentConfig = self::createEntityConfigFromEntityFullName($parentClass->getName());
             $conf->setParentEntity($parentConfig);
         }
 
-//        $conf->setEntityFileClassPath($filepath);
+        //        $conf->setEntityFileClassPath($filepath);
         $conf->setEntityFileClassPath($r->getFileName());
         $conf->setNamespace($r->getNamespaceName());
         $conf->setEntityName(EntityConfiguration::getEntityNameFromNamespace($fullName));
@@ -415,12 +390,7 @@ class EntityConfigLoader
         return $conf;
     }
 
-    /**
-     * @param EntityConfiguration $childConfig
-     *
-     * @return EntityConfiguration|null
-     */
-    protected static function findParentConfig(EntityConfiguration $childConfig)
+    protected static function findParentConfig(EntityConfiguration $childConfig): ?EntityConfiguration
     {
         $classFile = $childConfig->getNamespace().$childConfig->getEntityName().'.php';
 
@@ -436,12 +406,8 @@ class EntityConfigLoader
 
     /**
      * Return the classname by reading the full entity type.
-     *
-     * @param $fullEntityType
-     *
-     * @return string
      */
-    public static function getShortEntityType($fullEntityType)
+    public static function getShortEntityType(string $fullEntityType): string
     {
         $tab = explode('\\', $fullEntityType);
 
@@ -450,22 +416,13 @@ class EntityConfigLoader
 
     /**
      * Return the namespace by reading the full entity type.
-     *
-     * @param $fullEntityType
-     *
-     * @return string
      */
-    protected static function getNamespace($fullEntityType)
+    protected static function getNamespace(string $fullEntityType): string
     {
         return substr($fullEntityType, 0, strlen($fullEntityType) - strlen(self::getShortEntityType($fullEntityType)) - 1);
     }
 
-    /**
-     * @param $type
-     *
-     * @return bool
-     */
-    protected static function isNativeType($type)
+    protected static function isNativeType(string $type): bool
     {
         foreach (self::$possibleNativeTypes as $nativeType) {
             if ($type === $nativeType || preg_match("/{$nativeType}/", $type)) {
@@ -476,9 +433,6 @@ class EntityConfigLoader
         return false;
     }
 
-    /**
-     * @return EntityConfiguration
-     */
     public function getConfig(): EntityConfiguration
     {
         return $this->config;
@@ -503,11 +457,6 @@ class EntityConfigLoader
         return self::findFile($dir, $fileNameExpr);
     }
 
-    /**
-     * @param string $dir
-     * @param string $fileNameExpr
-     * @return string|null
-     */
     protected static function findFile(string $dir, string $fileNameExpr): ?string
     {
         if (file_exists($dir)) {
