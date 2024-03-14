@@ -638,7 +638,7 @@ class EntityField
         } elseif (preg_match('/int\(([0-9]+)\)/', $dbType, $matches)) {
             $this->setType('integer');
         } elseif (in_array(strtolower($dbType), ['blob', 'text'])) {
-            $this->setType(strtolower($dbType));
+            $this->setType('text');
         } elseif (preg_match('/varchar\(([0-9]+)\)/', $dbType, $matches)) {
             $this->setType('string');
             $this->setLength($matches[1]);
