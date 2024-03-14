@@ -637,6 +637,8 @@ class EntityField
             $this->setType('boolean');
         } elseif (preg_match('/int\(([0-9]+)\)/', $dbType, $matches)) {
             $this->setType('integer');
+        } elseif (in_array(strtolower($dbType), ['blob', 'text'])) {
+            $this->setType(strtolower($dbType));
         } elseif (preg_match('/varchar\(([0-9]+)\)/', $dbType, $matches)) {
             $this->setType('string');
             $this->setLength($matches[1]);
@@ -665,6 +667,7 @@ class EntityField
             'date' => '\\DateTime',
             'datetime' => '\\DateTime',
             'text' => 'string',
+            'blob' => 'string',
             'boolean' => 'bool',
             '\Doctrine\Common\Collections\ArrayCollection' => 'Collection',
             'uuid' => 'UuidInterface',
