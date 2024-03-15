@@ -478,9 +478,10 @@ class EntityConfiguration
     public function hasField(string $fieldName, string $fieldType = null, bool $isPrimary = null): bool
     {
         foreach ($this->getFields() as $field) {
+
             $isFound = $fieldName === $field->getName();
-            $isFound =  null !== $fieldType ? ($fieldType === $field->getType()) : $isFound;
-            $isFound =  null !== $isPrimary ? ($isPrimary === $field->isPrimary()) : $isFound;
+            $isFound =  $isFound && null !== $fieldType ? ($fieldType === $field->getType()) : $isFound;
+            $isFound =  $isFound && null !== $isPrimary ? ($isPrimary === $field->isPrimary()) : $isFound;
 
             if($isFound) {
                 return true;
