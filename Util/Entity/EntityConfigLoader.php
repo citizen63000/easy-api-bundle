@@ -180,12 +180,12 @@ class EntityConfigLoader
         return $config;
     }
 
-    public static function findAndCreateFromEntityName(string $entityName, string $context): ?EntityConfiguration
+    public static function findAndCreateFromEntityName(string $entityName, string $context = null): ?EntityConfiguration
     {
         return self::findAndCreateFromEntityNameFromAnnotations($entityName, $context);
     }
 
-    protected static function findAndCreateFromEntityNameFromAnnotations(string $entityName, string $context): ?EntityConfiguration
+    protected static function findAndCreateFromEntityNameFromAnnotations(string $entityName, string $context = null): ?EntityConfiguration
     {
         if ($filePath = self::findConfigEntityFileInBundle($entityName, $context)) {
             return self::createEntityConfigFromFileContent($filePath);
@@ -433,7 +433,7 @@ class EntityConfigLoader
 
                 if (is_dir("{$dir}/{$file}") && '.' !== $file && '..' !== $file) {
 
-                    if($path = self::findFile("{$dir}/{$file}", $fileNameExpr)) {
+                    if ($path = self::findFile("{$dir}/{$file}", $fileNameExpr)) {
                         return $path;
                     }
                 }
