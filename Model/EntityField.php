@@ -10,109 +10,54 @@ use Faker\Factory as FakerFactory;
 
 class EntityField
 {
-    /**
-     * @var EntityConfiguration
-     */
-    protected $entity;
+    protected EntityConfiguration $entity;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected ?string $name = null;
 
-    /**
-     * @var string
-     */
-    protected $tableColumnName;
+    protected ?string $tableColumnName = null;
 
-    /**
-     * @var string
-     */
-    protected $referencedColumnName;
+    protected ?string $referencedColumnName = null;
 
-    /**
-     * @var string
-     */
-    protected $inverseTableColumnName;
+    protected ?string $inverseTableColumnName = null;
 
-    /**
-     * @var string
-     */
-    protected $inverseReferencedColumnName;
+    protected ?string $inverseReferencedColumnName = null;
 
-    /**
-     * @var string
-     */
-    protected $joinTable;
+    protected ?string $joinTable = null;
 
-    /**
-     * @var string
-     */
-    protected $joinTableSchema;
+    protected ?string $joinTableSchema;
 
-    /**
-     * @var bool
-     */
-    protected $isPrimary = false;
+    protected bool $isPrimary = false;
 
-    /**
-     * @var bool
-     */
-    protected $isNativeType = true;
+    protected bool $isNativeType = true;
 
-    /**
-     * @var string
-     */
-    protected $nativeType;
+    protected ?string $nativeType = null;
 
-    /**
-     * @var string
-     */
-    protected $type;
+    protected ?string $type = null;
 
-    /**
-     * @var string
-     */
-    protected $entityType;
+    protected ?string $entityType = null;
 
-    /**
-     * @var string
-     */
-    protected $relationType;
+    protected ?string $relationType;
 
-    /**
-     * @var bool
-     */
-    protected $isRequired = false;
+    protected bool $isRequired = false;
 
-    /**
-     * @var bool
-     */
-    protected $isAutoIncremented = false;
+    protected bool $isAutoIncremented = false;
 
     /**
      * @var mixed
      */
     protected $default;
 
-    /**
-     * @var int
-     */
-    protected $length;
+    protected ?int $length;
 
     /**
      * Precision in case of float type.
-     *
-     * @var int
      */
-    protected $precision;
+    protected ?int $precision;
 
     /**
      * Scale in case of float type.
-     *
-     * @var int
      */
-    protected $scale;
+    protected ?int $scale;
 
     /**
      * @var mixed
@@ -127,41 +72,26 @@ class EntityField
         return (string) $this->getName();
     }
 
-    /**
-     * @return EntityConfiguration
-     */
     public function getEntity(): EntityConfiguration
     {
         return $this->entity;
     }
 
-    /**
-     * @param EntityConfiguration $entity
-     */
     public function setEntity(EntityConfiguration $entity): void
     {
         $this->entity = $entity;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     */
-    public function setName(string $name)
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return string
-     */
     public function getTableColumnName(): ?string
     {
         if (null !== $this->tableColumnName) {
@@ -177,217 +107,136 @@ class EntityField
         return $converter->normalize($this->getName()).'_id';
     }
 
-    /**
-     * @param string $tableColumnName
-     */
     public function setTableColumnName(string $tableColumnName): void
     {
         $this->tableColumnName = $tableColumnName;
     }
 
-    /**
-     * @return string
-     */
     public function getReferencedColumnName(): ?string
     {
         return $this->referencedColumnName;
     }
 
-    /**
-     * @param string $referencedColumnName
-     */
     public function setReferencedColumnName(string $referencedColumnName): void
     {
         $this->referencedColumnName = $referencedColumnName;
     }
 
-    /**
-     * @return string
-     */
     public function getInverseTableColumnName(): ?string
     {
         return $this->inverseTableColumnName;
     }
 
-    /**
-     * @param string|null $inverseTableColumnName
-     */
     public function setInverseTableColumnName(?string $inverseTableColumnName): void
     {
         $this->inverseTableColumnName = $inverseTableColumnName;
     }
 
-    /**
-     * @return string
-     */
     public function getInverseReferencedColumnName(): ?string
     {
         return $this->inverseReferencedColumnName;
     }
 
-    /**
-     * @param string|null $inverseReferencedColumnName
-     */
     public function setInverseReferencedColumnName(?string $inverseReferencedColumnName): void
     {
         $this->inverseReferencedColumnName = $inverseReferencedColumnName;
     }
 
-    /**
-     * @return string
-     */
     public function getJoinTable(): string
     {
         return $this->joinTable;
     }
 
-    /**
-     * @param string $joinTable
-     */
     public function setJoinTable(string $joinTable): void
     {
         $this->joinTable = $joinTable;
     }
 
-    /**
-     * @return string
-     */
     public function getJoinTableSchema(): string
     {
         return $this->joinTableSchema;
     }
 
-    /**
-     * @param string $joinTableSchema
-     */
     public function setJoinTableSchema(string $joinTableSchema): void
     {
         $this->joinTableSchema = $joinTableSchema;
     }
 
-    /**
-     * @return bool
-     */
     public function isPrimary(): bool
     {
         return $this->isPrimary;
     }
 
-    /**
-     * @param bool $isPrimary
-     */
-    public function setIsPrimary(bool $isPrimary)
+    public function setIsPrimary(bool $isPrimary): void
     {
         $this->isPrimary = $isPrimary;
     }
 
-    /**
-     * @return bool
-     */
     public function isNativeType(): bool
     {
         return $this->isNativeType;
     }
 
-    /**
-     * @param bool $isNativeType
-     */
-    public function setIsNativeType(bool $isNativeType)
+    public function setIsNativeType(bool $isNativeType): void
     {
         $this->isNativeType = $isNativeType;
     }
 
-    /**
-     * @return string
-     */
     public function getNativeType(): string
     {
         return $this->nativeType;
     }
 
-    /**
-     * @param string $nativeType
-     */
     public function setNativeType(string $nativeType): void
     {
         $this->nativeType = $nativeType;
     }
 
-    /**
-     * @return string
-     */
     public function getType(): ?string
     {
         return $this->type;
     }
 
-    /**
-     * @param string $type
-     */
-    public function setType(string $type)
+    public function setType(string $type): void
     {
         $this->type = $type;
     }
 
-    /**
-     * @return string
-     */
     public function getEntityType(): ?string
     {
         return $this->entityType;
     }
 
-    /**
-     * @param string $entityType
-     */
-    public function setEntityType(string $entityType)
+    public function setEntityType(string $entityType): void
     {
         $this->entityType = $entityType;
     }
 
-    /**
-     * @return string
-     */
     public function getRelationType(): ?string
     {
         return $this->relationType;
     }
 
-    /**
-     * @param string $relationType
-     */
-    public function setRelationType(string $relationType)
+    public function setRelationType(string $relationType): void
     {
         $this->relationType = $relationType;
     }
 
-    /**
-     * @return bool
-     */
     public function isRequired(): bool
     {
         return $this->isRequired;
     }
 
-    /**
-     * @param bool $isRequired
-     */
     public function setIsRequired(bool $isRequired)
     {
         $this->isRequired = $isRequired;
     }
 
-    /**
-     * @return bool
-     */
     public function isAutoIncremented(): bool
     {
         return $this->isAutoIncremented;
     }
 
-    /**
-     * @param bool $isAutoIncremented
-     */
     public function setIsAutoIncremented(bool $isAutoIncremented): void
     {
         $this->isAutoIncremented = $isAutoIncremented;
@@ -423,95 +272,68 @@ class EntityField
         return $this->getDefault();
     }
 
-    /**
-     * @return null|int
-     */
     public function getLength(): ?int
     {
         return $this->length;
     }
 
-    /**
-     * @param null|int $length
-     */
-    public function setLength(?int $length)
+    public function setLength(?int $length): void
     {
         $this->length = $length;
     }
 
-    /**
-     * @return int
-     */
     public function getPrecision(): int
     {
         return $this->precision;
     }
 
-    /**
-     * @param null|int $precision
-     */
-    public function setPrecision(?int $precision)
+    public function setPrecision(?int $precision): void
     {
         $this->precision = $precision;
     }
 
-    /**
-     * @return int
-     */
     public function getScale(): int
     {
         return $this->scale;
     }
 
-    /**
-     * @param null|int $scale
-     */
-    public function setScale(?int $scale)
+    public function setScale(?int $scale): void
     {
         $this->scale = $scale;
     }
 
-    /**
-     * @return string
-     */
     public function getGetterName(): string
     {
         return 'boolean' === $this->getType() ? ('is' === substr($this->name, 0, 2) ? $this->name : 'is'.ucfirst($this->name)) : 'get'.ucfirst($this->name);
     }
 
-    /**
-     * @return string
-     */
-    public function getSetterName()
+    public function getSetterName(): string
     {
         return 'set'.ucfirst($this->name);
     }
 
-    /**
-     * @return string
-     */
-    public function getAdderName()
+    public function getAdderName(): ?string
     {
         if ('array' === $this->getType() || '\Doctrine\Common\Collections\ArrayCollection' === $this->getType()) {
             return 'add'.ucfirst(Inflector::singularize($this->getName()));
         }
+
+        return null;
     }
 
-    /**
-     * @return string
-     */
-    public function getRemoverName()
+    public function getRemoverName(): ?string
     {
         if ('array' === $this->getType() || '\Doctrine\Common\Collections\ArrayCollection' === $this->getType()) {
             return 'remove'.ucfirst(Inflector::singularize($this->getName()));
         }
+
+        return null;
     }
 
     /**
      * Get type for the serializer.
-     * @return string
      */
-    public function getSerializerType()
+    public function getSerializerType(): ?string
     {
         if ('\Doctrine\Common\Collections\ArrayCollection' === $this->getType()) {
             return 'ArrayCollection<'.$this->getEntityType().'>';
@@ -568,11 +390,14 @@ class EntityField
 
         if ($this->isNativeType() && !$this->isPrimary()) {
             if ('date' === strtolower($this->getType())) {
-                return '2018-08-03';
+                return $faker->dateTime()->format('Y-m-d');
             }
 
             if ('datetime' === strtolower($this->getType())) {
-                return '2018-08-03 12:11:10';
+                if ('updatedAt' === $this->getName()) {
+                    return (new \DateTime())->format('Y-m-d H:i:s');
+                }
+                return $faker->dateTime()->format('Y-m-d H:i:s');
             }
 
             if ('boolean' === $this->getType()) {
@@ -592,17 +417,26 @@ class EntityField
             if ('string' === $this->getType()) {
                 if ('siren' == $this->getName() || 'siret' == $this->getName()) {
                     $func = $this->getName();
-                    return (FakerFactory::create('fr_FR'))->$func();
+                    return str_replace(' ', '', (FakerFactory::create('fr_FR'))->$func());
                 }
-                if (in_array($this->getName(), ['email', 'name', 'text'])) {
+                if (in_array($this->getName(), ['email', 'text'])) {
                     $func = $this->getName();
                     return $faker->$func();
                 }
+                if ('firstname' === mb_strtolower($this->getName())) {
+                    return $faker->firstName();
+                }
+                if ('lastname' === mb_strtolower($this->getName())) {
+                    return $faker->lastName();
+                }
+                if ('name' === mb_strtolower($this->getName())) {
+                    return $faker->text($this->getLength() ?? 255);
+                }
                 if ($this->getLength() > 255) {
-                    $faker->text($this->getLength());
+                    $faker->realText($this->getLength());
                 }
 
-                return 'string_' . $this->uniqueRandomNumbersWithinRange(0, 99);
+                return $faker->text($this->getLength() ?? 255);
             }
 
             if('text' === $this->getType()) {
@@ -631,11 +465,8 @@ class EntityField
 
     /**
      * Generate random integer with range.
-     * @param $min
-     * @param $max
-     * @return array
      */
-    protected function uniqueRandomNumbersWithinRange($min, $max)
+    protected function uniqueRandomNumbersWithinRange(int $min, int $max): array
     {
         $numbers = range($min, $max);
         shuffle($numbers);
@@ -643,10 +474,6 @@ class EntityField
         return array_slice($numbers, 0, 1)[0];
     }
 
-    /**
-     * @param string $dbType
-     * @return string
-     */
     public function setTypeFromMysqlType(string $dbType): string
     {
         if (in_array(strtolower($dbType), ['tinyint(1)', 'bool', 'boolean'])) {
@@ -674,9 +501,8 @@ class EntityField
 
     /**
      * Return converted type for Entity class.
-     * @return mixed|string|null
      */
-    public function getTypeForClass()
+    public function getTypeForClass(): ?string
     {
         $conversion = [
             'integer' => 'int',
@@ -696,10 +522,7 @@ class EntityField
         return $this->isNativeType() ? $this->getType() : $this->getEntityClassName();
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getUseForClass()
+    public function getUseForClass(): ?string
     {
         $conversion = [
             'ArrayCollection' => '\Doctrine\Common\Collections\ArrayCollection',
@@ -710,9 +533,8 @@ class EntityField
 
     /**
      * Get the entity class name without namespace.
-     * @return string|null
      */
-    public function getEntityClassName()
+    public function getEntityClassName(): ?string
     {
         $entityType = $this->getEntityType();
 
@@ -726,10 +548,7 @@ class EntityField
         return $entityType;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getEntityNamespace()
+    public function getEntityNamespace(): ?string
     {
         $entityType = $this->getEntityType();
 
@@ -745,10 +564,7 @@ class EntityField
         return null;
     }
 
-    /**
-     * @return bool
-     */
-    public function isReferential()
+    public function isReferential(): bool
     {
         return !$this->isNativeType() && 1 === preg_match('/^ref[A-Z][a-z]+/', $this->getName());
     }
