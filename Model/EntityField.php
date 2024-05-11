@@ -6,6 +6,7 @@ use EasyApiBundle\Util\StringUtils\Inflector;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Faker\Factory as FakerFactory;
 
 class EntityField
 {
@@ -541,11 +542,10 @@ class EntityField
     }
 
     /**
-     * @param bool $forceNew
      * @return int|mixed|string
      * @throws \Exception
      */
-    public function getRandomValue($forceNew = false)
+    public function getRandomValue(bool $forceNew = false): mixed
     {
         if (null === $this->randomValue || $forceNew) {
             $this->randomValue = $this->generateRandomValue();
@@ -554,20 +554,18 @@ class EntityField
         return $this->randomValue;
     }
 
-    /**
-     * @param $value
-     */
-    public function setRandomValue($value)
+    public function setRandomValue($value): void
     {
         $this->randomValue = $value;
     }
 
     /**
-     * @return array|int|UuidInterface
      * @throws \Exception
      */
-    protected function generateRandomValue()
+    protected function generateRandomValue(string $lang = FakerFactory::DEFAULT_LOCALE): array|float|UuidInterface|bool|int|string|null
     {
+        $faker = FakerFactory::create($lang);
+
         if ($this->isNativeType() && !$this->isPrimary()) {
             if ('date' === strtolower($this->getType())) {
                 return '2018-08-03';
@@ -592,7 +590,25 @@ class EntityField
             }
 
             if ('string' === $this->getType()) {
-                return 'string_'.$this->uniqueRandomNumbersWithinRange(0, 99);
+                if ('siren' == $this->getName() || 'siret' == $this->getName()) {
+                    $func = $this->getName();
+                    return (FakerFactory::create('fr_FR'))->$func();
+                }
+                if (in_array($this->getName(), ['email', 'name', 'text'])) {
+                    $func = $this->getName();
+                    return $faker->$func();
+                }
+                if ($this->getLength() > 255) {
+                    $faker->text($this->getLength());
+                }
+
+                return 'string_' . $this->uniqueRandomNumbersWithinRange(0, 99);
+            }
+
+            if('text' === $this->getType()) {
+                if ($this->getLength() > 255) {
+                    $faker->text($faker->numberBetween(256, $this->getLength()));
+                }
             }
 
             if ('uuid' === $this->getType()) {
