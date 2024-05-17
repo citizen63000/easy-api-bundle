@@ -21,6 +21,8 @@ trait CrudDownloadControllerTrait
      */
     public function download(Request $request): Response
     {
+        $this->checkDownloadRoles();
+        
         return $this->doDownloadMedia($this->getEntityOfRequest($request));
     }
 }

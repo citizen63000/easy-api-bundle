@@ -4,15 +4,17 @@ namespace EasyApiBundle\Util\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use OpenApi\Annotations as OA;
 
 trait CrudCloneControllerTrait
 {
     /**
      * Clone entity.
      *
-     * @Symfony\Component\Routing\Annotation\Route("/clone/{id}", methods={"POST"}, name="_clone")
+     * @Route("/clone/{id}", methods={"POST"}, name="_clone")
      *
-     * @OpenApi\Annotations\Response(
+     * @OA\Response(
      *     response=201,
      *     description="Successful operation",
      *     @Nelmio\ApiDocBundle\Annotation\Model(
@@ -20,11 +22,13 @@ trait CrudCloneControllerTrait
      *          groups=self::serializationGroups
      *      )
      * ),
-     * @OpenApi\Annotations\Response(response="404", description="Entity not found"),
-     * @OpenApi\Annotations\Response(response="405", description="Method not allowed"),
+     * @OA\Response(response="404", description="Entity not found"),
+     * @OA\Response(response="405", description="Method not allowed"),
      */
     public function clone(Request $request): Response
     {
+        $this->checkCloneRoles();
+
         return $this->doCloneEntity($this->getEntityOfRequest($request));
     }
 }

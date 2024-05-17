@@ -5,13 +5,14 @@ namespace EasyApiBundle\Util\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use OpenApi\Annotations as OA;
+use Symfony\Component\Routing\Annotation\Route;
 
 trait CrudFilteredListControllerTrait
 {
     /**
      * List entities.
      *
-     * @Symfony\Component\Routing\Annotation\Route(methods={"GET"}, name="_list")
+     * @Route(methods={"GET"}, name="_list")
      *
      * @EasyApiBundle\Annotation\GetFormFilterParameter(
      *     type=self::entityFilterTypeClass,
@@ -36,6 +37,8 @@ trait CrudFilteredListControllerTrait
      */
     public function list(Request $request): Response
     {
+        $this->checkListRoles();
+        
         return $this->doGetEntityFilteredList($request);
     }
 }

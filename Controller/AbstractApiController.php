@@ -77,6 +77,14 @@ abstract class AbstractApiController extends AbstractFOSRestController
 
     /** @var bool */
     public const useSerializerCache = false;
+    
+    protected static array $readRoles = [];
+    protected static array $createRoles = [];
+    protected static array $updateRoles = [];
+    protected static array $deleteRoles = [];
+    protected static array $listRoles = [];
+    protected static array $cloneRoles = [];
+    protected static array $downloadRoles = [];
 
     protected function getContainer(): ContainerInterface
     {
@@ -354,5 +362,68 @@ abstract class AbstractApiController extends AbstractFOSRestController
             EntitySerializer::class => EntitySerializer::class,
             FormErrorsSerializer::class => FormErrorsSerializer::class,
         ]);
+    }
+    
+    protected function checkReadRoles(): void
+    {
+        if (null !== static::$readRoles && static::$readRoles !== []) {
+            foreach (static::$readRoles as $role) {
+                $this->denyAccessUnlessGranted($role);
+            }
+        }
+    }
+
+    protected function checkCreateRoles(): void
+    {
+        if (null !== static::$createRoles && static::$createRoles !== []) {
+            foreach (static::$createRoles as $role) {
+                $this->denyAccessUnlessGranted($role);
+            }
+        }
+    }
+
+    protected function checkUpdateRoles(): void
+    {
+        if (null !== static::$updateRoles && static::$updateRoles !== []) {
+            foreach (static::$updateRoles as $role) {
+                $this->denyAccessUnlessGranted($role);
+            }
+        }
+    }
+
+    protected function checkDeleteRoles(): void
+    {
+        if (null !== static::$deleteRoles && static::$deleteRoles !== []) {
+            foreach (static::$deleteRoles as $role) {
+                $this->denyAccessUnlessGranted($role);
+            }
+        }
+    }
+
+    protected function checkListRoles(): void
+    {
+        if (null !== static::$listRoles && static::$listRoles !== []) {
+            foreach (static::$listRoles as $role) {
+                $this->denyAccessUnlessGranted($role);
+            }
+        }
+    }
+
+    protected function checkCloneRoles(): void
+    {
+        if (null !== static::$cloneRoles && static::$cloneRoles !== []) {
+            foreach (static::$cloneRoles as $role) {
+                $this->denyAccessUnlessGranted($role);
+            }
+        }
+    }
+
+    protected function checkDownloadRoles(): void
+    {
+        if (null !== static::$downloadRoles && static::$downloadRoles !== []) {
+            foreach (static::$downloadRoles as $role) {
+                $this->denyAccessUnlessGranted($role);
+            }
+        }
     }
 }

@@ -4,15 +4,17 @@ namespace EasyApiBundle\Util\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use OpenApi\Annotations as OA;
 
 trait CrudGetControllerTrait
 {
     /**
-     * Get entity.
+     * Get entity
+     * 
+     * @Route("/{id}", methods={"GET"}, requirements={"id"="\d+"}, name="_get")
      *
-     * @Symfony\Component\Routing\Annotation\Route("/{id}", methods={"GET"}, requirements={"id"="\d+"}, name="_get", )
-     *
-     * @OpenApi\Annotations\Response(
+     * @OA\Response(
      *     response=200,
      *     description="Successful operation",
      *     @Nelmio\ApiDocBundle\Annotation\Model(
@@ -20,11 +22,13 @@ trait CrudGetControllerTrait
      *          groups=self::serializationGroups
      *      )
      * ),
-     * @OpenApi\Annotations\Response(response="404", description="Entity not found"),
-     * @OpenApi\Annotations\Response(response="405", description="Method not allowed"),
+     * @OA\Response(response="404", description="Entity not found"),
+     * @OA\Response(response="405", description="Method not allowed"),
      */
     public function read(Request $request): Response
     {
+        $this->checkReadRoles();
+        
         return $this->doGetEntity($request, $this->getEntityOfRequest($request));
     }
 }
