@@ -466,7 +466,7 @@ class EntityField
     /**
      * Generate random integer with range.
      */
-    protected function uniqueRandomNumbersWithinRange(int $min, int $max): array
+    protected function uniqueRandomNumbersWithinRange(int $min, int $max): int
     {
         $numbers = range($min, $max);
         shuffle($numbers);
