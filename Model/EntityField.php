@@ -24,7 +24,7 @@ class EntityField
 
     protected ?string $joinTable = null;
 
-    protected ?string $joinTableSchema;
+    protected ?string $joinTableSchema = null;
 
     protected bool $isPrimary = false;
 
@@ -36,7 +36,7 @@ class EntityField
 
     protected ?string $entityType = null;
 
-    protected ?string $relationType;
+    protected ?string $relationType = null;
 
     protected bool $isRequired = false;
 
@@ -47,17 +47,17 @@ class EntityField
      */
     protected $default;
 
-    protected ?int $length;
+    protected ?int $length = null;
 
     /**
      * Precision in case of float type.
      */
-    protected ?int $precision;
+    protected ?int $precision = null;
 
     /**
      * Scale in case of float type.
      */
-    protected ?int $scale;
+    protected ?int $scale = null;
 
     /**
      * @var mixed
