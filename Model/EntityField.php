@@ -415,6 +415,7 @@ class EntityField
             }
 
             if ('string' === $this->getType()) {
+                $length = $this->getLength() ?? 255;
                 if ('siren' == $this->getName() || 'siret' == $this->getName()) {
                     $func = $this->getName();
                     return str_replace(' ', '', (FakerFactory::create('fr_FR'))->$func());
@@ -430,13 +431,21 @@ class EntityField
                     return $faker->lastName();
                 }
                 if ('name' === mb_strtolower($this->getName())) {
-                    return $faker->text($this->getLength() ?? 255);
+                    if ($length >= 5) {
+                        return $faker->text($length);
+                    } else {
+                        return substr($faker->text(5), 0, 4);
+                    }
                 }
-                if ($this->getLength() > 255) {
+                if ($length > 255) {
                     $faker->realText($this->getLength());
                 }
 
-                return $faker->text($this->getLength() ?? 255);
+                if ($length >= 5) {
+                    return $faker->text($length);
+                } else {
+                    return substr($faker->text(5), 0, 4);
+                }
             }
 
             if('text' === $this->getType()) {
