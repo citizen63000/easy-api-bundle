@@ -15,9 +15,9 @@ use EasyApiBundle\Services\EntitySerializer;
 use EasyApiBundle\Services\ListFilter;
 use EasyApiBundle\Services\MediaUploader\FileManager;
 use EasyApiBundle\Util\ApiProblem;
-use EasyApiBundle\Util\CoreUtilsTrait;
-use EasyApiBundle\Util\Forms\FormSerializer;
-use EasyApiBundle\Util\Forms\SerializedForm;
+use EasyApiCore\Util\CoreUtilsTrait;
+use EasyApiCore\Util\Forms\FormSerializer;
+use EasyApiCore\Util\Forms\SerializedForm;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Psr\Cache\InvalidArgumentException;
 use Psr\Container\ContainerExceptionInterface;
@@ -121,6 +121,10 @@ abstract class AbstractApiController extends AbstractFOSRestController
         return static::renderEntityResponse($entities, $serializationGroups ?? static::listSerializationGroups, $serializationAttributes ?? static::serializationAttributes);
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     protected function doGetEntityFilteredList(
         Request $request,
         string $entityFilterTypeClass = null,
@@ -160,6 +164,9 @@ abstract class AbstractApiController extends AbstractFOSRestController
         $this->throwUnprocessableEntity($form);
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function doCreateEntity(Request $request, $entity = null, string $entityTypeClass = null, array $serializationGroups = null, array $serializationAttributes = null): Response
     {
         $form = $this->createForm($entityTypeClass ?? static::entityCreateTypeClass, $entity);
@@ -179,6 +186,9 @@ abstract class AbstractApiController extends AbstractFOSRestController
         $this->throwUnprocessableEntity($form);
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function doUpdateEntity(Request $request, $entity, string $entityTypeClass = null, array $serializationGroups = null, array $serializationAttributes = null): Response
     {
         $form = $this->createForm($entityTypeClass ?? static::entityUpdateTypeClass, $entity);
@@ -198,6 +208,9 @@ abstract class AbstractApiController extends AbstractFOSRestController
         $this->throwUnprocessableEntity($form);
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function doDeleteEntity($entity): Response
     {
         if (static::useSerializerCache) {
@@ -209,6 +222,9 @@ abstract class AbstractApiController extends AbstractFOSRestController
         return static::renderResponse(null, Response::HTTP_NO_CONTENT);
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function doCloneEntity($entity, array $serializationGroups = null, array $serializationAttributes = null): Response
     {
         $entity = $this->persistAndFlush(clone $entity);
@@ -216,6 +232,10 @@ abstract class AbstractApiController extends AbstractFOSRestController
         return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, $serializationAttributes ?? static::serializationAttributes, [], Response::HTTP_CREATED);
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     */
     protected function doDownloadMedia(AbstractMedia $entity): Response
     {
         return $this->renderFileStreamedResponse($this->container->get(FileManager::class)->getFileSystemPath($entity), $entity->getFilename());
