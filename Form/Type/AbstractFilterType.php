@@ -45,7 +45,7 @@ abstract class AbstractFilterType extends AbstractApiType
      * @throws \ReflectionException
      * @throws EntityNotFoundException
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
