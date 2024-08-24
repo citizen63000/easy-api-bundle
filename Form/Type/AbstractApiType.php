@@ -10,14 +10,13 @@ use \EasyApiCore\Form\Type\AbstractApiType as AbstractApiCoreType;
 
 abstract class AbstractApiType extends AbstractApiCoreType
 {
-    private $valuesToSetNull = [];
-
+    private array $valuesToSetNull = [];
 
     /**
      * @param FormBuilderInterface $builder
      * @param array $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
