@@ -4,9 +4,9 @@ namespace EasyApiBundle\Form\Type;
 
 use Doctrine\ORM\EntityNotFoundException;
 use EasyApiBundle\Form\Model\FilterModel;
-use EasyApiBundle\Model\EntityField;
+use EasyApiCore\Model\EntityField;
 use EasyApiBundle\Util\ApiProblem;
-use EasyApiBundle\Util\Entity\EntityConfigLoader;
+use EasyApiCore\Util\Entity\EntityConfigLoader;
 use EasyApiBundle\Validator\Filter\SortConstraint;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
