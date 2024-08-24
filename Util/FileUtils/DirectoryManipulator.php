@@ -2,34 +2,9 @@
 
 namespace EasyApiBundle\Util\FileUtils;
 
-class DirectoryManipulator
+/**
+ * @deprecated use \EasyApiCore\Util\FileUtils\DirectoryManipulator instead, will be removed in 4.0
+ */
+class DirectoryManipulator extends \EasyApiCore\Util\FileUtils\DirectoryManipulator
 {
-    /**
-     * Can delete not empty directory
-     * @param $dir
-     * @return bool
-     */
-    public static function deleteDirectory(string $dir)
-    {
-        if (!file_exists($dir)) {
-            return true;
-        }
-
-        if (!is_dir($dir)) {
-            return unlink($dir);
-        }
-
-        foreach (scandir($dir) as $item) {
-
-            if ($item === '.' || $item === '..') {
-                continue;
-            }
-
-            if (!self::deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) {
-                return false;
-            }
-        }
-
-        return rmdir($dir);
-    }
 }

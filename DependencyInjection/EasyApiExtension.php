@@ -12,8 +12,9 @@ class EasyApiExtension extends Extension
 {
     /**
      * @inheritDoc
+     * @throws \Exception
      */
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         // Load configuration
         $config = (new Processor())->processConfiguration(new Configuration(), $configs);
@@ -31,7 +32,7 @@ class EasyApiExtension extends Extension
      * @param ContainerBuilder $container
      * @param string $parentKey
      */
-    protected function loadParametersFromConfiguration(array $loadedConfig, ContainerBuilder $container, string $parentKey = 'easy_api')
+    protected function loadParametersFromConfiguration(array $loadedConfig, ContainerBuilder $container, string $parentKey = 'easy_api'): void
     {
         foreach ($loadedConfig as $parameter => $value) {
             if (is_array($value)) {

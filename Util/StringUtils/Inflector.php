@@ -2,23 +2,9 @@
 
 namespace EasyApiBundle\Util\StringUtils;
 
-use Symfony\Component\String\Inflector\EnglishInflector;
-
-class Inflector
+/**
+ * @deprecated use \EasyApiCore\Util\StringUtils\Inflector instead, will be removed in 4.0
+ */
+class Inflector extends \EasyApiCore\Util\StringUtils\Inflector
 {
-    public static function pluralize(string $word): string
-    {
-        $inflector = new EnglishInflector();
-        $results = $inflector->pluralize($word);
-
-        return $results[0] ?? $word;
-    }
-    
-    public static function singularize(string $word): string
-    {
-        $inflector = new EnglishInflector();
-        $results = $inflector->singularize($word);
-
-        return $results[0] ?? $word;
-    }
 }

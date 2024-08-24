@@ -7,6 +7,9 @@ use Doctrine\Persistence\ObjectManager;
 use Doctrine\Persistence\ObjectRepository;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 
+/**
+ * @deprecated use EasyApiCore\Util\CoreUtilsTrait instead, will be remove in 4.0
+ */
 trait CoreUtilsTrait
 {
     /**
