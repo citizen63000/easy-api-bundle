@@ -20,30 +20,24 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 abstract class AbstractFilterType extends AbstractApiType
 {
-    /**
-     * @var string
-     */
-    protected static $dataClass = FilterModel::class;
+    protected static ?string $dataClass = FilterModel::class;
 
     /**
      * string[]
      */
     public const excluded = ['sort', 'page', 'limit'];
 
-    /**
-     * @var string
-     */
-    protected $entityClass;
+    protected ?string $entityClass = null;
 
     /**
      * string[]
      */
-    protected $fields = [];
+    protected array $fields = [];
 
     /**
      * string[]
      */
-    protected $sortFields = [];
+    protected array $sortFields = [];
 
     /**
      * @param FormBuilderInterface $builder
