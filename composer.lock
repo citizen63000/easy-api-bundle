@@ -121,16 +121,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/citizen63000/easy-api-core.git",
-                "reference": "29b724aac2e5660438c42ccb8a23fbd24d7557f6"
+                "reference": "829a1a8a5433a7f5b8e77094b54cc7af15a21007"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/citizen63000/easy-api-core/zipball/29b724aac2e5660438c42ccb8a23fbd24d7557f6",
-                "reference": "29b724aac2e5660438c42ccb8a23fbd24d7557f6",
+                "url": "https://api.github.com/repos/citizen63000/easy-api-core/zipball/829a1a8a5433a7f5b8e77094b54cc7af15a21007",
+                "reference": "829a1a8a5433a7f5b8e77094b54cc7af15a21007",
                 "shasum": ""
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.7",
+                "doctrine/orm": "^2.7",
                 "fakerphp/faker": "v1.23.1",
                 "nelmio/api-doc-bundle": "4.10.1",
                 "php": ">=8.1",
@@ -160,7 +161,7 @@
                 "issues": "https://github.com/citizen63000/easy-api-core/issues",
                 "source": "https://github.com/citizen63000/easy-api-core/tree/main"
             },
-            "time": "2024-08-24T13:58:03+00:00"
+            "time": "2024-08-24T15:41:07+00:00"
         },
         {
             "name": "doctrine/annotations",
