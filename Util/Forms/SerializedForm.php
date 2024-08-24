@@ -4,7 +4,10 @@ namespace EasyApiBundle\Util\Forms;
 
 use Symfony\Component\Serializer\Annotation\Groups;
 
-class SerializedForm
+/**
+ * @deprecated use EasyApiBundle\Util\Forms\SerializedForm instead, will be remove in 4.0
+ */
+class SerializedForm extends \EasyApiCore\Util\Forms\SerializedForm
 {
     public const PARENT_TYPE_FORM = 'FORM';
     public const PARENT_TYPE_COLLECTION = 'COLLECTION';

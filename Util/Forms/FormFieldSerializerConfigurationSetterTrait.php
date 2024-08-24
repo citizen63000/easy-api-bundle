@@ -4,6 +4,9 @@ namespace EasyApiBundle\Util\Forms;
 
 use Symfony\Component\Form\FormConfigBuilderInterface;
 
+/**
+ * @deprecated use EasyApiBundle\Util\Forms\FormFieldSerializerConfigurationSetterTrait instead, will be remove in 4.0
+ */
 trait FormFieldSerializerConfigurationSetterTrait
 {
     /**

@@ -3,8 +3,8 @@
 namespace EasyApiBundle\Util\StringUtils;
 
 /**
- * @deprecated use \EasyApiCore\Util\StringUtils\Inflector instead, will be removed in 4.0
+ * @deprecated use \EasyApiCore\Util\String\Inflector instead, will be removed in 4.0
  */
-class Inflector extends \EasyApiCore\Util\StringUtils\Inflector
+class Inflector extends \EasyApiCore\Util\String\Inflector
 {
 }
