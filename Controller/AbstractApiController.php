@@ -4,6 +4,7 @@ namespace EasyApiBundle\Controller;
 
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\Persistence\ManagerRegistry;
 use EasyApiBundle\Entity\AbstractBaseEntity;
 use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use EasyApiBundle\Exception\ApiProblemException;
@@ -89,6 +90,15 @@ abstract class AbstractApiController extends AbstractFOSRestController
     protected function getContainer(): ContainerInterface
     {
         return $this->container;
+    }
+
+    protected function getDoctrine(): ?ManagerRegistry
+    {
+        try {
+            return $this->container->get('doctrine');
+        } catch (\Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
+            return null;
+        }
     }
 
     protected function getEntityOfRequest(Request $request): ?object

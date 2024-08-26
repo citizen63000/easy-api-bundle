@@ -121,12 +121,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/citizen63000/easy-api-core.git",
-                "reference": "0eeb08c75c853aad764dc86c114310b0241f6deb"
+                "reference": "f294e9e99807f61da19a0e639f6464f7277ee2d4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/citizen63000/easy-api-core/zipball/0eeb08c75c853aad764dc86c114310b0241f6deb",
-                "reference": "0eeb08c75c853aad764dc86c114310b0241f6deb",
+                "url": "https://api.github.com/repos/citizen63000/easy-api-core/zipball/f294e9e99807f61da19a0e639f6464f7277ee2d4",
+                "reference": "f294e9e99807f61da19a0e639f6464f7277ee2d4",
                 "shasum": ""
             },
             "require": {
@@ -160,7 +160,7 @@
                 "issues": "https://github.com/citizen63000/easy-api-core/issues",
                 "source": "https://github.com/citizen63000/easy-api-core/tree/sf6.4"
             },
-            "time": "2024-08-26T07:51:06+00:00"
+            "time": "2024-08-26T08:03:11+00:00"
         },
         {
             "name": "doctrine/annotations",
