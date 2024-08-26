@@ -15,12 +15,6 @@ class PrivateMediaSerializer extends AbstractObjectSerializer
 
     private ParameterBagInterface $parameterBag;
 
-    /**
-     * SerializationListenerFeature constructor.
-     * @param ContainerInterface $container
-     * @param RouterInterface $router
-     * @param ParameterBagInterface $parameterBag
-     */
     public function __construct(ContainerInterface $container, RouterInterface $router, ParameterBagInterface $parameterBag)
     {
         parent::__construct($container);
@@ -29,13 +23,9 @@ class PrivateMediaSerializer extends AbstractObjectSerializer
     }
 
     /**
-     * @param AbstractPrivateMedia $object
-     * @param string|null $format
-     * @param array $context
-     * @return array
      * @throws ExceptionInterface
      */
-    public function normalize($object, $format = null, array $context = []): array
+    public function normalize(mixed $object, $format = null, array $context = []): float|array|\ArrayObject|bool|int|string|null
     {
         $data = parent::normalize($object, $format, $context);
 
