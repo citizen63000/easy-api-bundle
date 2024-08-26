@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "php": "^8.1",
+    "php": "^8.3",
     "ext-fileinfo": "*",
     "citizen63000/easy-api-core": "dev-sf6.4",
     "doctrine/annotations": "^1.13",
@@ -20,7 +20,7 @@
     "doctrine/persistence": "^3.0",
     "fakerphp/faker": "v1.23.1",
     "friendsofsymfony/rest-bundle": "^3.1",
-    "lexik/jwt-authentication-bundle": "^2.16",
+    "lexik/jwt-authentication-bundle": "^v3.1.0",
     "nelmio/api-doc-bundle": "4.10.1",
     "nelmio/cors-bundle": "^2.2",
     "ramsey/uuid-doctrine": "^1.8",
