@@ -3,7 +3,7 @@
 namespace EasyApiBundle\Services\MediaUploader;
 
 use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
-use Psr\Container\ContainerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Vich\UploaderBundle\Mapping\PropertyMapping;
 use Vich\UploaderBundle\Naming\ConfigurableInterface;
@@ -18,11 +18,6 @@ class MediaUploaderFileNamer implements NamerInterface
 
     protected SluggerInterface $slugger;
 
-    /**
-     * DirectoryNamer constructor.
-     *
-     * @param ContainerInterface $container
-     */
     public function __construct(ContainerInterface $container, SluggerInterface $slugger)
     {
         $this->container = $container;
@@ -30,8 +25,6 @@ class MediaUploaderFileNamer implements NamerInterface
     }
 
     /**
-     * @todo type parameters for php7.4
-     *
      * Returns the name of the file that will be uploaded.
      *
      * @param AbstractMedia $object

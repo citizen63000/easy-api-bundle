@@ -4,12 +4,13 @@ namespace EasyApiBundle\Entity\User;
 
 use EasyApiBundle\Entity\AbstractBaseUniqueEntity;
 use Doctrine\ORM\Mapping as ORM;
+use EasyApiCore\Util\ApiProblem;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use \Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\MappedSuperclass]
-#[UniqueEntity(fields: 'username', message: EasyApiBundle\Util\ApiProblem::USER_USERNAME_ALREADY_EXISTS)]
-#[UniqueEntity(fields: 'email', message: EasyApiBundle\Util\ApiProblem::USER_EMAIL_ALREADY_EXISTS)]
+#[UniqueEntity(fields: 'username', message: ApiProblem::USER_USERNAME_ALREADY_EXISTS)]
+#[UniqueEntity(fields: 'email', message: ApiProblem::USER_EMAIL_ALREADY_EXISTS)]
 abstract class AbstractUser extends AbstractBaseUniqueEntity implements UserInterface
 {
     public const ROLE_BASIC_USER = 'ROLE_BASIC_USER';
@@ -40,7 +41,7 @@ abstract class AbstractUser extends AbstractBaseUniqueEntity implements UserInte
     }
 
     /** Implement it if necessary */
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
     }
 

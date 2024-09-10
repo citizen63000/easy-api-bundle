@@ -3,7 +3,7 @@
 namespace EasyApiBundle\Services\MediaUploader;
 
 use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
-use Psr\Container\ContainerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Vich\UploaderBundle\Mapping\PropertyMapping;
 use Vich\UploaderBundle\Naming\DirectoryNamerInterface;
 
