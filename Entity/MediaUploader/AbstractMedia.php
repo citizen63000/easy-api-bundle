@@ -13,9 +13,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Vich\UploaderBundle\Naming\OrignameNamer;
 
-/**
- * @ORM\MappedSuperclass
- */
+#[ORM\MappedSuperclass]
 abstract class AbstractMedia extends AbstractBaseUniqueEntity
 {
     /** @var string directory namer service to use */
@@ -55,22 +53,16 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
      */
     protected const fileNamer = OrignameNamer::class;
 
-    /**
-     * @ORM\Column(name="uuid", type="uuid", length=255, nullable=false)
-     * @Groups({"abstract_media_full", "abstract_media_short", "abstract_media_uuid"})
-     */
+    #[ORM\Column(name: 'uuid', type: 'uuid', length: 255, nullable: false)]
+    #[Groups(['abstract_media_full', 'abstract_media_short', 'abstract_media_uuid'])]
     protected ?UuidInterface $uuid;
 
-    /**
-     * @ORM\Column(name="filename", type="string", length=255, nullable=true)
-     * @Groups({"abstract_media_full", "abstract_media_short", "abstract_media_filename"})
-     */
+    #[ORM\Column(name: 'filename', type: 'string', length: 255, nullable: true)]
+    #[Groups(['abstract_media_full', 'abstract_media_short', 'abstract_media_filename'])]
     private ?string $filename = null;
 
-    /**
-     * @ORM\Column(name="original_filename", type="string", length=255, nullable=true)
-     * @Groups({"abstract_media_full", "abstract_media_original_filename"})
-     */
+    #[ORM\Column(name: 'original_filename', type: 'string', length: 255, nullable: true)]
+    #[Groups(['abstract_media_full', 'abstract_media_original_filename'])]
     private ?string $originalFilename = null;
 
     /** @var File|null */
@@ -84,9 +76,8 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
 
     /**
      * @var AbstractBaseEntity
-     * @ORM\JoinColumns(@ORM\JoinColumn(name="container_entity_id", referencedColumnName="id"))
-     * @Groups({"abstract_media_full", "abstract_media_container_entity"})
      */
+    #[Groups(['abstract_media_full', 'abstract_media_container_entity'])]
     protected $containerEntity;
 
     /**

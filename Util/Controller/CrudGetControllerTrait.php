@@ -11,8 +11,7 @@ trait CrudGetControllerTrait
 {
     /**
      * Get entity
-     * 
-     * @Route("/{id}", methods={"GET"}, requirements={"id"="\d+"}, name="_get")
+     *
      *
      * @OA\Response(
      *     response=200,
@@ -25,6 +24,7 @@ trait CrudGetControllerTrait
      * @OA\Response(response="404", description="Entity not found"),
      * @OA\Response(response="405", description="Method not allowed"),
      */
+    #[Route(path: '/{id}', name: '_get', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function read(Request $request): Response
     {
         $this->checkReadRoles();

@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
- * @ORM\MappedSuperclass
  * @Vich\Uploadable
  */
+#[ORM\MappedSuperclass]
 abstract class AbstractPublicMedia extends AbstractMedia
 {
     /**

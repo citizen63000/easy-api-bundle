@@ -6,11 +6,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
+#[ORM\MappedSuperclass]
 abstract class AbstractBaseUniqueEntity extends AbstractBaseEntity
 {
-    /**
-     * @ORM\Column(type="uuid", nullable=false)
-     */
+    #[ORM\Column(type: 'uuid', nullable: false)]
     protected ?UuidInterface $uuid;
 
     public function __construct()

@@ -12,7 +12,6 @@ trait CrudFilteredListControllerTrait
     /**
      * List entities.
      *
-     * @Route(methods={"GET"}, name="_list")
      *
      * @EasyApiBundle\Annotation\GetFormFilterParameter(
      *     type=self::entityFilterTypeClass,
@@ -35,6 +34,7 @@ trait CrudFilteredListControllerTrait
      * )
      * @OA\Response(response="405", description="Method not allowed"),
      */
+    #[Route(name: '_list', methods: ['GET'])]
     public function list(Request $request): Response
     {
         $this->checkListRoles();
