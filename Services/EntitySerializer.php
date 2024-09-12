@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class EntitySerializer
 {
-    protected const CACHE_NAME_PREFIX = 'easySerializerCache.';
+    protected const string CACHE_NAME_PREFIX = 'easySerializerCache.';
     protected SerializerInterface $serializer;
     protected CacheItemPoolInterface $cache;
 
