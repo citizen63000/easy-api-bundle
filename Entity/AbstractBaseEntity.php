@@ -6,31 +6,27 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\MappedSuperclass
- */
+#[ORM\MappedSuperclass]
 abstract class AbstractBaseEntity
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer", nullable=false, options={"unsigned":true})
-     * @Groups({"abstract_base_entity_id", "abstract_base_entity", "abstract_base_entity_full"})
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer', nullable: false, options: ['unsigned' => true])]
+    #[Groups(['abstract_base_entity_id', 'abstract_base_entity', 'abstract_base_entity_full'])]
     protected ?int $id = null;
 
     /**
      * @Gedmo\Timestampable(on="create")
-     * @ORM\Column(type="datetime", nullable=false)
-     * @Groups({"abstract_base_entity", "abstract_base_entity_full"})
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Groups(['abstract_base_entity', 'abstract_base_entity_full'])]
     protected ?\DateTimeInterface $createdAt = null;
 
     /**
      * @Gedmo\Timestampable(on="update")
-     * @ORM\Column(type="datetime", nullable=false)
-     * @Groups({"abstract_base_entity", "abstract_base_entity_full"})
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Groups(['abstract_base_entity', 'abstract_base_entity_full'])]
     protected ?\DateTimeInterface $updatedAt = null;
 
     public function __construct()

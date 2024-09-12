@@ -3,8 +3,8 @@
 namespace EasyApiBundle\Services\User;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -29,41 +29,33 @@ class UserProvider implements UserProviderInterface
     }
 
     /**
-     * @param string $username
-     *
-     * @return UserInterface
+     * @deprecated
      */
-    public function loadUserByUsername($username)
+    public function loadUserByUsername(string $username): UserInterface
     {
         $user = $this->findUser($username);
 
         if (!$user) {
-            throw new UsernameNotFoundException(sprintf('User with username "%s" does not exist.', $username));
+            throw new UserNotFoundException(sprintf('User with username "%s" does not exist.', $username));
         }
 
         return $user;
     }
 
-    /**
-     * @return UserInterface|null
-     */
-    public function refreshUser(UserInterface $user)
+    public function refreshUser(UserInterface $user): UserInterface
     {
         if (!$this->supportsClass(get_class($user))) {
             throw new UnsupportedUserException(sprintf('Expected an instance of %s, but got "%s".', $this->getUserClass(), get_class($user)));
         }
 
         if (null === $reloadedUser = $this->findUser($user->getUsername())) {
-            throw new UsernameNotFoundException(sprintf('User with username "%s" could not be reloaded.', $user->getUsername()));
+            throw new \Exception(sprintf('User with username "%s" could not be reloaded.', $user->getUsername()));
         }
 
         return $reloadedUser;
     }
 
-    /**
-     * @param string $class
-     */
-    public function supportsClass($class): bool
+    public function supportsClass(string $class): bool
     {
         $userClass = $this->getUserClass();
 
@@ -72,6 +64,17 @@ class UserProvider implements UserProviderInterface
 
     protected function findUser(string $username): ?UserInterface
     {
-        return $this->entityManager->getRepository($this->getUserClass())->findByUsername($username);
+        return $this->entityManager->getRepository($this->getUserClass())->findOneBy(['username', $username]);
+    }
+
+    public function loadUserByIdentifier(string $identifier): UserInterface
+    {
+        $user = $this->findUser($identifier);
+
+        if (!$user) {
+            throw new \Exception(sprintf('User with identifier "%s" does not exist.', $identifier));
+        }
+
+        return $user;
     }
 }

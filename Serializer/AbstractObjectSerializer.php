@@ -10,30 +10,22 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 abstract class AbstractObjectSerializer implements NormalizerInterface, ServiceSubscriberInterface
 {
-    /** @var ContainerInterface */
-    protected $container;
+    protected ContainerInterface $container;
 
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
     }
 
-    /**
-     * @return NormalizerInterface
-     */
     public function getObjectNormalizer(): NormalizerInterface
     {
         return $this->container->get(ObjectNormalizer::class);
     }
 
     /**
-     * @param mixed $object
-     * @param string|null $format
-     * @param array $context
-     * @return array|\ArrayObject|bool|float|int|string|null
      * @throws ExceptionInterface
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize(mixed $object, $format = null, array $context = []): float|array|\ArrayObject|bool|int|string|null
     {
         return $this->getObjectNormalizer()->normalize($object, null, $context);
     }
@@ -43,7 +35,7 @@ abstract class AbstractObjectSerializer implements NormalizerInterface, ServiceS
     /**
      * @return array|string[]
      */
-    public static function getSubscribedServices()
+    public static function getSubscribedServices(): array
     {
         return [ObjectNormalizer::class];
     }

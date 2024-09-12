@@ -4,6 +4,7 @@ namespace EasyApiBundle\Controller;
 
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\Persistence\ManagerRegistry;
 use EasyApiBundle\Entity\AbstractBaseEntity;
 use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use EasyApiBundle\Exception\ApiProblemException;
@@ -32,9 +33,6 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
-/**
- * @method UserInterface|null getUser() Gets the current User.
- */
 abstract class AbstractApiController extends AbstractFOSRestController
 {
     use CoreUtilsTrait;
@@ -77,7 +75,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
 
     /** @var bool */
     public const useSerializerCache = false;
-    
+
     protected static array $readRoles = [];
     protected static array $createRoles = [];
     protected static array $updateRoles = [];
@@ -89,6 +87,15 @@ abstract class AbstractApiController extends AbstractFOSRestController
     protected function getContainer(): ContainerInterface
     {
         return $this->container;
+    }
+
+    protected function getDoctrine(): ?ManagerRegistry
+    {
+        try {
+            return $this->container->get('doctrine');
+        } catch (\Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
+            return null;
+        }
     }
 
     protected function getEntityOfRequest(Request $request): ?object
@@ -153,7 +160,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
 
         if ($form->isValid()) {
             try {
-                $result = $this->get(static::filterService)->filter($form, $entityClass);
+                $result = $this->container->get(static::filterService)->filter($form, $entityClass);
             } catch (NoResultException|NonUniqueResultException $e) {
                 $result = new FilterResult();
             }
@@ -298,7 +305,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
         throw new ApiProblemException(
             new ApiProblem(
                 Response::HTTP_UNPROCESSABLE_ENTITY,
-                $this->get(FormErrorsSerializer::class)->serializeFormErrors($form, true, true)
+                $this->container->get(FormErrorsSerializer::class)->serializeFormErrors($form, true, true)
             )
         );
     }
@@ -336,7 +343,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
     protected function serializeEntity($entity, array $context, bool $useCache = false, bool $forceCacheReload = false): string
     {
         if ($entity instanceof AbstractBaseEntity) {
-            return $this->get(EntitySerializer::class)->serializeEntity($entity, $context, JsonEncoder::FORMAT, $useCache, $forceCacheReload);
+            return $this->container->get(EntitySerializer::class)->serializeEntity($entity, $context, JsonEncoder::FORMAT, $useCache, $forceCacheReload);
         } else {
             return $this->getSerializer()->serialize($entity, JsonEncoder::FORMAT, $context);
         }
@@ -346,7 +353,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
     {
         if (static::useSerializerCache) {
             try {
-                $this->get(EntitySerializer::class)->clearCache($entity);
+                $this->container->get(EntitySerializer::class)->clearCache($entity);
             } catch (\Exception|InvalidArgumentException $e) {
             }
         }
@@ -381,9 +388,10 @@ abstract class AbstractApiController extends AbstractFOSRestController
             FileManager::class => FileManager::class,
             EntitySerializer::class => EntitySerializer::class,
             FormErrorsSerializer::class => FormErrorsSerializer::class,
+            'doctrine' => 'doctrine',
         ]);
     }
-    
+
     protected function checkReadRoles(): void
     {
         if (null !== static::$readRoles && static::$readRoles !== []) {

@@ -5,7 +5,7 @@ namespace EasyApiBundle\Services;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Persistence\ManagerRegistry;
 use EasyApiBundle\Entity\User\AbstractUser;
-use EasyApiBundle\Util\CoreUtilsTrait;
+use EasyApiCore\Util\CoreUtilsTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;

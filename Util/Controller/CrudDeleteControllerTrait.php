@@ -12,7 +12,6 @@ trait CrudDeleteControllerTrait
     /**
      * Delete entity.
      *
-     * @Route("/{id}", methods={"DELETE"}, requirements={"id"="\d+"}, name="_delete")
      *
      * @OA\Response(
      *     response=204,
@@ -20,6 +19,7 @@ trait CrudDeleteControllerTrait
      * ),
      * @OA\Response(response="404", description="Entity not found"),
      */
+    #[Route(path: '/{id}', name: '_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     public function delete(Request $request): Response
     {
         $this->checkDeleteRoles();

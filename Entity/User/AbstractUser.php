@@ -4,14 +4,13 @@ namespace EasyApiBundle\Entity\User;
 
 use EasyApiBundle\Entity\AbstractBaseUniqueEntity;
 use Doctrine\ORM\Mapping as ORM;
+use EasyApiCore\Util\ApiProblem;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use \Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * @ORM\MappedSuperclass
- * @UniqueEntity(fields="username", message=EasyApiBundle\Util\ApiProblem::USER_USERNAME_ALREADY_EXISTS)
- * @UniqueEntity(fields="email", message=EasyApiBundle\Util\ApiProblem::USER_EMAIL_ALREADY_EXISTS)
- */
+#[ORM\MappedSuperclass]
+#[UniqueEntity(fields: 'username', message: ApiProblem::USER_USERNAME_ALREADY_EXISTS)]
+#[UniqueEntity(fields: 'email', message: ApiProblem::USER_EMAIL_ALREADY_EXISTS)]
 abstract class AbstractUser extends AbstractBaseUniqueEntity implements UserInterface
 {
     public const ROLE_BASIC_USER = 'ROLE_BASIC_USER';
@@ -19,28 +18,16 @@ abstract class AbstractUser extends AbstractBaseUniqueEntity implements UserInte
     public const ROLE_ADMIN = 'ROLE_ADMIN';
     public const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
 
-    /**
-     * @var string|null
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected ?string $username = null;
 
-    /**
-     * @var string|null
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected ?string $email = null;
 
-    /**
-     * @var bool
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     protected bool $enabled = false;
 
-    /**
-     * @var array
-     * @ORM\Column(type="array")
-     */
+    #[ORM\Column(type: 'array')]
     protected array $roles = [];
 
     /** Implement it if necessary */
@@ -54,7 +41,7 @@ abstract class AbstractUser extends AbstractBaseUniqueEntity implements UserInte
     }
 
     /** Implement it if necessary */
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
     }
 

@@ -12,8 +12,6 @@ trait CrudCloneControllerTrait
     /**
      * Clone entity.
      *
-     * @Route("/clone/{id}", methods={"POST"}, name="_clone")
-     *
      * @OA\Response(
      *     response=201,
      *     description="Successful operation",
@@ -25,6 +23,7 @@ trait CrudCloneControllerTrait
      * @OA\Response(response="404", description="Entity not found"),
      * @OA\Response(response="405", description="Method not allowed"),
      */
+    #[Route(path: '/clone/{id}', name: '_clone', methods: ['POST'])]
     public function clone(Request $request): Response
     {
         $this->checkCloneRoles();

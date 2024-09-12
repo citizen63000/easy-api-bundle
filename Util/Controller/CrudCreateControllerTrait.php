@@ -12,7 +12,6 @@ trait CrudCreateControllerTrait
     /**
      * Create entity.
      *
-     * @Route(methods={"POST"}, name="_create")
      *
      * @OA\Parameter(
      *     name="data",
@@ -31,6 +30,7 @@ trait CrudCreateControllerTrait
      * ),
      * @OA\Response(response="405", description="Method not allowed"),
      */
+    #[Route(name: '_create', methods: ['POST'])]
     public function create(Request $request): Response
     {
         $this->checkCreateRoles();
