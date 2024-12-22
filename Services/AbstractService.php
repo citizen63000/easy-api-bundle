@@ -7,7 +7,6 @@ use Doctrine\Persistence\ManagerRegistry;
 use EasyApiBundle\Entity\User\AbstractUser;
 use EasyApiCore\Util\CoreUtilsTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -34,13 +33,11 @@ abstract class AbstractService implements ServiceSubscriberInterface
     protected $user;
 
     /**
-     * @param ContainerInterface $container
-     * @param TokenStorageInterface|null $tokenStorage
      * @todo: replace by ServiceLocator
      * see https://symfony.com/doc/current/service_container/service_subscribers_locators.html
      *
      */
-    public function __construct(ContainerInterface $container, TokenStorageInterface $tokenStorage = null)
+    public function __construct(ContainerInterface $container, ?TokenStorageInterface $tokenStorage = null)
     {
         $this->container = $container;
         $this->user = ($tokenStorage && $token = $tokenStorage->getToken()) ? $token->getUser() : null;
@@ -54,7 +51,7 @@ abstract class AbstractService implements ServiceSubscriberInterface
      *
      * @throws \Exception
      */
-    protected function get($id, int $invalidBehavior = Container::EXCEPTION_ON_INVALID_REFERENCE): ?object
+    protected function get($id, int $invalidBehavior = ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE): ?object
     {
         return $this->container->get($id, $invalidBehavior);
     }
@@ -93,7 +90,7 @@ abstract class AbstractService implements ServiceSubscriberInterface
      * @param $name
      * @return array|bool|float|int|string|null
      */
-    public function getParameter($name)
+    public function getParameter($name): float|array|bool|int|string|null
     {
         return $this->container->getParameter($name);
     }
@@ -105,7 +102,7 @@ abstract class AbstractService implements ServiceSubscriberInterface
      * @param array $parameters An array of parameters to pass to the view
      * @param Response|null $response A response instance
      *
-     * @return Response A Response instance
+     * @return ?Response A Response instance
      *
      * @final since version 3.4
      *
@@ -131,14 +128,12 @@ abstract class AbstractService implements ServiceSubscriberInterface
 
     /**
      * Creates and returns a Form instance from the type of the form.
-     *
      * @param string $type The fully qualified class name of the form type
-     * @param mixed $data The initial data for the form
+     * @param mixed|null $data The initial data for the form
      * @param array $options Options for the form
-     *
      * @return FormInterface
      */
-    protected function createForm(string $type, $data = null, array $options = []): FormInterface
+    protected function createForm(string $type, mixed $data = null, array $options = []): FormInterface
     {
         return $this->container->get('form.factory')->create($type, $data, $options);
     }
