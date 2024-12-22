@@ -140,13 +140,16 @@ abstract class AbstractApiController extends AbstractFOSRestController
         array $sortFields = null,
         array $serializationGroups = null,
         array $serializationAttributes = null,
-        FilterModel $entityFilterModel = null
+        FilterModel $entityFilterModel = null,
+        string $listFilterServiceClass = null,
     ): Response {
         // type & model
         $entityFilterTypeClass = $entityFilterTypeClass ?? static::entityFilterTypeClass;
         $entityFilterModelClass = static::entityFilterModelClass;
         $entityFilterModel = $entityFilterModel ?? new $entityFilterModelClass();
         $entityFilterModel->setDefaultSort(static::defaultFilterSort);
+        // service
+        $listFilterService = $listFilterServiceClass ?? static::filterService;
         // entity
         $entityClass = $entityClass ?? static::entityClass;
         $serializationGroups = $serializationGroups ?? static::listSerializationGroups;
@@ -160,7 +163,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
 
         if ($form->isValid()) {
             try {
-                $result = $this->container->get(static::filterService)->filter($form, $entityClass);
+                $result = $this->container->get($listFilterService)->filter($form, $entityClass);
             } catch (NoResultException|NonUniqueResultException $e) {
                 $result = new FilterResult();
             }
