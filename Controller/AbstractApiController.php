@@ -143,6 +143,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
         // entity
         $entityClass = $entityClass ?? static::entityClass;
         $serializationGroups = $serializationGroups ?? static::listSerializationGroups;
+        $serializationAttributes = $serializationAttributes ?? static::listSerializationAttributes;
         // filters
         $fields = $fields ?? static::filterFields;
         $sortFields = $sortFields ?? static::filterSortFields;
