@@ -37,44 +37,34 @@ abstract class AbstractApiController extends AbstractFOSRestController
 {
     use CoreUtilsTrait;
 
-    /** @var ?string */
-    public const entityClass = null;
+    public const ?string entityClass = null;
 
-    /** @var ?string */
-    public const entityCreateTypeClass = null;
+    public const ?string entityCreateTypeClass = null;
 
-    /** @var ?string */
-    public const entityUpdateTypeClass = null;
+    public const ?string entityUpdateTypeClass = null;
 
-    /** @var array */
-    public const serializationGroups = [];
+    public const array serializationGroups = [];
 
-    /** @var array */
-    public const serializationAttributes = [];
+    public const array serializationAttributes = [];
 
-    /** @var array */
-    public const listSerializationGroups = [];
+    public const array listSerializationGroups = [];
+
+    public const array listSerializationAttributes = [];
+
+    public const array filterFields = [];
 
     /** @var array */
-    public const filterFields = [];
+    public const array filterSortFields = [];
 
-    /** @var array */
-    public const filterSortFields = [];
+    public const string entityFilterModelClass = FilterModel::class;
 
-    /** @var string */
-    public const entityFilterModelClass = FilterModel::class;
+    public const string entityFilterTypeClass = FilterType::class;
 
-    /** @var string */
-    public const entityFilterTypeClass = FilterType::class;
+    public const string filterService = ListFilter::class;
 
-    /** @var string */
-    public const filterService = ListFilter::class;
+    public const ?array defaultFilterSort = null;
 
-    /** @var ?array */
-    public const defaultFilterSort = null;
-
-    /** @var bool */
-    public const useSerializerCache = false;
+    public const bool useSerializerCache = false;
 
     protected static array $readRoles = [];
     protected static array $createRoles = [];
@@ -118,14 +108,14 @@ abstract class AbstractApiController extends AbstractFOSRestController
     {
         $entities = $this->getRepository($entityClass ?? static::entityClass)->findAll();
 
-        return static::renderEntityResponse($entities, $serializationGroups ?? static::listSerializationGroups, $serializationAttributes ?? static::serializationAttributes);
+        return static::renderEntityResponse($entities, $serializationGroups ?? static::listSerializationGroups, $serializationAttributes ?? static::listSerializationAttributes);
     }
 
     protected function getEntityListOrderedAction(string $entityClass = null, array $serializationGroups = null, array $serializationAttributes = null): Response
     {
         $entities = $this->getRepository($entityClass ?? static::entityClass)->findBy([], ['rank' => 'ASC']);
 
-        return static::renderEntityResponse($entities, $serializationGroups ?? static::listSerializationGroups, $serializationAttributes ?? static::serializationAttributes);
+        return static::renderEntityResponse($entities, $serializationGroups ?? static::listSerializationGroups, $serializationAttributes ?? static::listSerializationAttributes);
     }
 
     /**
