@@ -43,13 +43,13 @@ abstract class AbstractApiController extends AbstractFOSRestController
 
     public const ?string entityUpdateTypeClass = null;
 
-    public const array serializationGroups = [];
+    public const ?array serializationGroups = null;
 
-    public const array serializationAttributes = [];
+    public const ?array serializationAttributes = null;
 
-    public const array listSerializationGroups = [];
+    public const ?array listSerializationGroups = null;
 
-    public const array listSerializationAttributes = [];
+    public const ?array listSerializationAttributes = null;
 
     public const array filterFields = [];
 
@@ -99,19 +99,19 @@ abstract class AbstractApiController extends AbstractFOSRestController
         return $entity;
     }
 
-    protected function doGetEntity(Request $request, $entity, array $serializationGroups = null, array $serializationAttributes = null): Response
+    protected function doGetEntity(Request $request, $entity, ?array $serializationGroups = null, ?array $serializationAttributes = null): Response
     {
         return static::renderEntityResponse($entity, $serializationGroups ?? static::serializationGroups, $serializationAttributes ?? static::serializationAttributes, [], Response::HTTP_OK, [], static::useSerializerCache);
     }
 
-    protected function getEntityListAction(string $entityClass = null, array $serializationGroups = null, array $serializationAttributes = null): Response
+    protected function getEntityListAction(string $entityClass = null, ?array $serializationGroups = null, ?array $serializationAttributes = null): Response
     {
         $entities = $this->getRepository($entityClass ?? static::entityClass)->findAll();
 
         return static::renderEntityResponse($entities, $serializationGroups ?? static::listSerializationGroups, $serializationAttributes ?? static::listSerializationAttributes);
     }
 
-    protected function getEntityListOrderedAction(string $entityClass = null, array $serializationGroups = null, array $serializationAttributes = null): Response
+    protected function getEntityListOrderedAction(string $entityClass = null, ?array $serializationGroups = null, ?array $serializationAttributes = null): Response
     {
         $entities = $this->getRepository($entityClass ?? static::entityClass)->findBy([], ['rank' => 'ASC']);
 
@@ -124,14 +124,14 @@ abstract class AbstractApiController extends AbstractFOSRestController
      */
     protected function doGetEntityFilteredList(
         Request $request,
-        string $entityFilterTypeClass = null,
-        string $entityClass = null,
-        array $fields = null,
-        array $sortFields = null,
-        array $serializationGroups = null,
-        array $serializationAttributes = null,
-        FilterModel $entityFilterModel = null,
-        string $listFilterServiceClass = null,
+        ?string $entityFilterTypeClass = null,
+        ?string $entityClass = null,
+        ?array $fields = null,
+        ?array $sortFields = null,
+        ?array $serializationGroups = null,
+        ?array $serializationAttributes = null,
+        ?FilterModel $entityFilterModel = null,
+        ?string $listFilterServiceClass = null,
     ): Response {
         // type & model
         $entityFilterTypeClass = $entityFilterTypeClass ?? static::entityFilterTypeClass;
@@ -167,7 +167,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
     /**
      * @throws \Exception
      */
-    protected function doCreateEntity(Request $request, $entity = null, string $entityTypeClass = null, array $serializationGroups = null, array $serializationAttributes = null): Response
+    protected function doCreateEntity(Request $request, $entity = null, ?string $entityTypeClass = null, ?array $serializationGroups = null, ?array $serializationAttributes = null): Response
     {
         $form = $this->createForm($entityTypeClass ?? static::entityCreateTypeClass, $entity);
 
@@ -189,7 +189,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
     /**
      * @throws \Exception
      */
-    protected function doUpdateEntity(Request $request, $entity, string $entityTypeClass = null, array $serializationGroups = null, array $serializationAttributes = null): Response
+    protected function doUpdateEntity(Request $request, $entity, ?string $entityTypeClass = null, ?array $serializationGroups = null, ?array $serializationAttributes = null): Response
     {
         $form = $this->createForm($entityTypeClass ?? static::entityUpdateTypeClass, $entity);
 
@@ -225,7 +225,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
     /**
      * @throws \Exception
      */
-    protected function doCloneEntity($entity, array $serializationGroups = null, array $serializationAttributes = null): Response
+    protected function doCloneEntity($entity, ?array $serializationGroups = null, ?array $serializationAttributes = null): Response
     {
         $entity = $this->persistAndFlush(clone $entity);
 
@@ -265,7 +265,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    protected function createPaginateResponse(array $results, int $nbResults, array $serializationGroups = null, array $serializationAttributes = null, array $headers = []): Response
+    protected function createPaginateResponse(array $results, int $nbResults, ?array $serializationGroups = null, ?array $serializationAttributes = null, array $headers = []): Response
     {
         $context = [];
 
@@ -318,7 +318,7 @@ abstract class AbstractApiController extends AbstractFOSRestController
      * @param bool $useCache
      * @return Response
      */
-    protected function renderEntityResponse($entity, array $serializationGroups = null, array $serializationAttributes = null, array $context = null, int $status = 200, array $headers = [], bool $useCache = false): Response
+    protected function renderEntityResponse($entity, ?array $serializationGroups = null, ?array $serializationAttributes = null, ?array $context = null, int $status = 200, array $headers = [], bool $useCache = false): Response
     {
         $context = $context ?? [];
 
