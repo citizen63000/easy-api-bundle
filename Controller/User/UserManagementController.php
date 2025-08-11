@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
  */
 class UserManagementController extends AbstractApiController
 {
-    public const serializationAttributes = ['id', 'username', 'email', 'createdAt', 'updatedAt'];
+    public const array serializationAttributes = ['id', 'username', 'email', 'createdAt', 'updatedAt'];
 
     /**
      * Get me
