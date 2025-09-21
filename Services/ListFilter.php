@@ -19,7 +19,8 @@ use Symfony\Component\Form\FormInterface;
 class ListFilter extends AbstractService
 {
     /** @var string class alias used in query */
-    public const classAlias = 'e';
+    public const string classAlias = 'e';
+    public const bool useDistinct = true;
 
     /**
      * @throws ORM\NoResultException
@@ -159,7 +160,7 @@ class ListFilter extends AbstractService
     {
         $realFieldName = substr($entityFieldName, 0, $operatorPosition);
         $operator = substr($entityFieldName, $operatorPosition + 1);
-        $exprOperator = '_min' === $operator ? 'gt' : 'lte';
+        $exprOperator = '_min' === $operator ? 'gte' : 'lte';
         $alias = ":{$classAlias}_{$exprOperator}_{$entityFieldName}";
         $qb->andWhere($qb->expr()->$exprOperator("{$classAlias}.{$realFieldName}", $alias));
         $qb->setParameter($alias, $model->$fieldName);
@@ -204,6 +205,8 @@ class ListFilter extends AbstractService
 
     protected function getFilterQueryBuilder(string $entityClass, FilterModel $model): QueryBuilder
     {
-        return $this->getRepository($entityClass)->createQueryBuilder(static::classAlias)->distinct(static::classAlias);
+        $qb = $this->getRepository($entityClass)->createQueryBuilder(static::classAlias);
+
+        return static::useDistinct ? $qb->distinct(static::classAlias) : $qb;
     }
 }
