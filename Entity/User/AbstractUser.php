@@ -7,14 +7,15 @@ use Doctrine\ORM\Mapping as ORM;
 use EasyApiCore\Util\ApiProblem;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use \Symfony\Component\Security\Core\User\UserInterface;
+use OpenApi\Annotations as OA;
 
 #[ORM\MappedSuperclass]
 #[UniqueEntity(fields: 'username', message: ApiProblem::USER_USERNAME_ALREADY_EXISTS)]
 #[UniqueEntity(fields: 'email', message: ApiProblem::USER_EMAIL_ALREADY_EXISTS)]
 abstract class AbstractUser extends AbstractBaseUniqueEntity implements UserInterface
 {
-    public const ROLE_BASIC_USER = 'ROLE_BASIC_USER';
-    public const ROLE_DEFAULT = 'ROLE_USER';
+    public const ROLE_USER = 'ROLE_USER';
+    public const ROLE_DEFAULT = self::ROLE_USER;
     public const ROLE_ADMIN = 'ROLE_ADMIN';
     public const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
 
@@ -27,16 +28,19 @@ abstract class AbstractUser extends AbstractBaseUniqueEntity implements UserInte
     #[ORM\Column(type: 'boolean')]
     protected bool $enabled = false;
 
+    /**
+     * @OA\Property(type="array", @OA\Items(type="string"))
+     */
     #[ORM\Column(type: 'array')]
     protected array $roles = [];
 
     /** Implement it if necessary */
-    public function getPassword()
+    public function getPassword(): string
     {
     }
 
     /** Implement it if necessary */
-    public function getSalt()
+    public function getSalt(): string
     {
     }
 
