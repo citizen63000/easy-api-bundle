@@ -4,8 +4,8 @@ namespace EasyApiBundle\Form\Type\MediaUploader;
 
 use EasyApiBundle\Entity\MediaUploader\AbstractMedia;
 use EasyApiBundle\Form\Type\AbstractApiType;
-use EasyApiBundle\Util\FileUtils\MimeUtil;
-use EasyApiBundle\Util\StringUtils\CaseConverter;
+use EasyApiCore\Util\File\MimeUtil;
+use EasyApiCore\Util\String\CaseConverter;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -23,7 +23,7 @@ abstract class AbstractMediaType extends AbstractApiType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 

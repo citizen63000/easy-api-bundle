@@ -49,9 +49,8 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     /**
      * File namer to use : custom service or Vich namer
      * @see Vich namers : https://github.com/dustin10/VichUploaderBundle/blob/master/docs/namers.md
-     * @var string
      */
-    protected const fileNamer = OrignameNamer::class;
+    protected const string fileNamer = OrignameNamer::class;
 
     #[ORM\Column(name: 'uuid', type: 'uuid', length: 255, nullable: false)]
     #[Groups(['abstract_media_full', 'abstract_media_short', 'abstract_media_uuid'])]

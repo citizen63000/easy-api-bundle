@@ -2,6 +2,8 @@
 vich_uploader:
     db_driver: orm
     storage:   file_system
+    metadata:
+        type: attribute
     mappings:
         private_media_uploader:
             uri_prefix:         /private
