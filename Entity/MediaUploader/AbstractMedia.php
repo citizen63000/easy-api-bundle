@@ -3,7 +3,6 @@
 namespace EasyApiBundle\Entity\MediaUploader;
 
 use Doctrine\ORM\Mapping as ORM;
-use EasyApiBundle\Entity\AbstractBaseEntity;
 use EasyApiBundle\Entity\AbstractBaseUniqueEntity;
 use EasyApiBundle\Services\MediaUploader\FileManager;
 use Ramsey\Uuid\UuidInterface;
@@ -16,38 +15,29 @@ use Vich\UploaderBundle\Naming\OrignameNamer;
 #[ORM\MappedSuperclass]
 abstract class AbstractMedia extends AbstractBaseUniqueEntity
 {
-    /** @var string directory namer service to use */
-    protected const directoryNamer = null;
+    /** Directory namer service to use */
+    protected const ?string directoryNamer = null;
 
-    /** @var array  */
     public static array $mimeTypes = [];
 
-    /** @var string|null  */
     public static ?string $maxsize = null;
 
-    /** @var bool */
     public static bool $isImage = false;
 
-    /** @var int|null  */
     public static ?int $minWidth = null;
 
-    /** @var int|null  */
     public static ?int $minHeight = null;
 
-    /** @var int|null  */
     public static ?int $maxWidth = null;
 
-    /** @var int|null  */
     public static ?int $maxHeight = null;
 
-    /** @var int|null  */
     public static ?int $minRatio = null;
 
-    /** @var int|null  */
     public static ?int $maxRatio = null;
 
     /**
-     * File namer to use : custom service or Vich namer
+     * File namer to use: custom service or Vich namer
      * @see Vich namers : https://github.com/dustin10/VichUploaderBundle/blob/master/docs/namers.md
      */
     protected const string fileNamer = OrignameNamer::class;
@@ -64,29 +54,17 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
     #[Groups(['abstract_media_full', 'abstract_media_original_filename'])]
     private ?string $originalFilename = null;
 
-    /** @var File|null */
     private ?File $file = null;
 
-    /** @var string|null */
     private ?string $directoryName = null;
 
-    /** @var string|null */
     private ?string $directoryValue = null;
 
-    /**
-     * @var AbstractBaseEntity
-     */
     #[Groups(['abstract_media_full', 'abstract_media_container_entity'])]
-    protected $containerEntity;
+    protected ?AbstractBaseUniqueEntity $containerEntity = null;
 
-    /**
-     * @var FileManager|null
-     */
     protected ?FileManager $fileManager = null;
 
-    /**
-     * @param FileManager $fileManager
-     */
     public function setFileManager(FileManager $fileManager): void
     {
         $this->fileManager = $fileManager;

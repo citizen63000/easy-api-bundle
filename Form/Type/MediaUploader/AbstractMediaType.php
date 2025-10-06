@@ -22,6 +22,7 @@ abstract class AbstractMediaType extends AbstractApiType
 {
     /**
      * {@inheritdoc}
+     * @throws \Exception
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -62,7 +63,7 @@ abstract class AbstractMediaType extends AbstractApiType
         $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
             /** @var AbstractMedia $data */
             $data = $event->getData();
-            if(null !== $data) {
+            if (null !== $data) {
                 $data->setOriginalFilename($data->getFilename());
                 $event->setData($data);
             }
