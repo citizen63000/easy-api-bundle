@@ -10,6 +10,6 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 #[ORM\MappedSuperclass]
 abstract class AbstractPublicMedia extends AbstractMedia
 {
-    #[Vich\UploadableField(mapping: 'private_media_uploader', fileNameProperty: 'filename')]
+    #[Vich\UploadableField(mapping: 'public_media_uploader', fileNameProperty: 'filename')]
     protected ?File $file;
 }
