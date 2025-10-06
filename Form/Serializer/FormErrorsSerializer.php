@@ -5,7 +5,9 @@ namespace EasyApiBundle\Form\Serializer;
 use EasyApiBundle\Util\ApiProblem;
 use Monolog\Logger;
 use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 
 /**
@@ -36,7 +38,7 @@ class FormErrorsSerializer
      *
      * @return array
      */
-    public function serializeFormErrors(FormInterface $form, $flatArray = false, $addFormName = false, $glueKeys = '_')
+    public function serializeFormErrors(FormInterface $form, $flatArray = false, $addFormName = false, $glueKeys = '_'): array
     {
         $errors = [];
 
@@ -95,25 +97,27 @@ class FormErrorsSerializer
      *
      * @return array
      */
-    private function serialize(Form $form)
+    private function serialize(Form $form): array
     {
         $localErrors = [];
         foreach ($form->getIterator() as $key => $child) {
+            /** @var FormError $error */
             foreach ($child->getErrors() as $error) {
                 $formName = static::getCompletePathFormName($form);
-
-                if ('This value should not be blank.' === $error->getMessage()) {
-                    $localErrors[$key] = sprintf(ApiProblem::ENTITY_FIELD_REQUIRED, $formName, $key);
-                } elseif ('This value should not be null.' === $error->getMessage()) {
-                    $localErrors[$key] = sprintf(ApiProblem::ENTITY_FIELD_REQUIRED, $formName, $key);
-                } else {
-                    if (false === strpos($error->getMessage(), '.already_exists')
-                        && false === strpos($error->getMessage(), '.too_long')
-                        && false === strpos($error->getMessage(), '.malformed')
-                        && false === strpos($error->getMessage(), '.invalid')) {
-                        $localErrors[$key] = sprintf(ApiProblem::ENTITY_FIELD_INVALID, $formName, $key);
+                $cause = $error->getCause();
+                if ($cause instanceof ConstraintViolation) {
+                    $constraint = $cause->getConstraint();
+                    if ($constraint instanceof NotBlank) {
+                        $localErrors[$key] = sprintf(ApiProblem::ENTITY_FIELD_REQUIRED, $formName, $key);
                     } else {
-                        $localErrors[$key] = sprintf($error->getMessage(), $formName, $key);
+                        if (false === strpos($error->getMessage(), '.already_exists')
+                            && false === strpos($error->getMessage(), '.too_long')
+                            && false === strpos($error->getMessage(), '.malformed')
+                            && false === strpos($error->getMessage(), '.invalid')) {
+                            $localErrors[$key] = sprintf(ApiProblem::ENTITY_FIELD_INVALID, $formName, $key);
+                        } else {
+                            $localErrors[$key] = sprintf($error->getMessage(), $formName, $key);
+                        }
                     }
                 }
             }
@@ -131,7 +135,7 @@ class FormErrorsSerializer
      *
      * @return string
      */
-    private static function getCompletePathFormName(Form $form)
+    private static function getCompletePathFormName(Form $form): string
     {
         $formName = $form->getName();
 
@@ -150,7 +154,7 @@ class FormErrorsSerializer
      *
      * @return array
      */
-    private function arrayFlatten($array, $separator = '_', $flattenedKey = '')
+    private function arrayFlatten($array, $separator = '_', $flattenedKey = ''): array
     {
         $flattenedArray = [];
         foreach ($array as $key => $value) {
