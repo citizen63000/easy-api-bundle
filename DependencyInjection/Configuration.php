@@ -52,14 +52,6 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
 
-                ->arrayNode('tests')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->booleanNode('debug')->defaultTrue()->end()
-                        ->scalarNode('datetime_format')->defaultValue(\DateTimeInterface::ATOM)->end()
-                    ->end()
-                ->end()
-
             ->end()
             ;
 
