@@ -48,17 +48,17 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
 
     #[ORM\Column(name: 'filename', type: 'string', length: 255, nullable: true)]
     #[Groups(['abstract_media_full', 'abstract_media_short', 'abstract_media_filename'])]
-    private ?string $filename = null;
+    protected ?string $filename = null;
 
     #[ORM\Column(name: 'original_filename', type: 'string', length: 255, nullable: true)]
     #[Groups(['abstract_media_full', 'abstract_media_original_filename'])]
-    private ?string $originalFilename = null;
+    protected ?string $originalFilename = null;
 
-    private ?File $file = null;
+    protected ?File $file = null;
 
-    private ?string $directoryName = null;
+    protected ?string $directoryName = null;
 
-    private ?string $directoryValue = null;
+    protected ?string $directoryValue = null;
 
     #[Groups(['abstract_media_full', 'abstract_media_container_entity'])]
     protected ?AbstractBaseUniqueEntity $containerEntity = null;
