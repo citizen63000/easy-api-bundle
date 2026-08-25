@@ -82,13 +82,15 @@ abstract class AbstractMedia extends AbstractBaseUniqueEntity
         }
 
         if (null !== $this->fileManager) {
-
             $tmpFilePath = '/tmp/' . md5(uniqid());
-            $fileData = file_get_contents($this->fileManager->getFileSystemPath($this));
-            (new Filesystem())->dumpFile($tmpFilePath, $fileData);
-            $mimeType = finfo_buffer(finfo_open(), $fileData, FILEINFO_MIME_TYPE);
+            $filePath = $this->fileManager->getFileSystemPath($this);
+            if (file_exists($filePath)) {
+                $fileData = file_get_contents($filePath);
+                (new Filesystem())->dumpFile($tmpFilePath, $fileData);
+                $mimeType = finfo_buffer(finfo_open(), $fileData, FILEINFO_MIME_TYPE);
 
-            $this->setFile(new UploadedFile($tmpFilePath, $this->getClonedFilename(), $mimeType, null, true));
+                $this->setFile(new UploadedFile($tmpFilePath, $this->getClonedFilename(), $mimeType, null, true));
+            }
         }
     }
 
